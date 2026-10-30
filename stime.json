@@ -1,4 +1,274 @@
 {
   "aggiornato": "",
-  "exit": {}
+  "exit": {},
+  "sondaggi": {
+    "letto": "2026-10-30T12:31Z",
+    "ultimo": "2026-10-25",
+    "finestra": 21,
+    "emivita": 7.0,
+    "fonte": "https://en.wikipedia.org/wiki/Opinion_polling_for_the_2026_Spanish_general_election",
+    "media": {
+      "BILDU": 1.32,
+      "AA": 1.14,
+      "BNG": 0.93,
+      "PSOE": 26.75,
+      "PODEMOS": 2.2,
+      "VOX": 19.24,
+      "CC": 0.39,
+      "ERC": 2.35,
+      "JUNTS": 1.46,
+      "PNV": 0.9,
+      "FV": 0.98,
+      "SALF": 1.97,
+      "FA": 6.0,
+      "PP": 31.17
+    },
+    "seggiIstituti": {
+      "BILDU": 7.0,
+      "AA": 2.3,
+      "BNG": 2.0,
+      "PSOE": 108.7,
+      "PODEMOS": 1.0,
+      "VOX": 65.9,
+      "CC": 0.7,
+      "ERC": 8.7,
+      "JUNTS": 6.1,
+      "PNV": 4.6,
+      "FV": 2.6,
+      "SALF": 0.0,
+      "FA": 9.4,
+      "PP": 131.4
+    },
+    "istituti": [
+      {
+        "n": "SocioMétrica/El Español",
+        "fine": "2026-10-25",
+        "campione": 3223,
+        "peso": 1.795,
+        "voti": {
+          "PP": 32.4,
+          "PSOE": 27.0,
+          "VOX": 18.6,
+          "FA": 5.2,
+          "FV": 0.9,
+          "ERC": 2.6,
+          "JUNTS": 1.7,
+          "BILDU": 1.3,
+          "PNV": 0.8,
+          "BNG": 0.9,
+          "CC": 0.4,
+          "AA": 1.2,
+          "PODEMOS": 1.8,
+          "SALF": 2.4
+        },
+        "seggi": {
+          "PP": 137,
+          "PSOE": 108,
+          "VOX": 63,
+          "FA": 7,
+          "FV": 3,
+          "ERC": 9,
+          "JUNTS": 7,
+          "BILDU": 7,
+          "PNV": 4,
+          "BNG": 2,
+          "CC": 1,
+          "AA": 2,
+          "PODEMOS": 0,
+          "SALF": 0
+        }
+      },
+      {
+        "n": "NC Report/La Razón",
+        "fine": "2026-10-24",
+        "campione": 1000,
+        "peso": 0.906,
+        "voti": {
+          "PP": 33.1,
+          "PSOE": 25.8,
+          "VOX": 19.0,
+          "FA+FV": 6.6,
+          "ERC": 2.0,
+          "JUNTS": 1.8,
+          "BILDU": 1.4,
+          "PNV": 0.9,
+          "BNG": 0.8,
+          "CC": 0.4,
+          "AA": 1.3,
+          "PODEMOS": 2.6
+        },
+        "seggi": {
+          "PP": 143.0,
+          "PSOE": 101.0,
+          "VOX": 65.0,
+          "FA+FV": 8.5,
+          "ERC": 7.5,
+          "JUNTS": 8.5,
+          "BILDU": 6.5,
+          "PNV": 4.5,
+          "BNG": 1.5,
+          "CC": 1,
+          "AA": 3,
+          "PODEMOS": 1
+        }
+      },
+      {
+        "n": "EM-Analytics/Electomanía",
+        "fine": "2026-10-23",
+        "campione": 4309,
+        "peso": 1.641,
+        "voti": {
+          "PP": 30.9,
+          "PSOE": 26.7,
+          "VOX": 19.0,
+          "FA": 5.8,
+          "FV": 1.2,
+          "ERC": 2.2,
+          "JUNTS": 1.3,
+          "BILDU": 1.4,
+          "PNV": 1.0,
+          "BNG": 1.0,
+          "CC": 0.3,
+          "AA": 1.1,
+          "PODEMOS": 1.7,
+          "SALF": 1.7
+        },
+        "seggi": {
+          "PP": 132,
+          "PSOE": 111,
+          "VOX": 62,
+          "FA": 11,
+          "FV": 2,
+          "ERC": 8,
+          "JUNTS": 5,
+          "BILDU": 7,
+          "PNV": 6,
+          "BNG": 3,
+          "CC": 0,
+          "AA": 2,
+          "PODEMOS": 1,
+          "SALF": 0
+        }
+      },
+      {
+        "n": "Winston/Artículo14",
+        "fine": "2026-10-23",
+        "campione": 1200,
+        "peso": 0.899,
+        "voti": {
+          "PP": 29.4,
+          "PSOE": 27.1,
+          "VOX": 19.2,
+          "FA": 5.6
+        },
+        "seggi": {
+          "PP": 122,
+          "PSOE": 115,
+          "VOX": 69,
+          "FA": 9,
+          "FV": 3,
+          "ERC": 11,
+          "JUNTS": 4,
+          "BILDU": 7,
+          "PNV": 3,
+          "BNG": 1,
+          "CC": 1,
+          "AA": 3,
+          "PODEMOS": 2,
+          "SALF": 0
+        }
+      },
+      {
+        "n": "Sigma Dos/El Mundo",
+        "fine": "2026-10-22",
+        "campione": 3122,
+        "peso": 1.313,
+        "voti": {
+          "PP": 30.6,
+          "PSOE": 26.1,
+          "VOX": 19.9,
+          "FA": 7.4,
+          "FV": 0.8,
+          "ERC": 2.5,
+          "JUNTS": 1.2,
+          "BILDU": 1.2,
+          "PNV": 0.9,
+          "BNG": 0.9,
+          "CC": 0.4,
+          "AA": 1.0,
+          "PODEMOS": 2.8
+        },
+        "seggi": {
+          "PP": 128.0,
+          "PSOE": 106.0,
+          "VOX": 67.5,
+          "FA": 11.0,
+          "FV": 2.5,
+          "ERC": 8.5,
+          "JUNTS": 6.5,
+          "BILDU": 7.5,
+          "PNV": 4.5,
+          "BNG": 2,
+          "CC": 0.5,
+          "AA": 2.5,
+          "PODEMOS": 1
+        }
+      },
+      {
+        "n": "Ateneo del Dato/elDiario.es",
+        "fine": "2026-10-22",
+        "campione": 2000,
+        "peso": 1.051,
+        "voti": {
+          "PP": 31.1,
+          "PSOE": 27.6,
+          "VOX": 19.8,
+          "FA+FV": 6.8,
+          "PODEMOS": 2.7
+        },
+        "seggi": {
+          "PP": 126.5,
+          "PSOE": 109.5,
+          "VOX": 70.5,
+          "FA+FV": 14.0,
+          "PODEMOS": 1.5
+        }
+      },
+      {
+        "n": "IMOP/El Confidencial",
+        "fine": "2026-10-16",
+        "campione": 1000,
+        "peso": 0.41,
+        "voti": {
+          "PP": 28.5,
+          "PSOE": 27.1,
+          "VOX": 20.0,
+          "FA+FV": 8.9,
+          "ERC": 2.2,
+          "JUNTS": 1.2,
+          "BILDU": 1.3,
+          "PNV": 1.0,
+          "BNG": 1.1,
+          "CC": 0.6,
+          "PODEMOS": 1.9,
+          "SALF": 1.2
+        },
+        "seggi": {
+          "PP": 123,
+          "PSOE": 113,
+          "VOX": 72,
+          "FA+FV": 14,
+          "ERC": 8,
+          "JUNTS": 4,
+          "BILDU": 6,
+          "PNV": 5,
+          "BNG": 2,
+          "CC": 1,
+          "AA": 1,
+          "PODEMOS": 1,
+          "SALF": 0
+        }
+      }
+    ]
+  }
 }

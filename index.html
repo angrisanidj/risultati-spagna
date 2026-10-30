@@ -619,6 +619,10 @@ footer a{color:var(--t2)}
 .mapgrid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(300px,1fr);gap:18px;padding:10px 18px 0;align-items:start}
 @media(max-width:1080px){.mapgrid{grid-template-columns:1fr}}
 @media(max-width:560px){.mapgrid{padding:10px 10px 0}.bil{grid-template-columns:minmax(0,1fr) auto}.bil .bx{grid-column:1/-1;order:3}.bilici,.provlist{padding-left:14px;padding-right:14px}}
+.sondist{margin:4px 18px 0}
+.sondist summary{cursor:pointer;color:var(--t2);font-size:13px;font-weight:600;padding:10px 0}
+.sondist table th:first-child,.sondist table td:first-child{padding-left:0}
+#sondTable td small{display:inline;margin-left:6px}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -684,6 +688,15 @@ footer a{color:var(--t2)}
   </section>
 
   <section id="verdetto" class="verdetto"></section>
+
+  <section class="card hidden" id="sondCard" style="margin-bottom:14px">
+    <div class="cardhead"><div><h2>Come potrebbe finire secondo i sondaggi</h2></div><span class="cmeta" id="sondMeta">—</span></div>
+    <p class="subcopy" id="sondSub"></p>
+    <div id="sondBlocchi" class="blocchi"></div>
+    <div class="tablewrap"><table id="sondTable" class="conf"></table></div>
+    <details class="sondist"><summary id="sondIstTit">I sondaggi nella media</summary><div class="tablewrap"><table id="sondIst" class="conf"></table></div></details>
+    <p class="methodnote" id="sondNota"></p>
+  </section>
 
   <div id="alert" class="alert hidden"></div>
 
@@ -903,15 +916,20 @@ const BLOCCHI = {
 const ORD_BLOCCHI = ['S', 'N', 'X', 'D'];   /* da sinistra a destra nell'emiciclo */
 
 /* I partiti, riconosciuti dalla sigla della lista o dalla sigla nazionale che il Ministero le
-   associa: le liste territoriali (PSC, PSdeG, Sumar–Compromís…) confluiscono nel partito
-   nazionale. L'ordine conta: la prima regola che corrisponde vince. */
+   associa: le liste territoriali (PSC, PSdeG…) confluiscono nel partito nazionale. L'ordine
+   conta: la prima regola che corrisponde vince. */
 const GRUPPI = [
   { k: 'PP', n: 'Partito popolare', s: 'PP', re: /^PP\b|PARTIDO POPULAR/i, b: 'D', c: '#2f8fe0' },
   { k: 'PSOE', n: 'Partito socialista', s: 'PSOE', re: /PSOE|^PSC\b|PSdeG|PSE-EE|SOCIALISTA/i, b: 'S', c: '#e11d2b' },
   { k: 'VOX', n: 'Vox', s: 'Vox', re: /^VOX\b/i, b: 'D', c: '#5cbf2e' },
-  { k: 'SUMAR', n: 'Sumar', s: 'Sumar', re: /SUMAR|^ECP\b|COMUNS|EN COM[UÚ]|^M[AÁ]S MADRID|^M[AÁ]S PA[IÍ]S/i, b: 'S', c: '#e5197e' },
+  /* Frente Amplio: l'alleanza di Izquierda Unida, Movimiento Sumar, Más Madrid e Comuns che dal
+     settembre 2026 prende il posto di Sumar; le liste di Sumar del 2023 sono il suo termine di
+     confronto. Front Valencià (Compromís, Podemos ed EUPV nella Comunità Valenciana) viene dopo,
+     così la lista «Sumar–Compromís» del 2023 resta a Sumar, cioè al Frente Amplio. */
+  { k: 'FA', n: 'Frente Amplio', s: 'Frente Amplio', re: /FRENTE AMPLIO|^FA\b|SUMAR|^ECP\b|COMUNS|EN COM[UÚ]|^M[AÁ]S MADRID|^M[AÁ]S PA[IÍ]S/i, b: 'S', c: '#e5197e' },
+  { k: 'FV', n: 'Front Valencià', s: 'Front Valencià', re: /FRONT VALENCI|COMPROM[IÍ]S/i, b: 'S', c: '#f08a24' },
   { k: 'PODEMOS', n: 'Podemos', s: 'Podemos', re: /PODEMOS/i, b: 'S', c: '#7a3b9c' },
-  { k: 'COMPROMIS', n: 'Compromís', s: 'Compromís', re: /COMPROM[IÍ]S/i, b: 'S', c: '#f08a24' },
+  { k: 'AA', n: 'Adelante Andalucía', s: 'Adelante And.', re: /ADELANTE ANDALUC/i, b: 'S', c: '#2e9e63' },
   { k: 'ERC', n: 'Sinistra repubblicana', s: 'ERC', re: /^ERC\b|ESQUERRA REPUBLICANA/i, b: 'S', c: '#f6b638' },
   { k: 'JUNTS', n: 'Junts', s: 'Junts', re: /JUNTS|JxCAT/i, b: 'N', c: '#22c1b0' },
   { k: 'BILDU', n: 'EH Bildu', s: 'Bildu', re: /BILDU/i, b: 'S', c: '#a5c93c' },
@@ -1093,8 +1111,93 @@ function exitDi(k) {
   Object.entries(seggi).map(([g, v]) => [g, v - Math.floor(v)]).sort((a, b) => b[1] - a[1]).slice(0, Math.max(0, resto)).forEach(([g]) => base[g]++);
   return { k, tipo: 'exit', n: e.n || k, s: e.s || e.n || k, ora: e.ora || '', seggi: base, forc };
 }
+/* ---------- la proiezione dalla media dei sondaggi ----------
+   La media nazionale (stime.json, campo «sondaggi», scritto da strumenti/sondaggi.py) si
+   distribuisce sulle province con il voto del 2023, poi D'Hondt provincia per provincia:
+   - PSOE, Vox e i partiti regionali: in ogni provincia i voti del 2023 per il rapporto fra la
+     media di oggi e il risultato nazionale di allora (oscillazione proporzionale);
+   - il PP con UPN, che nei sondaggi sono una cifra sola e in Navarra si presentano insieme;
+   - Frente Amplio e Podemos fuori dalla Comunità Valenciana, Front Valencià solo lì, Adelante
+     Andalucía solo in Andalusia: ognuno sulle province dove Sumar era forte nel 2023;
+   - SALF, che nel 2023 non c'era, con la stessa quota ovunque.
+   L'incertezza: 1.000 simulazioni con un errore comune fra destra e sinistra (scarto tipo di 2
+   punti), un errore nazionale per partito (0,3 punti più l'8% della quota: 2,8 punti per il PP
+   al 31%) e uno provinciale dell'8% sui voti. */
+const SIM_N = 1000;
+const PROV_VAL = new Set(['03', '12', '46']), PROV_AND = new Set(['04', '11', '14', '18', '21', '23', '29', '41']);
+function baseSondaggi(m) {
+  const V = B23.validi, out = {};
+  const cerchio = (k, elig) => {   /* voti nazionali del partito, ripartiti come Sumar nel 2023 */
+    const tot = COD.filter(elig).reduce((s, c) => s + (B23.circ[c].g.FA || 0), 0);
+    COD.forEach(c => { if (elig(c) && tot) out[c][k] = (m[k] || 0) / 100 * V * (B23.circ[c].g.FA || 0) / tot; });
+  };
+  COD.forEach(c => { out[c] = {}; });
+  const ppUpn = (B23.gv.PP || 0) + (B23.gv.UPN || 0);
+  COD.forEach(c => {
+    const g = B23.circ[c].g, o = out[c];
+    if (m.PP) { const r = m.PP / 100 * V / ppUpn; if (g.PP) o.PP = g.PP * r; if (g.UPN) o.UPN = g.UPN * r; }
+    ['PSOE', 'VOX', 'ERC', 'JUNTS', 'BILDU', 'PNV', 'BNG', 'CC'].forEach(k => { if (m[k] && g[k] && B23.gv[k]) o[k] = g[k] * m[k] / 100 * V / B23.gv[k]; });
+    if (m.SALF) o.SALF = m.SALF / 100 * B23.circ[c].validi;
+  });
+  if (m.FA) cerchio('FA', c => !PROV_VAL.has(c));
+  if (m.PODEMOS) cerchio('PODEMOS', c => !PROV_VAL.has(c));
+  if (m.FV) cerchio('FV', c => PROV_VAL.has(c));
+  if (m.AA) cerchio('AA', c => PROV_AND.has(c));
+  return out;
+}
+function rng(seme) { return () => { seme |= 0; seme = seme + 0x6D2B79F5 | 0; let t = Math.imul(seme ^ seme >>> 15, 1 | seme); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function gauss(r) { let u = 0; while (!u) u = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * r()); }
+function seggiDa(base, fn) {
+  const seg = {};
+  for (const c of COD) {
+    const val = B23.circ[c].validi;
+    let liste = Object.entries(base[c]).map(([k, v]) => ({ k, v: fn ? fn(k, c, v) : v }));
+    const s = liste.reduce((a, l) => a + l.v, 0);
+    if (s > val * 0.98) liste = liste.map(l => ({ k: l.k, v: l.v * val * 0.98 / s }));
+    const D = dhondt(liste, val, seggiCirc(c));
+    for (const k in D.seggi) seg[k] = (seg[k] || 0) + D.seggi[k];
+  }
+  return seg;
+}
+let CACHE_SOND = { chiave: null, ris: null };
+function proiezioneSondaggi() {
+  const so = S.stime.sondaggi;
+  if (!so || !so.media || !so.media.PP) return null;
+  const chiave = JSON.stringify(so.media) + PROVA;
+  if (CACHE_SOND.chiave === chiave) return CACHE_SOND.ris;
+  const m = so.media, base = baseSondaggi(m), centro = seggiDa(base);
+  const r = rng(29112026), ks = Object.keys(m), sim = {}, bl = { D: [], S: [], SN: [] };
+  for (let i = 0; i < SIM_N; i++) {
+    const f = {};
+    /* un errore comune: i sondaggi sbagliano spesso tutti dalla stessa parte (nel 2023 il PSOE
+       era sottostimato di circa tre punti). Si sposta da sinistra a destra, o viceversa, una quota
+       con scarto tipo di 2 punti, divisa fra i partiti in proporzione alla loro media. */
+    const z = gauss(r) * 2, dx = ['PP', 'VOX'].filter(k => m[k]), sx = ['PSOE', 'FA', 'PODEMOS', 'FV', 'AA'].filter(k => m[k]);
+    const tdx = dx.reduce((a, k) => a + m[k], 0), tsx = sx.reduce((a, k) => a + m[k], 0);
+    ks.forEach(k => {
+      const sd = 0.3 + 0.08 * m[k];
+      const com = dx.includes(k) ? z * m[k] / tdx : sx.includes(k) ? -z * m[k] / tsx : 0;
+      f[k] = Math.max(0, m[k] + com + gauss(r) * sd) / m[k];
+    });
+    f.UPN = f.PP;
+    const seg = seggiDa(base, (k, c, v) => v * (f[k] != null ? f[k] : 1) * Math.exp(gauss(r) * 0.08));
+    for (const k in seg) (sim[k] = sim[k] || []).push(seg[k]);
+    const t = totBlocchi({ seggi: seg });
+    bl.D.push(t.D); bl.S.push(t.S); bl.SN.push(t.S + t.N);
+  }
+  const quant = (a, q) => { const s = [...a].sort((x, y) => x - y); return s[Math.min(s.length - 1, Math.floor(q * s.length))]; };
+  const int = {};
+  for (const k in sim) { while (sim[k].length < SIM_N) sim[k].push(0); int[k] = [quant(sim[k], 0.1), quant(sim[k], 0.9)]; }
+  const pr = a => a.filter(x => x >= MAGG).length / SIM_N;
+  const ris = { centro, int, pD: pr(bl.D), pS: pr(bl.S), pSN: pr(bl.SN), intD: [quant(bl.D, 0.1), quant(bl.D, 0.9)], intS: [quant(bl.S, 0.1), quant(bl.S, 0.9)] };
+  CACHE_SOND = { chiave, ris };
+  return ris;
+}
+
 function fontiSeggi() {
   const F = [{ k: 'c2023', tipo: 'base', n: 'Congresso 2023', s: '2023', seggi: B23.gs }];
+  const P = proiezioneSondaggi();
+  if (P) F.push({ k: 'sondaggi', tipo: 'stima', n: 'Media dei sondaggi', s: 'Sondaggi', seggi: P.centro });
   EXIT_ORDINE().forEach(k => { const e = exitDi(k); if (e && sum(e.seggi) > 0) F.push(e); });
   const D = S.D;
   if (D && sum(D.gv) > 0) F.push({ k: 'scrutinio', tipo: 'scrutinio', n: 'Scrutinio', s: 'Scrutinio', seggi: D.gs, frac: D.naz.frac });
@@ -1109,11 +1212,12 @@ function fonteAttiva(sel) {
   if (scr && scr.frac >= AUTO_SCRUTINIO) return scr;
   const ex = F.find(x => x.tipo === 'exit'); if (ex) return ex;
   if (scr) return scr;
-  return F[0];
+  return F.find(x => x.tipo === 'stima') || F[0];
 }
 function nomeFonte(f, lungo) {
   if (f.tipo === 'exit') return (lungo ? 'Exit poll ' : '') + f.n;
   if (f.tipo === 'scrutinio') return 'Scrutinio ' + alPct(f.frac);
+  if (f.tipo === 'stima') return lungo ? 'Proiezione dalla media dei sondaggi' : f.n;
   return f.n;
 }
 function totBlocchi(f) {
@@ -1128,7 +1232,7 @@ function totBlocchi(f) {
 function render() {
   S.D = elabora(S.dati);
   renderKpi(); renderVerdetto(); renderTabella(); renderEmiciclo(); renderExit(); renderBilico();
-  renderSimulatore(); renderBarre(); renderMappa(); renderScrutinio();
+  renderSondaggi(); renderSimulatore(); renderBarre(); renderMappa(); renderScrutinio();
   if (window.CARD) window.CARD.segnaSporco();
 }
 
@@ -1148,8 +1252,8 @@ function renderKpi() {
     $('kAff').textContent = '—'; $('kAffMeta').textContent = 'nel 2023: 70,4% senza il voto dall’estero';
     $('kPrimo').textContent = '—'; $('kPrimoMeta').textContent = 'nel 2023 il PP, con il 33,1%';
   }
-  $('kFonte').textContent = f.tipo === 'scrutinio' ? 'Scrutinio' : f.tipo === 'exit' ? 'Exit poll' : f.n;
-  $('kFonteMeta').textContent = f.tipo === 'scrutinio' ? 'seggi sui voti contati ' + alPct(f.frac) : f.tipo === 'exit' ? f.n + (f.ora ? ', ore ' + f.ora : '') : f.tipo === 'manuale' ? 'inseriti dalla redazione' : 'composizione uscente fino ai primi dati';
+  $('kFonte').textContent = f.tipo === 'scrutinio' ? 'Scrutinio' : f.tipo === 'exit' ? 'Exit poll' : f.tipo === 'stima' ? 'Sondaggi' : f.n;
+  $('kFonteMeta').textContent = f.tipo === 'scrutinio' ? 'seggi sui voti contati ' + alPct(f.frac) : f.tipo === 'exit' ? f.n + (f.ora ? ', ore ' + f.ora : '') : f.tipo === 'manuale' ? 'inseriti dalla redazione' : f.tipo === 'stima' ? 'proiezione dalla media, fino agli exit poll' : 'composizione uscente fino ai primi dati';
 }
 
 function barraMaggioranza(t) {
@@ -1176,6 +1280,7 @@ function renderVerdetto() {
   if (f.tipo === 'exit') cav = 'Exit poll ' + f.n + (f.ora ? ' delle ' + f.ora : '') + ': una stima, non voti contati';
   else if (f.tipo === 'scrutinio' && f.frac < 0.95) cav = 'Seggi sui voti contati ' + alPct(f.frac) + ': possono ancora cambiare';
   else if (f.tipo === 'manuale') cav = 'Seggi inseriti a mano dalla redazione';
+  else if (f.tipo === 'stima') cav = 'Proiezione dalla media dei sondaggi: una stima prima del voto, non voti contati';
   box.innerHTML = '<div class="vw">Chi ha la maggioranza, a 176 seggi · ' + esc(nomeFonte(f, true)) + '</div><h2>' + esc(titolo) + '</h2><div class="vd">' + det + '</div>' + (cav ? '<span class="vcav">' + esc(cav) + '</span>' : '') + barraMaggioranza(t);
 }
 
@@ -1208,8 +1313,8 @@ function renderTabella() {
   }
   $('natTable').innerHTML = h + '</tbody>';
   $('natNote').textContent = conVoti
-    ? 'Voti validi contati: ' + nf(D.naz.validi) + ', schede bianche comprese; nulle ' + nf(D.naz.nulle) + '. Le liste territoriali sono sommate nel partito nazionale: il PSOE comprende il PSC catalano, il PSdeG galiziano e il PSE basco; Sumar le sue liste regionali. La differenza dal 2023 è sulla percentuale finale di allora.'
-    : 'La tabella si riempie con i primi voti contati. Nella colonna 2023 i seggi di allora, ricalcolati con lo stesso metodo: PP 137, PSOE 121, Vox 33, Sumar 31.';
+    ? 'Voti validi contati: ' + nf(D.naz.validi) + ', schede bianche comprese; nulle ' + nf(D.naz.nulle) + '. Le liste territoriali sono sommate nel partito nazionale: il PSOE comprende il PSC catalano, il PSdeG galiziano e il PSE basco. Il Frente Amplio è confrontato con Sumar del 2023; Front Valencià e Adelante Andalucía non hanno un termine di confronto. La differenza dal 2023 è sulla percentuale finale di allora.'
+    : 'La tabella si riempie con i primi voti contati. Nella colonna 2023 i seggi di allora, ricalcolati con lo stesso metodo: PP 137, PSOE 121, Vox 33, Sumar 31. Il Frente Amplio è confrontato con Sumar del 2023.';
 }
 
 /* ---------- emiciclo ---------- */
@@ -1278,8 +1383,9 @@ function renderEmiciclo() {
   if (f.tipo === 'scrutinio') m = 'Seggi ricalcolati sui voti contati ' + alPct(f.frac) + ': D’Hondt in ognuna delle 52 circoscrizioni, con la soglia del 3%. ';
   else if (f.tipo === 'exit') m = 'Seggi dell’exit poll ' + f.n + (f.ora ? ' delle ' + f.ora : '') + '; dove c’è una forchetta, il valore centrale. ';
   else if (f.tipo === 'manuale') m = 'Seggi inseriti a mano dalla redazione. ';
+  else if (f.tipo === 'stima') m = 'Proiezione dei seggi dalla media dei sondaggi, provincia per provincia: valori centrali, le forchette sono nel riquadro «Come potrebbe finire». ';
   else m = 'Congresso uscente, eletto il 23 luglio 2023. ';
-  m += 'In automatico l’emiciclo mostra gli exit poll fino al 40% dello scrutinio, poi i voti contati. I blocchi: PP e Vox con UPN; PSOE e alleati con Sumar, Podemos, ERC, Bildu, BNG e Compromís; nazionalisti di centro Junts, PNV e Coalizione canaria.';
+  m += 'In automatico l’emiciclo mostra la proiezione dei sondaggi fino agli exit poll, gli exit poll fino al 40% dello scrutinio, poi i voti contati. I blocchi: PP e Vox con UPN; PSOE e alleati con Frente Amplio, Podemos, Front Valencià, Adelante Andalucía, ERC, Bildu e BNG; nazionalisti di centro Junts, PNV e Coalizione canaria.';
   $('seatMethod').textContent = m;
 }
 function applicaFiltro() {
@@ -1299,7 +1405,7 @@ function renderExit() {
   const ex = EXIT_ORDINE().map(exitDi).filter(Boolean);
   $('statoStime').textContent = S.stime.aggiornato ? 'stime.json aggiornato ' + S.stime.aggiornato + (ex.length ? ' · ' + ex.length + ' exit poll' : ' · nessun exit poll') : 'stime.json: nessun exit poll ancora';
   if (!ex.length) {
-    $('exitTable').innerHTML = '<tbody><tr><td class="attesa" style="text-align:left;padding:14px 18px;color:var(--t3);white-space:normal">Gli exit poll compaiono qui alle 20, alla chiusura delle urne. Nel 2023 sovrastimarono il PP: davano a PP e Vox una maggioranza che lo scrutinio non confermò.</td></tr></tbody>';
+    $('exitTable').innerHTML = '<tbody><tr><td class="attesa" style="text-align:left;padding:14px 18px;color:var(--t3);white-space:normal">Gli exit poll compaiono qui alle 20, alla chiusura delle urne. Nel 2023 sovrastimarono il PP: alcuni davano a PP e Vox una maggioranza che lo scrutinio non confermò.</td></tr></tbody>';
     $('exitValidation').textContent = '';
     return;
   }
@@ -1347,13 +1453,48 @@ function renderBilico() {
   $('bilicoNote').textContent = 'I voti che mancano sono quelli che servirebbero alla lista che insegue, a parità di voti delle altre, per superare l’ultimo quoziente eletto. Finché lo scrutinio non è completo i margini cambiano a ogni aggiornamento; il voto dall’estero (CERA), contato giorni dopo, può ancora spostare i casi più stretti. Le prime dodici, dalla più stretta.';
 }
 
+/* ---------- come potrebbe finire secondo i sondaggi ---------- */
+const giornoIT = iso => { const d = new Date(iso + 'T12:00:00Z'); return isNaN(d) ? '' : d.getUTCDate() + ' ' + ['gennaio', 'febbraio', 'marzo', 'aprile', 'maggio', 'giugno', 'luglio', 'agosto', 'settembre', 'ottobre', 'novembre', 'dicembre'][d.getUTCMonth()]; };
+const probIT = p => p >= 0.995 ? 'più di 99 su 100' : p <= 0.005 ? 'meno di 1 su 100' : Math.round(p * 100) + ' su 100';
+function renderSondaggi() {
+  const so = S.stime.sondaggi, P = proiezioneSondaggi(), card = $('sondCard');
+  card.classList.toggle('hidden', !P);
+  if (!P) return;
+  const ist = so.istituti || [], m = so.media;
+  $('sondMeta').textContent = ist.length + ' sondaggi · ultimo campo il ' + giornoIT(so.ultimo);
+  $('sondSub').textContent = 'La media degli ultimi sondaggi pubblicati, con i voti distribuiti provincia per provincia come nel 2023 e i seggi assegnati con il D’Hondt in ogni circoscrizione. Fra parentesi la forchetta che comprende 8 simulazioni su 10.';
+  const t = totBlocchi({ seggi: P.centro });
+  $('sondBlocchi').innerHTML =
+    '<div class="bloc' + (t.D >= MAGG ? ' win' : '') + '"><div><div class="bn"><i style="background:' + BLOCCHI.D.c + '"></i>PP e Vox</div><div class="bp">fra ' + P.intD[0] + ' e ' + P.intD[1] + ' seggi · maggioranza in ' + probIT(P.pD) + ' simulazioni</div></div><div><div class="bv">' + t.D + '</div><div class="bd">' + (t.D >= MAGG ? 'maggioranza' : 'mancano ' + (MAGG - t.D)) + '</div></div></div>' +
+    '<div class="bloc' + (t.S >= MAGG ? ' win' : '') + '"><div><div class="bn"><i style="background:' + BLOCCHI.S.c + '"></i>PSOE e alleati</div><div class="bp">fra ' + P.intS[0] + ' e ' + P.intS[1] + ' seggi · con i nazionalisti di centro la maggioranza in ' + probIT(P.pSN) + ' simulazioni</div></div><div><div class="bv">' + t.S + '</div><div class="bd">' + (t.S >= MAGG ? 'maggioranza' : 'mancano ' + (MAGG - t.S)) + ' · con i nazionalisti ' + (t.S + t.N) + '</div></div></div>';
+  const ks = Object.keys(m).concat(P.centro.UPN ? ['UPN'] : []).sort((a, b) => (m[b] || 0) - (m[a] || 0) || (P.centro[b] || 0) - (P.centro[a] || 0));
+  const si = so.seggiIstituti || {};
+  let h = '<thead><tr><th>Partito</th><th>Media<small>% dei voti</small></th><th class="m-off">2023<small>%</small></th><th>Seggi<small>proiezione</small></th><th class="m-off">2023<small>seggi</small></th><th class="m-off">Istituti<small>seggi medi</small></th></tr></thead><tbody>';
+  ks.forEach(k => {
+    const p = infoG(k), q23 = (B23.gv[k] || 0) / B23.validi * 100, it = P.int[k] || [0, 0], c = P.centro[k] || 0;
+    h += '<tr><td><div class="partylabel"><i class="partydot" style="background:' + p.c + '"></i><span>' + esc(nomeBreve(p)) + '</span></div></td>' +
+      '<td>' + (m[k] != null ? nf(m[k], 1) + '%' : k === 'UPN' ? '<span class="mute">con il PP</span>' : '—') + '</td>' +
+      '<td class="m-off mute">' + (q23 >= 0.05 ? nf(q23, 1) + '%' : '—') + '</td>' +
+      '<td><b>' + c + '</b><small class="forchetta">' + (it[0] === it[1] ? '' : '(' + it[0] + '–' + it[1] + ')') + '</small></td>' +
+      '<td class="m-off mute">' + (B23.gs[k] || 0) + '</td>' +
+      '<td class="m-off mute">' + (si[k] != null ? nf(si[k], 0) : '—') + '</td></tr>';
+  });
+  $('sondTable').innerHTML = h + '</tbody>';
+  $('sondIstTit').textContent = 'I ' + ist.length + ' sondaggi nella media';
+  $('sondIst').innerHTML = '<thead><tr><th>Istituto / committente</th><th>Fine campo</th><th class="m-off">Interviste</th><th>Peso</th><th>PP</th><th>PSOE</th><th>Vox</th><th class="m-off">FA</th></tr></thead><tbody>' +
+    ist.map(s => '<tr><td>' + esc(s.n) + '</td><td>' + giornoIT(s.fine) + '</td><td class="m-off">' + (s.campione ? nf(s.campione) : '—') + '</td><td>' + nf(s.peso, 2) + '</td><td>' + nf(s.voti.PP, 1) + '</td><td>' + nf(s.voti.PSOE, 1) + '</td><td>' + nf(s.voti.VOX, 1) + '</td><td class="m-off">' + (s.voti.FA != null ? nf(s.voti.FA, 1) : s.voti['FA+FV'] != null ? nf(s.voti['FA+FV'], 1) + '*' : '—') + '</td></tr>').join('') + '</tbody>';
+  $('sondNota').innerHTML = 'Fonte: la tabella dei sondaggi di <a href="' + esc(so.fonte) + '" target="_blank" rel="noopener">Wikipedia</a>, letta il ' + giornoIT(String(so.letto).slice(0, 10)) + '. ' +
+    'Nella media entrano i sondaggi con il campo chiuso nelle ' + so.finestra + ' giornate prima dell’ultimo, uno per istituto (il più recente); il peso si dimezza ogni ' + nf(so.emivita, 0) + ' giorni e cresce con il numero di interviste. Esclusi i sondaggi commissionati dai partiti. Il PP comprende UPN, come nei sondaggi; * Frente Amplio e Front Valencià insieme. ' +
+    'La proiezione è della redazione: la media di ogni partito si distribuisce sulle province con il voto del 2023 (Frente Amplio, Podemos, Front Valencià e Adelante Andalucía dove era forte Sumar, SALF uguale ovunque), poi il D’Hondt; 1.000 simulazioni danno le forchette: con un errore comune fra destra e sinistra, perché i sondaggi sbagliano spesso tutti dalla stessa parte, uno per partito e uno per provincia. Nel 2023 la media dei sondaggi sottostimò il PSOE di circa tre punti.';
+}
+
 /* ---------- simulatore ---------- */
 const SIM = { src: 'auto', sel: new Set(['PP', 'VOX', 'UPN']) };
 const PRESET = [
   { n: 'PP e Vox', g: ['PP', 'VOX', 'UPN'] },
   { n: 'PP, Vox, UPN e CC', g: ['PP', 'VOX', 'UPN', 'CC'] },
-  { n: 'La maggioranza di Sánchez del 2023', g: ['PSOE', 'SUMAR', 'PODEMOS', 'COMPROMIS', 'ERC', 'JUNTS', 'BILDU', 'PNV', 'BNG', 'CC'] },
-  { n: 'PSOE e alleati senza Junts', g: ['PSOE', 'SUMAR', 'PODEMOS', 'COMPROMIS', 'ERC', 'BILDU', 'PNV', 'BNG', 'CC'] },
+  { n: 'La maggioranza di Sánchez del 2023', g: ['PSOE', 'FA', 'PODEMOS', 'FV', 'AA', 'ERC', 'JUNTS', 'BILDU', 'PNV', 'BNG', 'CC'] },
+  { n: 'PSOE e alleati senza Junts', g: ['PSOE', 'FA', 'PODEMOS', 'FV', 'AA', 'ERC', 'BILDU', 'PNV', 'BNG', 'CC'] },
   { n: 'PP e PSOE', g: ['PP', 'PSOE'] }
 ];
 function renderSimulatore() {
@@ -1439,7 +1580,7 @@ function renderMappa() {
   document.querySelectorAll('#mapMode button').forEach(b => b.setAttribute('aria-pressed', b.dataset.mode === S.mapMode ? 'true' : 'false'));
   const D = S.D, sel = $('mapLista');
   sel.classList.toggle('hidden', S.mapMode !== 'lista');
-  const gs = D && sum(D.gv) ? Object.entries(D.gv).sort((a, b) => b[1] - a[1]).slice(0, 14).map(([g]) => g) : ['PP', 'PSOE', 'VOX', 'SUMAR', 'ERC', 'JUNTS', 'BILDU', 'PNV'];
+  const gs = D && sum(D.gv) ? Object.entries(D.gv).sort((a, b) => b[1] - a[1]).slice(0, 14).map(([g]) => g) : ['PP', 'PSOE', 'VOX', 'FA', 'ERC', 'JUNTS', 'BILDU', 'PNV'];
   if (!gs.includes(S.mapLista)) gs.push(S.mapLista);
   sel.innerHTML = gs.map(g => '<option value="' + esc(g) + '"' + (g === S.mapLista ? ' selected' : '') + '>' + esc(nomeBreve(infoG(g))) + '</option>').join('');
   document.querySelectorAll('#provMap path[data-c]').forEach(p => { p.style.fill = coloreCirc(p.dataset.c); p.classList.toggle('sel', p.dataset.c === S.sel); });
@@ -1596,7 +1737,7 @@ async function leggiStime() {
     const r = await fetch('stime.json?t=' + Date.now(), { cache: 'no-store' });
     if (!r.ok) throw 0;
     const j = await r.json();
-    S.stime = { exit: j.exit || {}, aggiornato: j.aggiornato || '' };
+    S.stime = { exit: j.exit || {}, aggiornato: j.aggiornato || '', sondaggi: j.sondaggi || null };
     render();
   } catch (_) { $('statoStime').textContent = 'stime.json non leggibile (pagina aperta dal disco?)'; }
   STIME_LETTURA.inCorso = false;
@@ -1610,7 +1751,7 @@ document.addEventListener('visibilitychange', () => { if (document.visibilitySta
    distorsione sparisce a scrutinio completo. Al 100% il riparto deve dare il risultato ufficiale. */
 const PROVA_ST = { seme: 1, play: null };
 function rand(seed) { let x = Math.sin(seed * 9301 + 49297) * 233280; return x - Math.floor(x); }
-const DISTORSIONE = { PP: 0.10, VOX: 0.06, UPN: 0.08, PSOE: -0.02, SUMAR: -0.16, ERC: -0.04, JUNTS: 0.04, BILDU: -0.05, PNV: 0, BNG: -0.06, CC: 0.02 };
+const DISTORSIONE = { PP: 0.10, VOX: 0.06, UPN: 0.08, PSOE: -0.02, FA: -0.16, ERC: -0.04, JUNTS: 0.04, BILDU: -0.05, PNV: 0, BNG: -0.06, CC: 0.02 };
 function provaRiassunto(f) {
   const partiti = {}, circ = {};
   let tm = 0, te = 0;
@@ -1681,7 +1822,7 @@ async function verificaRedazione() {
   } catch (_) { return false; }
 }
 function costruisciManuale() {
-  const gs = ['PP', 'PSOE', 'VOX', 'SUMAR', 'PODEMOS', 'ERC', 'JUNTS', 'BILDU', 'PNV', 'BNG', 'CC', 'UPN', 'SALF', 'COMPROMIS'];
+  const gs = ['PP', 'PSOE', 'VOX', 'FA', 'PODEMOS', 'FV', 'AA', 'ERC', 'JUNTS', 'BILDU', 'PNV', 'BNG', 'CC', 'UPN', 'SALF'];
   $('manualInputs').innerHTML = gs.map(g => { const p = infoG(g); return '<div class="manual-row"><div class="partylabel"><i class="partydot" style="background:' + p.c + '"></i><span>' + esc(nomeBreve(p)) + '</span></div><input inputmode="numeric" data-g="' + g + '" placeholder="seggi" value="' + (S.manuale && S.manuale[g] || '') + '"></div>'; }).join('');
 }
 /* Importa: il riassunto del proxy, o i file JSON del Ministero scaricati dal sito dei risultati
@@ -1992,7 +2133,7 @@ window.CARD = (function () {
   }
   function autoPost(id, s) {
     const u = ' ' + URL_PAGINA, tag = ' #29N';
-    if (id === 'c1') return '🇪🇸 Spagna, ' + (s.f.tipo === 'scrutinio' ? s.scr.toLowerCase() : nomeF(s.f)) + ': PP ' + (s.f.seggi.PP || 0) + ', PSOE ' + (s.f.seggi.PSOE || 0) + ', Vox ' + (s.f.seggi.VOX || 0) + ', Sumar ' + (s.f.seggi.SUMAR || 0) + '. PP e Vox a ' + s.t.D + ' seggi, la maggioranza è a 176.' + tag + u;
+    if (id === 'c1') return '🇪🇸 Spagna, ' + (s.f.tipo === 'scrutinio' ? s.scr.toLowerCase() : nomeF(s.f)) + ': PP ' + (s.f.seggi.PP || 0) + ', PSOE ' + (s.f.seggi.PSOE || 0) + ', Vox ' + (s.f.seggi.VOX || 0) + ', Frente Amplio ' + (s.f.seggi.FA || 0) + '. PP e Vox a ' + s.t.D + ' seggi, la maggioranza è a 176.' + tag + u;
     if (id === 'c2') return '🇪🇸 Il voto in Spagna, ' + (s.conVoti ? s.scr.toLowerCase() : '') + '. Tutti i risultati, provincia per provincia:' + tag + u;
     if (id === 'c3') return '🗺️ Spagna, chi vince dove: il primo partito nelle 52 circoscrizioni.' + tag + u;
     if (id === 'c4') { const b = s.bil[0]; return '⚖️ I seggi in bilico' + (b ? ': a ' + b.n + ' a ' + nomeBreve(infoG(b.b.g)) + ' mancano ' + nf(b.manca) + ' voti per strappare l’ultimo seggio a ' + nomeBreve(infoG(b.a.g)) : '') + '.' + tag + u; }

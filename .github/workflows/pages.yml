@@ -4,10 +4,16 @@
 # ricostruzioni l'ora: la sera del voto gli exit poll in stime.json (ed eventualmente la copia
 # del feed in dati/live/) si pubblicano più spesso. Con un workflow il limite non c'è.
 # Se arrivano più push di fila, vince l'ultimo: quelli in corso si annullano.
+#
+# Il push del workflow «Media dei sondaggi» usa il token di Actions, che non fa partire
+# altri workflow: per questo c'è anche workflow_run.
 name: Pubblica il sito
 on:
   push:
     branches: [main]
+  workflow_run:
+    workflows: ['Media dei sondaggi']
+    types: [completed]
   workflow_dispatch:
 permissions:
   contents: read
@@ -25,6 +31,8 @@ jobs:
       url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
       - uses: actions/upload-pages-artifact@v3
         with:
           path: .

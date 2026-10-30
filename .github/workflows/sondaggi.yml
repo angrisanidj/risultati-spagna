@@ -1,0 +1,54 @@
+# Aggiorna la media dei sondaggi in stime.json, dalla tabella di Wikipedia.
+#
+# Gira due volte al giorno fino al 28 novembre, la vigilia del voto; dal 29 non tocca più
+# niente, perché la sera del voto stime.json serve agli exit poll. Scrive solo il campo
+# «sondaggi», e solo se la media o l'elenco dei sondaggi sono cambiati. Se la tabella di
+# Wikipedia cambia forma lo script si ferma senza scrivere: GitHub manda l'email del job
+# fallito e resta la media del giro prima. Si lancia anche a mano da Actions → Run workflow.
+#
+# Il workflow fa commit su main: prima di un push a mano conviene un git pull --rebase.
+name: Media dei sondaggi
+on:
+  schedule:
+    - cron: '23 7,17 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: stime
+  cancel-in-progress: false
+jobs:
+  sondaggi:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Fino alla vigilia del voto
+        id: data
+        run: |
+          if [ "$(date -u +%Y%m%d)" -ge 20261129 ] && [ "${{ github.event_name }}" = "schedule" ]; then echo "fermo=1" >> "$GITHUB_OUTPUT"; fi
+      - uses: actions/checkout@v4
+        if: steps.data.outputs.fermo != '1'
+      - uses: actions/setup-python@v5
+        if: steps.data.outputs.fermo != '1'
+        with:
+          python-version: '3.12'
+      - name: Media dei sondaggi
+        if: steps.data.outputs.fermo != '1'
+        run: python -I strumenti/sondaggi.py
+      - name: Commit, se è cambiata
+        if: steps.data.outputs.fermo != '1'
+        run: |
+          python - <<'PY'
+          import json, subprocess
+          nuovo = json.load(open('stime.json', encoding='utf-8'))['sondaggi']
+          vecchio = json.loads(subprocess.run(['git', 'show', 'HEAD:stime.json'], capture_output=True, text=True).stdout or '{}').get('sondaggi') or {}
+          uguale = all(nuovo.get(k) == vecchio.get(k) for k in ('media', 'istituti', 'seggiIstituti'))
+          open('uguale', 'w').write('1' if uguale else '0')
+          PY
+          if [ "$(cat uguale)" = "1" ]; then echo "Media invariata: niente da pubblicare"; git checkout -- stime.json; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add stime.json
+          git commit -m "Media dei sondaggi aggiornata da Wikipedia"
+          git pull --rebase
+          git push

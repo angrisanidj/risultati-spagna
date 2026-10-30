@@ -7,7 +7,8 @@ Dashboard per seguire in diretta lo spoglio delle elezioni generali spagnole di 
 | File | A cosa serve |
 |---|---|
 | `index.html` | La dashboard, file unico. Base 2023 e confini delle province sono incorporati. |
-| `stime.json` | Gli exit poll, in seggi. Si modifica a mano la sera del voto. |
+| `stime.json` | La media dei sondaggi (la scrive il workflow) e gli exit poll in seggi, che si scrivono a mano la sera del voto. |
+| `strumenti/sondaggi.py` | Legge i sondaggi da Wikipedia e calcola la media. |
 | `condivisione.jpg` | L'anteprima del link sui social (1200×630). |
 | `proxy/` | Il progetto Vercel: `api/mir.js` più `lib/normalizza.js`, che traduce il formato del Ministero. |
 | `strumenti/base2023.py` | Rifà `dati/base2023.json`, i risultati 2023 per circoscrizione. |
@@ -29,16 +30,30 @@ Dashboard per seguire in diretta lo spoglio delle elezioni generali spagnole di 
 
 I seggi si ricalcolano dalla pagina: soglia del 3% dei voti validi (schede bianche comprese) in ogni circoscrizione, poi D'Hondt; a parità di quoziente vince la lista con più voti. I seggi per circoscrizione sono quelli del Real Decreto 806/2026 (BOE del 6 ottobre): rispetto al 2023 Madrid passa da 37 a 38, Cadice da 9 a 8.
 
-Le liste territoriali confluiscono nel partito nazionale (PSC, PSdeG e PSE nel PSOE; le liste regionali di Sumar in Sumar). Il riconoscimento è nella costante `GRUPPI`, in testa allo script: una lista che nessuna regola riconosce compare con la sua sigla, in grigio, fra gli altri partiti. **Quando la Junta electoral proclama le candidature, nei primi giorni di novembre, conviene controllare le sigle**: se Sumar, Podemos o Compromís si presentano con nomi nuovi, va aggiunta la regola.
+Le liste territoriali confluiscono nel partito nazionale (PSC, PSdeG e PSE nel PSOE). Il Frente Amplio è confrontato con Sumar del 2023; Front Valencià (Compromís, Podemos ed EUPV nella Comunità Valenciana) e Adelante Andalucía non hanno un termine di confronto. Il riconoscimento è nella costante `GRUPPI`, in testa allo script: una lista che nessuna regola riconosce compare con la sua sigla, in grigio, fra gli altri partiti. **Quando la Junta electoral proclama le candidature, nei primi giorni di novembre, conviene controllare le sigle** con cui si presentano Frente Amplio, Front Valencià e Podemos nelle varie province: se una non è riconosciuta, va aggiunta la regola.
 
 I blocchi (`BLOCCHI` e il campo `b` di `GRUPPI`):
 
 | Blocco | Partiti |
 |---|---|
 | PP e Vox | PP, Vox, UPN |
-| PSOE e alleati | PSOE, Sumar, Podemos, Compromís, ERC, EH Bildu, BNG |
+| PSOE e alleati | PSOE, Frente Amplio (l'alleanza che ha preso il posto di Sumar), Podemos, Front Valencià, Adelante Andalucía, ERC, EH Bildu, BNG |
 | Nazionalisti di centro | Junts, PNV, Coalizione canaria |
 | Altri | tutti gli altri (SALF, CUP, PACMA…) |
+
+## La media dei sondaggi e la proiezione
+
+Fino agli exit poll l'emiciclo e il verdetto mostrano **come potrebbe finire secondo i sondaggi**, e il riquadro omonimo dà i dettagli: media per partito, seggi proiettati con la forchetta, seggi medi stimati dagli istituti, probabilità della maggioranza e l'elenco dei sondaggi usati.
+
+**La media** la calcola `strumenti/sondaggi.py` dalla tabella «2026 (with Broad Front)» di [Opinion polling for the 2026 Spanish general election](https://en.wikipedia.org/wiki/Opinion_polling_for_the_2026_Spanish_general_election) e la scrive nel campo `sondaggi` di `stime.json`:
+- solo i sondaggi con il campo chiuso nei 21 giorni prima del più recente, uno per istituto (l'ultimo);
+- peso che si dimezza ogni 7 giorni e cresce con la radice del campione (fra 0,5 e 2 volte);
+- esclusi i sondaggi commissionati dai partiti;
+- il PP comprende UPN, come nella tabella; dove Frente Amplio e Front Valencià sono una cifra sola, si toglie la media di Front Valencià.
+
+Il workflow **Media dei sondaggi** (`.github/workflows/sondaggi.yml`) la rifà alle 7:23 e alle 17:23 UTC fino al 28 novembre e fa commit solo se è cambiata; si lancia anche a mano da *Actions → Media dei sondaggi → Run workflow*. Siccome fa commit su `main`, prima di un push a mano conviene un `git pull --rebase`. In locale: `python -I strumenti/sondaggi.py` (con `--prova` stampa senza scrivere).
+
+**La proiezione** si fa nella pagina (`proiezioneSondaggi()`): la media di ogni partito si distribuisce sulle province con il voto del 2023, in proporzione (PSOE, Vox, PP con UPN e i partiti regionali); Frente Amplio e Podemos fuori dalla Comunità Valenciana, Front Valencià solo lì e Adelante Andalucía solo in Andalusia, tutti sulle province dove era forte Sumar; SALF con la stessa quota ovunque. Poi il D'Hondt nelle 52 circoscrizioni con i seggi 2026. Le forchette vengono da 1.000 simulazioni con tre errori: uno comune fra destra e sinistra (2 punti, perché i sondaggi sbagliano spesso tutti dalla stessa parte: nel 2023 il PSOE era sottostimato di circa tre punti), uno per partito e uno per provincia. Al 30 ottobre la proiezione centrale (PP 131, PSOE 108, Vox 68) coincide quasi con la media dei seggi stimati dagli istituti (131, 109, 66).
 
 ## Da dove arrivano i dati
 
@@ -126,15 +141,16 @@ Si scrivono in `stime.json`, in seggi, per partito. Un numero o una forchetta `[
   "aggiornato": "29 novembre 2026, 20:02",
   "exit": {
     "rtve": { "n": "RTVE · Sigma Dos", "s": "RTVE", "ora": "20:00",
-              "seggi": { "PP": [140, 145], "PSOE": [110, 115], "VOX": [30, 33], "SUMAR": [20, 23], "ERC": 7, "JUNTS": 7 } },
+              "seggi": { "PP": [140, 145], "PSOE": [110, 115], "VOX": [30, 33], "FA": [8, 11], "ERC": 7, "JUNTS": 7 } },
     "gad3": { "n": "GAD3 · Mediaset", "s": "GAD3", "ora": "20:00", "seggi": { "PP": 148, "PSOE": 112 } }
   }
 }
 ```
 
 - `n` è il nome lungo (istituto e rete), `s` quello breve per le colonne, `ora` l'ora di pubblicazione.
-- Le chiavi dei partiti sono quelle di `GRUPPI`: `PP`, `PSOE`, `VOX`, `SUMAR`, `PODEMOS`, `COMPROMIS`, `ERC`, `JUNTS`, `BILDU`, `PNV`, `BNG`, `CC`, `UPN`, `SALF`, `CUP`, `NC`, `TE`, `UPL`, `SY`, `PACMA`. Una chiave sconosciuta compare con il suo nome fra gli altri partiti.
-- L'ordine degli exit poll nel file è l'ordine delle colonne; in automatico l'emiciclo usa il primo fino al 40% dello scrutinio, poi i voti contati.
+- Le chiavi dei partiti sono quelle di `GRUPPI`: `PP`, `PSOE`, `VOX`, `FA` (Frente Amplio), `FV` (Front Valencià), `PODEMOS`, `AA` (Adelante Andalucía), `ERC`, `JUNTS`, `BILDU`, `PNV`, `BNG`, `CC`, `UPN`, `SALF`, `CUP`, `NC`, `TE`, `UPL`, `SY`, `PACMA`. Una chiave sconosciuta compare con il suo nome fra gli altri partiti.
+- L'ordine degli exit poll nel file è l'ordine delle colonne; in automatico l'emiciclo usa la proiezione dei sondaggi fino al primo exit poll, quello fino al 40% dello scrutinio, poi i voti contati.
+- Il campo `sondaggi` lo scrive il workflow: quando si modifica `stime.json` a mano va lasciato com'è.
 - La pagina rilegge `stime.json` ogni 15 secondi fra le 19:55 e le 22 italiane, ogni due minuti il resto del tempo.
 
 La via più rapida è la stessa di Israele: gli screenshot dei grafici delle reti a Claude, che scrive `stime.json`, fa commit e push e aspetta Pages. Le reti aggiornano le stime nella notte: si ripete con la nuova ora.
@@ -163,4 +179,5 @@ La stessa chiave delle dashboard di Israele e Brasile: `?redazione=CHIAVE` una v
 - Voti: Ministero dell'Interno, dati provvisori.
 - Seggi per circoscrizione: Real Decreto 806/2026, BOE-A-2026-20742.
 - Base 2023: Junta Electoral Central, tramite le voci di Wikipedia in inglese sulle circoscrizioni (CC BY-SA).
+- Sondaggi: la tabella di Wikipedia in inglese (CC BY-SA), con gli istituti e i committenti indicati sulla pagina.
 - Confini delle province: Istituto geografico nazionale (IGN), nella versione TopoJSON di [es-atlas](https://github.com/martgnz/es-atlas) 0.6.0 (MIT), proiettati da `strumenti/mappa.py`; le Canarie spostate in un riquadro.

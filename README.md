@@ -1,0 +1,166 @@
+# risultati-spagna
+
+Dashboard per seguire in diretta lo spoglio delle elezioni generali spagnole di domenica 29 novembre 2026 (Congresso dei deputati). È costruita sulla falsariga di `risultati-israele` e `risultati-brasile`: una sola pagina statica su GitHub Pages che legge i dati del Ministero dell'Interno attraverso un proxy Vercel.
+
+## Cosa c'è
+
+| File | A cosa serve |
+|---|---|
+| `index.html` | La dashboard, file unico. Base 2023 e confini delle province sono incorporati. |
+| `stime.json` | Gli exit poll, in seggi. Si modifica a mano la sera del voto. |
+| `condivisione.jpg` | L'anteprima del link sui social (1200×630). |
+| `proxy/` | Il progetto Vercel: `api/mir.js` più `lib/normalizza.js`, che traduce il formato del Ministero. |
+| `strumenti/base2023.py` | Rifà `dati/base2023.json`, i risultati 2023 per circoscrizione. |
+| `strumenti/mappa.py` | Rifà `dati/mappa.json`, i confini delle province già proiettati. |
+| `strumenti/incorpora.py` | Copia i due file di `dati/` dentro `index.html`. |
+| `.github/workflows/pages.yml` | Pubblica il sito a ogni push su `main`, senza il limite di 10 ricostruzioni l'ora. |
+
+## Cosa mostra
+
+- **Scrutinio, affluenza, primo partito** e la fonte dell'emiciclo.
+- **Chi ha la maggioranza:** PP e Vox contro la soglia di 176, con il PSOE e i suoi alleati e i nazionalisti di centro.
+- **Voto nazionale:** voti, percentuali, differenza dal 2023, seggi sullo scrutinio, seggi 2023 e una colonna per ogni exit poll.
+- **I 350 seggi:** emiciclo con la fonte a scelta (Congresso 2023, exit poll, scrutinio, seggi manuali) e i blocchi secondo ogni fonte.
+- **I seggi in bilico:** in ogni circoscrizione l'ultimo seggio assegnato e quanti voti mancano al primo escluso per prenderlo.
+- **Simulatore di maggioranza**, con le coalizioni già pronte.
+- **La mappa delle province:** primo partito, blocchi, un partito, spostamento di PP e Vox rispetto al 2023, avanzamento dello scrutinio. Toccando una provincia: voti, seggi, ultimo seggio, confronto con il 2023.
+- **Stato dello scrutinio** provincia per provincia.
+- **Card per X e Instagram** (modalità redazione): seggi, voto, mappa, seggi in bilico, exit poll.
+
+I seggi si ricalcolano dalla pagina: soglia del 3% dei voti validi (schede bianche comprese) in ogni circoscrizione, poi D'Hondt; a parità di quoziente vince la lista con più voti. I seggi per circoscrizione sono quelli del Real Decreto 806/2026 (BOE del 6 ottobre): rispetto al 2023 Madrid passa da 37 a 38, Cadice da 9 a 8.
+
+Le liste territoriali confluiscono nel partito nazionale (PSC, PSdeG e PSE nel PSOE; le liste regionali di Sumar in Sumar). Il riconoscimento è nella costante `GRUPPI`, in testa allo script: una lista che nessuna regola riconosce compare con la sua sigla, in grigio, fra gli altri partiti. **Quando la Junta electoral proclama le candidature, nei primi giorni di novembre, conviene controllare le sigle**: se Sumar, Podemos o Compromís si presentano con nomi nuovi, va aggiunta la regola.
+
+I blocchi (`BLOCCHI` e il campo `b` di `GRUPPI`):
+
+| Blocco | Partiti |
+|---|---|
+| PP e Vox | PP, Vox, UPN |
+| PSOE e alleati | PSOE, Sumar, Podemos, Compromís, ERC, EH Bildu, BNG |
+| Nazionalisti di centro | Junts, PNV, Coalizione canaria |
+| Altri | tutti gli altri (SALF, CUP, PACMA…) |
+
+## Da dove arrivano i dati
+
+**Il sito dei risultati del 2026 non è ancora online** (30 ottobre). Nel 2023 il Ministero li pubblicava su `resultados.generales23j.es`, comparso quattro giorni prima del voto, accanto al sito informativo `generales23j.es`. Quest'anno il sito informativo è `29neleccionesgenerales.es`: il proxy prova quindi `https://resultados.29neleccionesgenerales.es/`, ma è un'ipotesi da verificare appena il sito esiste.
+
+Il formato è quello del 2023, ricostruito dall'archivio di Wayback Machine: un'API JSON chiamata `backend-difu`, con un file per ambito.
+
+```
+backend-difu/scope/data/getScopeData/<scopeId>/1/2/1/0         un ambito (Spagna, provincia, comune)
+backend-difu/scope/data/getScopeData/<scopeId>/1/2/1/1/30      la Spagna con le 52 province dentro
+backend-difu/nomenclator/getNomenclator?v=…                   l'elenco di tutti gli ambiti
+```
+
+Lo scopeId è il codice seguito dal livello, scritto in esadecimale su 24 cifre: la Spagna è `…0b` (codice 1, livello 1), Madrid `…b0e` (codice 28, livello 30). Ogni ambito ha `escrutinio.partidos[]` con sigla, voti e seggi, e la sigla nazionale (`agrupaciones` di livello 1). I dettagli sono in testa a `proxy/lib/normalizza.js`.
+
+Se nel 2026 il Ministero cambia fornitore o formato, va riscritto solo `normalizza.js` (la pagina legge il riassunto del proxy, non il formato del Ministero). Se cambia solo l'indirizzo, bastano le variabili d'ambiente su Vercel, senza toccare il codice:
+
+| Variabile | Predefinito |
+|---|---|
+| `MIR_BASE` | `https://resultados.29neleccionesgenerales.es/` |
+| `MIR_RUTA` | `backend-difu/scope/data/getScopeData/{id}/1/2/1/0` |
+| `MIR_MAPA` | `backend-difu/scope/data/getScopeData/{id}/1/2/1/1/30` |
+
+**Il canale per i media.** Il Ministero apre un repository di dati riservato ai media accreditati, con i file di avanzamento e scrutinio e un documento che ne descrive il formato. La richiesta andava fatta alla Secretaría de Estado de Comunicación entro il **28 ottobre alle 15**; credenziali il 17 novembre, una connessione per testata. Se una testata con cui lavori è accreditata, quella è la fonte più solida: il proxy si adatta con una funzione nuova in `normalizza.js`.
+
+**I dati 2023** (`dati/base2023.json`) vengono dalle voci «… (Congress of Deputies constituency)» di Wikipedia in inglese, che riportano i risultati definitivi della Junta Electoral Central, voto dall'estero compreso. Il server dei dati storici del Ministero (`infoelectoral.interior.gob.es`) non risponde da fuori Spagna. Il controllo: con le stesse regole della pagina, il riparto dà PP 137, PSOE 121, Vox 33, Sumar 31, ERC 7, Junts 7, EH Bildu 6, PNV 5, BNG 1, CC 1, UPN 1, cioè il risultato ufficiale, provincia per provincia. Nella voce di Cáceres i «Valid votes» hanno una cifra sbagliata; lo script la corregge con la somma di liste e bianche.
+
+## 1. Pubblicare il proxy su Vercel
+
+Il nome del progetto deve essere `spagna-2026-feed-proxy`, così l'indirizzo coincide con quello predefinito nella pagina: `https://spagna-2026-feed-proxy.vercel.app/api/mir`.
+
+```
+cd proxy
+npx vercel link        # crea il progetto «spagna-2026-feed-proxy»
+npx vercel --prod
+```
+
+In alternativa, dalla dashboard di Vercel: *Add New → Project*, importa il repository e imposta **Root Directory = `proxy`**. La funzione gira a Parigi (`cdg1`, in `vercel.json`: Vercel non ha una regione in Spagna). Le richieste ammesse arrivano da `https://angrisanidj.github.io` e da `localhost`; per altri domini modifica `ORIGINI` in `api/mir.js`.
+
+Il proxy prova prima la Spagna con le province dentro (una richiesta); se la risposta non le contiene tutte, chiede le 52 province, 6 alla volta. La cache del CDN di Vercel tiene ogni risposta 20 secondi, quindi molti lettori aperti producono al massimo un giro di richieste al Ministero ogni 20 secondi. Dopo un 429 o un 403 il proxy si ferma un minuto.
+
+### Diagnostica, appena il sito dei risultati esiste e poi il giorno prima
+
+```
+https://spagna-2026-feed-proxy.vercel.app/api/mir?diag=1
+https://spagna-2026-feed-proxy.vercel.app/api/mir?grezzo=28
+```
+
+La diagnostica prova la Spagna con le province, la Spagna da sola e Madrid: stato HTTP, latenza, intestazioni anti-bot (`waf`) e un riassunto (province trovate, seggi elettorali, voti validi). `?grezzo=28` restituisce Madrid così come la pubblica il Ministero (`1` per la Spagna), utile per controllare il formato.
+
+| Esito | Significato |
+|---|---|
+| 200 con un riassunto | La catena funziona. Prima del voto i voti sono zero. |
+| 404 o errore DNS | Il sito non c'è ancora, o ha un altro indirizzo: imposta `MIR_BASE`. |
+| 200 con `riassunto: null` | Il formato è cambiato: guarda `inizio` e `?grezzo=1`, poi adatta `normalizza.js`. |
+| 403, o 202 con `waf` | Blocco anti-bot verso Vercel, come in Israele: vedi «Se il feed si blocca». |
+
+## 2. Pubblicare la pagina
+
+Crea il repository `angrisanidj/risultati-spagna` e carica tutto (`proxy/` non dà fastidio). Poi passa GitHub Pages alla pubblicazione con il workflow, una volta:
+
+```
+gh api -X POST repos/angrisanidj/risultati-spagna/pages -f build_type=workflow
+```
+
+La pagina va aperta da un server (GitHub Pages o `python -m http.server`): dal disco funziona, ma senza `stime.json`.
+
+## 3. La prova generale
+
+- **`…/risultati-spagna/?prova=2023`** simula una notte di spoglio con i risultati veri del 2023. Ogni circoscrizione ha un suo ritmo (le grandi più lente) e i primi seggi contati sono più a destra della media, come nelle notti vere: si vede il vantaggio iniziale del PP restringersi. Al 100% il riparto deve dare il risultato ufficiale. «Nuova simulazione» cambia l'ordine di arrivo.
+- **`?feed=1`** accende subito il feed (senza, la pagina non chiama il proxy fino a domenica 29 novembre alle 19:30, poi si accende da sola).
+- **`?proxy=https://…`** sostituisce il proxy predefinito.
+- **`?copia=1`** legge solo la copia in `dati/live/escrutinio.json`, senza proxy.
+
+## La sera del voto
+
+**Orari:** i seggi chiudono alle **20**, la stessa ora in Italia; alle Canarie alle 20 locali, cioè le 21. Gli exit poll escono alle 20. Il voto degli spagnoli residenti all'estero (CERA) si conta il mercoledì successivo e può spostare qualche ultimo seggio: nel 2023 ha tolto un seggio di Madrid al PSOE per darlo al PP.
+
+### Exit poll
+
+Si scrivono in `stime.json`, in seggi, per partito. Un numero o una forchetta `[min, max]`: la pagina mostra il valore centrale e la forchetta sotto.
+
+```json
+{
+  "aggiornato": "29 novembre 2026, 20:02",
+  "exit": {
+    "rtve": { "n": "RTVE · Sigma Dos", "s": "RTVE", "ora": "20:00",
+              "seggi": { "PP": [140, 145], "PSOE": [110, 115], "VOX": [30, 33], "SUMAR": [20, 23], "ERC": 7, "JUNTS": 7 } },
+    "gad3": { "n": "GAD3 · Mediaset", "s": "GAD3", "ora": "20:00", "seggi": { "PP": 148, "PSOE": 112 } }
+  }
+}
+```
+
+- `n` è il nome lungo (istituto e rete), `s` quello breve per le colonne, `ora` l'ora di pubblicazione.
+- Le chiavi dei partiti sono quelle di `GRUPPI`: `PP`, `PSOE`, `VOX`, `SUMAR`, `PODEMOS`, `COMPROMIS`, `ERC`, `JUNTS`, `BILDU`, `PNV`, `BNG`, `CC`, `UPN`, `SALF`, `CUP`, `NC`, `TE`, `UPL`, `SY`, `PACMA`. Una chiave sconosciuta compare con il suo nome fra gli altri partiti.
+- L'ordine degli exit poll nel file è l'ordine delle colonne; in automatico l'emiciclo usa il primo fino al 40% dello scrutinio, poi i voti contati.
+- La pagina rilegge `stime.json` ogni 15 secondi fra le 19:55 e le 22 italiane, ogni due minuti il resto del tempo.
+
+La via più rapida è la stessa di Israele: gli screenshot dei grafici delle reti a Claude, che scrive `stime.json`, fa commit e push e aspetta Pages. Le reti aggiornano le stime nella notte: si ripete con la nuova ora.
+
+### Modalità redazione
+
+La stessa chiave delle dashboard di Israele e Brasile: `?redazione=CHIAVE` una volta (il browser la ricorda, `?redazione=esci` la dimentica). Compaiono:
+- «Aggiorna ora» e «Metti in pausa» del feed;
+- **Importa file**: i JSON del Ministero scaricati a mano dal sito dei risultati (anche la Spagna e più province insieme), oppure il riassunto del proxy; il feed va in pausa;
+- **Inserimento manuale**: i seggi nazionali come li mostra il sito del Ministero, se il feed si ferma; valgono finché non li rimuovi;
+- la scheda **Card per X**.
+
+### Se il feed si blocca
+
+- **Il Ministero blocca Vercel** (anti-bot, come a Israele): scarica dal browser il file della Spagna con le province e importalo con «Importa file». Per tutti i lettori, si pubblica il riassunto in `dati/live/escrutinio.json`: la pagina lo legge da sola quando il proxy non risponde. Lo script che lo fa a ogni download (come `pubblica-feed.mjs` per Israele) non c'è ancora: conviene scriverlo appena si conosce il sito vero.
+- **Il Ministero non risponde per nessuno:** l'inserimento manuale dei seggi.
+
+## Condivisione
+
+- **Pulsanti per i lettori:** X, Threads, Facebook, LinkedIn, Telegram, WhatsApp e il link. Il testo segue i dati: prima del voto presenta la pagina, poi riporta i seggi di PP e Vox e del PSOE con gli alleati secondo la fonte dell'emiciclo. Icone da [Bootstrap Icons](https://icons.getbootstrap.com) (MIT).
+- **Anteprima del link:** `condivisione.jpg`, 1200×630, con l'emiciclo del Congresso uscente.
+- **Card per X e Instagram:** cinque card (seggi, voto, mappa, seggi in bilico, exit poll) in 16:9 o 4:5, con titolo e testo del post che si rigenerano da soli finché non li modifichi. Scarica PNG, Condividi (menu del sistema con immagine e testo), Pubblica su X (l'immagine si allega a mano).
+
+## Fonti e licenze
+
+- Voti: Ministero dell'Interno, dati provvisori.
+- Seggi per circoscrizione: Real Decreto 806/2026, BOE-A-2026-20742.
+- Base 2023: Junta Electoral Central, tramite le voci di Wikipedia in inglese sulle circoscrizioni (CC BY-SA).
+- Confini delle province: Istituto geografico nazionale (IGN), nella versione TopoJSON di [es-atlas](https://github.com/martgnz/es-atlas) 0.6.0 (MIT), proiettati da `strumenti/mappa.py`; le Canarie spostate in un riquadro.

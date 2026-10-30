@@ -1,0 +1,4 @@
+{
+  "regions": ["cdg1"],
+  "functions": { "api/mir.js": { "maxDuration": 25 } }
+}

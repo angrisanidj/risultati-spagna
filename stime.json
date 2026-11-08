@@ -2,42 +2,42 @@
   "aggiornato": "",
   "exit": {},
   "sondaggi": {
-    "letto": "2026-11-08T14:22Z",
+    "letto": "2026-11-08T21:14Z",
     "ultimo": "2026-11-06",
     "finestra": 21,
     "emivita": 7.0,
     "fonte": "https://en.wikipedia.org/wiki/Opinion_polling_for_the_2026_Spanish_general_election",
     "media": {
-      "JUNTS": 1.32,
-      "BNG": 0.94,
-      "FA": 6.18,
-      "PODEMOS": 1.92,
-      "PSOE": 26.99,
-      "ERC": 2.47,
+      "PSOE": 27.15,
       "AA": 1.46,
-      "BILDU": 1.4,
-      "VOX": 18.98,
+      "PODEMOS": 1.85,
       "FV": 1.15,
+      "SALF": 2.01,
       "PNV": 0.82,
       "CC": 0.43,
-      "SALF": 2.01,
-      "PP": 30.66
+      "PP": 30.74,
+      "VOX": 18.92,
+      "JUNTS": 1.32,
+      "ERC": 2.47,
+      "BILDU": 1.4,
+      "FA": 6.06,
+      "BNG": 0.94
     },
     "seggiIstituti": {
-      "JUNTS": 5.2,
-      "BNG": 2.1,
-      "FA": 9.3,
-      "PODEMOS": 0.6,
-      "PSOE": 110.3,
-      "ERC": 9.3,
+      "PSOE": 110.5,
       "AA": 2.8,
-      "BILDU": 7.1,
-      "VOX": 65.7,
+      "PODEMOS": 0.5,
       "FV": 2.9,
+      "SALF": 0.0,
       "PNV": 3.9,
       "CC": 0.8,
-      "SALF": 0.0,
-      "PP": 130.3
+      "PP": 130.1,
+      "VOX": 65.4,
+      "JUNTS": 5.2,
+      "ERC": 9.3,
+      "BILDU": 7.1,
+      "FA": 8.9,
+      "BNG": 2.1
     },
     "istituti": [
       {
@@ -148,6 +148,26 @@
           "AA": 3,
           "PODEMOS": 0,
           "SALF": 0
+        }
+      },
+      {
+        "n": "Ateneo del Dato/elDiario.es",
+        "fine": "2026-11-05",
+        "campione": 2000,
+        "peso": 1.281,
+        "voti": {
+          "PP": 31.5,
+          "PSOE": 28.6,
+          "VOX": 18.6,
+          "FA+FV": 6.1,
+          "PODEMOS": 1.5
+        },
+        "seggi": {
+          "PP": 128.0,
+          "PSOE": 112.0,
+          "VOX": 65.0,
+          "FA+FV": 10.0,
+          "PODEMOS": 0
         }
       },
       {
@@ -415,26 +435,6 @@
           "AA": 3,
           "PODEMOS": 2,
           "SALF": 0
-        }
-      },
-      {
-        "n": "Ateneo del Dato/elDiario.es",
-        "fine": "2026-10-22",
-        "campione": 2000,
-        "peso": 0.32,
-        "voti": {
-          "PP": 31.1,
-          "PSOE": 27.6,
-          "VOX": 19.8,
-          "FA+FV": 6.8,
-          "PODEMOS": 2.7
-        },
-        "seggi": {
-          "PP": 126.5,
-          "PSOE": 109.5,
-          "VOX": 70.5,
-          "FA+FV": 14.0,
-          "PODEMOS": 1.5
         }
       }
     ]

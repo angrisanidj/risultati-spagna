@@ -1458,13 +1458,15 @@ function renderBilico() {
 
 /* ---------- come potrebbe finire secondo i sondaggi ---------- */
 const giornoIT = iso => { const d = new Date(iso + 'T12:00:00Z'); return isNaN(d) ? '' : d.getUTCDate() + ' ' + ['gennaio', 'febbraio', 'marzo', 'aprile', 'maggio', 'giugno', 'luglio', 'agosto', 'settembre', 'ottobre', 'novembre', 'dicembre'][d.getUTCMonth()]; };
+/* «il 25 ottobre», «l’8 novembre», «l’11 novembre» */
+const ilGiorno = iso => { const s = giornoIT(iso); return (/^(8|11) /.test(s) ? 'l’' : 'il ') + s; };
 const probIT = p => p >= 0.995 ? 'più di 99 su 100' : p <= 0.005 ? 'meno di 1 su 100' : Math.round(p * 100) + ' su 100';
 function renderSondaggi() {
   const so = S.stime.sondaggi, P = proiezioneSondaggi(), card = $('sondCard');
   card.classList.toggle('hidden', !P);
   if (!P) return;
   const ist = so.istituti || [], m = so.media;
-  $('sondMeta').textContent = ist.length + ' sondaggi · ultimo campo il ' + giornoIT(so.ultimo);
+  $('sondMeta').textContent = ist.length + ' sondaggi · ultimo campo ' + ilGiorno(so.ultimo);
   $('sondSub').textContent = 'La media degli ultimi sondaggi pubblicati, con i voti distribuiti provincia per provincia come nel 2023 e i seggi assegnati con il D’Hondt in ogni circoscrizione. Fra parentesi la forchetta che comprende 8 simulazioni su 10.';
   const t = totBlocchi({ seggi: P.centro });
   $('sondBlocchi').innerHTML =
@@ -1486,7 +1488,7 @@ function renderSondaggi() {
   $('sondIstTit').textContent = 'I ' + ist.length + ' sondaggi nella media';
   $('sondIst').innerHTML = '<thead><tr><th>Istituto / committente</th><th>Fine campo</th><th class="m-off">Interviste</th><th>Peso</th><th>PP</th><th>PSOE</th><th>Vox</th><th class="m-off">FA</th></tr></thead><tbody>' +
     ist.map(s => '<tr><td>' + esc(s.n) + '</td><td>' + giornoIT(s.fine) + '</td><td class="m-off">' + (s.campione ? nf(s.campione) : '—') + '</td><td>' + nf(s.peso, 2) + '</td><td>' + nf(s.voti.PP, 1) + '</td><td>' + nf(s.voti.PSOE, 1) + '</td><td>' + nf(s.voti.VOX, 1) + '</td><td class="m-off">' + (s.voti.FA != null ? nf(s.voti.FA, 1) : s.voti['FA+FV'] != null ? nf(s.voti['FA+FV'], 1) + '*' : '—') + '</td></tr>').join('') + '</tbody>';
-  $('sondNota').innerHTML = 'Fonte: la tabella dei sondaggi di <a href="' + esc(so.fonte) + '" target="_blank" rel="noopener">Wikipedia</a>, letta il ' + giornoIT(String(so.letto).slice(0, 10)) + '. ' +
+  $('sondNota').innerHTML = 'Fonte: la tabella dei sondaggi di <a href="' + esc(so.fonte) + '" target="_blank" rel="noopener">Wikipedia</a>, letta ' + ilGiorno(String(so.letto).slice(0, 10)) + '. ' +
     'Nella media entrano i sondaggi con il campo chiuso nelle ' + so.finestra + ' giornate prima dell’ultimo, uno per istituto (il più recente); il peso si dimezza ogni ' + nf(so.emivita, 0) + ' giorni e cresce con il numero di interviste. Esclusi i sondaggi commissionati dai partiti. Il PP comprende UPN, come nei sondaggi; * Frente Amplio e Front Valencià insieme. ' +
     'La proiezione è della redazione: la media di ogni partito si distribuisce sulle province con il voto del 2023 (Frente Amplio, Podemos, Front Valencià e Adelante Andalucía dove era forte Sumar, SALF uguale ovunque), poi il D’Hondt; 1.000 simulazioni danno le forchette: con un errore comune fra destra e sinistra, perché i sondaggi sbagliano spesso tutti dalla stessa parte, uno per partito e uno per provincia. Nel 2023 la media dei sondaggi sottostimò il PSOE di circa tre punti.';
 }

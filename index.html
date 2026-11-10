@@ -627,12 +627,19 @@ footer a{color:var(--t2)}
 .mapwrap{position:relative}
 .mapwrap .mapback{left:8px;bottom:8px}
 .mapcarico{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--t2);font-size:13px;background:rgba(11,10,16,.6)}
-#provMap g.com path{stroke:rgba(11,10,16,.55);stroke-width:.3;cursor:pointer;vector-effect:non-scaling-stroke;transition:fill .3s}
-#provMap g.com path:hover{stroke:#fff;stroke-width:1}
-#provMap g.com path.sel{stroke:#fff;stroke-width:2}
-#provMap g.contorni path{fill:none;stroke:rgba(255,255,255,.28);stroke-width:.7;pointer-events:none;cursor:default;vector-effect:non-scaling-stroke}
-#provMap g.contorni path:hover{stroke:rgba(255,255,255,.28);stroke-width:.7}
-#provMap.zoom g.contorni path.fuori{stroke:rgba(255,255,255,.12)}
+#comCanvas{display:block;width:100%;height:auto;max-width:820px;margin:0 auto;touch-action:pan-y;cursor:pointer;-webkit-user-select:none;user-select:none}
+#comCanvas.zoom{touch-action:none}
+/* sul telefono: la ricerca sopra la mappa, la scheda subito sotto, la legenda in fondo */
+@media(max-width:1080px){
+  .mapgrid{display:flex;flex-direction:column;gap:12px}
+  .mapgrid>div{display:contents}
+  #boxCerca{order:1;width:100%}
+  .mapwrap{order:2}
+  #provDetail{order:3}
+  #mapLegend{order:4;margin-top:0!important}
+  #boxCerca .cerca{margin:0}
+  #cercaRis{margin:6px 0 0}
+}
 @media(max-width:760px){#mapLiv,#mapMode{flex-wrap:wrap;width:100%}#mapLiv button,#mapMode button{flex:1 1 auto}}
 #cercaRis{margin:-4px 0 10px}
 #cercaRis:empty{display:none}
@@ -810,6 +817,8 @@ footer a{color:var(--t2)}
       <div>
         <div class="mapwrap">
           <svg id="provMap" role="img" aria-label="Mappa delle province spagnole"></svg>
+          <canvas id="comCanvas" class="hidden" role="img" aria-label="Mappa dei comuni spagnoli"></canvas>
+          <span id="comHint" class="maphint hidden"></span>
           <button id="mapBack" class="sm mapback hidden">← Tutta la Spagna</button>
           <div id="mapCarico" class="mapcarico hidden">Carico gli 8.131 comuni…</div>
         </div>
@@ -1624,10 +1633,41 @@ function caricaComuni() {
   COM.pronto = Promise.all([fetch('dati/comuni2023.json').then(r => r.json()), fetch('dati/comuni-mappa.json').then(r => r.json())]).then(([d23, geo]) => {
     COM.d23 = d23; COM.geo = geo;
     /* gli archi: interi in decimi, il primo punto assoluto e poi le differenze */
-    const archi = geo.arcs.map(a => { const p = []; let x = 0, y = 0; for (let i = 0; i < a.length; i += 2) { x += a[i]; y += a[i + 1]; p.push((x / 10).toFixed(1) + ',' + (y / 10).toFixed(1)); } return p; });
+    const archi = geo.arcs.map(a => { const p = new Float32Array(a.length); let x = 0, y = 0; for (let i = 0; i < a.length; i += 2) { x += a[i]; y += a[i + 1]; p[i] = x / 10; p[i + 1] = y / 10; } return p; });
+    /* ogni comune diventa un Path2D, con il suo riquadro per sapere quando è nella vista */
+    COM.lista = [];
     for (const [ine, anelli] of Object.entries(geo.c)) {
-      COM.d[ine] = anelli.map(r => { const p = []; r.forEach(i => { const a = i >= 0 ? archi[i] : archi[~i].slice().reverse(); p.push(...(p.length ? a.slice(1) : a)); }); return 'M' + p.join('L') + 'Z'; }).join('');
+      const P = new Path2D(); let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+      for (const r of anelli) {
+        let primo = true;
+        for (const i of r) {
+          const a = i >= 0 ? archi[i] : archi[~i], n = a.length / 2;
+          for (let j = 0; j < n; j++) {
+            const k = i >= 0 ? j : n - 1 - j, x = a[2 * k], y = a[2 * k + 1];
+            if (primo) { P.moveTo(x, y); primo = false; } else P.lineTo(x, y);
+            if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y;
+          }
+        }
+        P.closePath();
+      }
+      COM.lista.push({ ine, P, bb: [x0, y0, x1, y1] });
     }
+    /* Ceuta e Melilla sono un comune ciascuna: un cerchio, come per le province */
+    for (const c of ['51', '52']) {
+      const p = MAPPA.p[c], P = new Path2D(); P.arc(p.x, p.y, 7, 0, Math.PI * 2);
+      const i = COM.lista.findIndex(o => o.ine === c + '001');
+      const o = { ine: c + '001', P, bb: [p.x - 7, p.y - 7, p.x + 7, p.y + 7] };
+      if (i >= 0) COM.lista[i] = o; else COM.lista.push(o);
+    }
+    /* una griglia di celle da 20 unità: per ogni tocco si provano solo i comuni della cella */
+    COM.griglia = new Map();
+    COM.lista.forEach((o, n) => {
+      for (let gx = Math.floor(o.bb[0] / 20); gx <= Math.floor(o.bb[2] / 20); gx++)
+        for (let gy = Math.floor(o.bb[1] / 20); gy <= Math.floor(o.bb[3] / 20); gy++) {
+          const k = gx + ':' + gy; if (!COM.griglia.has(k)) COM.griglia.set(k, []); COM.griglia.get(k).push(n);
+        }
+    });
+    COM.contorni = COD.map(c => ({ c, P: new Path2D(MAPPA.p[c].d), bb: bboxD(MAPPA.p[c].d) }));
     for (const [ine, x] of Object.entries(d23.m)) {
       const c = ine.slice(0, 2), g = gruppiFlat(x[6], d23.partiti);
       (COM.prov[c] = COM.prov[c] || []).push(ine);
@@ -1646,6 +1686,11 @@ function caricaComuni() {
   }).catch(e => { COM.stato = 'errore'; COM.errore = e.message; COM.pronto = null; });
   return COM.pronto;
 }
+function bboxD(d) {
+  const n = d.match(/-?\d+(?:\.\d+)?/g).map(Number); let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+  for (let i = 0; i + 1 < n.length; i += 2) { x0 = Math.min(x0, n[i]); x1 = Math.max(x1, n[i]); y0 = Math.min(y0, n[i + 1]); y1 = Math.max(y1, n[i + 1]); }
+  return [x0, y0, x1, y1];
+}
 /* il dato di un comune: quello di stanotte se c'è, altrimenti niente (o il 2023, sul livello del 2023) */
 function datoComune(ine) {
   const lp = COM.live[ine.slice(0, 2)];
@@ -1661,49 +1706,170 @@ function quoteComune(ine, liv) {
   const q = {}; for (const k in d.g) q[k] = d.g[k] / d.x[5];
   return { q, frac: d.frac };
 }
-function coloreComune(ine) {
+/* I colori di tutti i comuni, e quanti comuni per primo partito, in un solo passaggio. Si rifanno
+   solo quando cambiano i dati (COM.versione), il livello, il modo o il partito scelto: lo
+   zoom, il trascinamento e il resto della pagina non li ricalcolano. */
+COM.versione = 0;
+function coloriComuni() {
   const liv = S.mapLiv, modo = liv === 'com23' && (S.mapMode === 'sposta' || S.mapMode === 'scr') ? 'primo' : S.mapMode;
-  const { q, frac } = quoteComune(ine, liv);
-  return coloreQuote(q, COM.q23[ine], frac, modo);
+  const chiave = COM.versione + '|' + liv + '|' + modo + '|' + S.mapLista;
+  if (COM.colChiave === chiave) return;
+  const col = new Map(), primi = {};
+  let conVoti = 0;
+  for (const o of COM.lista) {
+    const { q, frac } = quoteComune(o.ine, liv);
+    col.set(o.ine, coloreQuote(q, COM.q23[o.ine], frac, modo));
+    if (q) {
+      let gm = null, vm = -1; for (const k in q) if (q[k] > vm) { vm = q[k]; gm = k; }
+      if (gm) primi[gm] = (primi[gm] || 0) + 1;
+      if (liv === 'com') conVoti++;
+    }
+  }
+  COM.col = col; COM.primi = primi; COM.conVoti = conVoti; COM.colChiave = chiave;
+}
+
+/* ---------- il canvas dei comuni ----------
+   Gli 8.131 comuni non sono più forme SVG ma un disegno su canvas: si colorano in pochi
+   millisecondi e, ingranditi, si ridisegnano solo quelli dentro la vista. Un tocco ingrandisce
+   la provincia del comune e lo apre nella scheda; con due dita si ingrandisce, con un dito (a
+   mappa ingrandita) si sposta; il pulsante «Tutta la Spagna» torna alla vista intera. Sul
+   computer la rotella ingrandisce e il puntatore mostra il nome del comune. */
+const VISTA = { vb: null, frame: 0 };
+function vistaIntera() { return [0, 0, MAPPA.w, MAPPA.h]; }
+function vistaProvincia(c) {
+  const o = COM.contorni && COM.contorni.find(x => x.c === c);
+  if (!o) return vistaIntera();
+  const [x0, y0, x1, y1] = o.bb, m = Math.max(x1 - x0, y1 - y0) * 0.06 + 4;
+  return [x0 - m, y0 - m, x1 - x0 + 2 * m, y1 - y0 + 2 * m];
+}
+/* da coordinate della mappa a pixel del canvas e ritorno */
+function trasformazione() {
+  const cv = $('comCanvas'), W = cv.clientWidth, H = cv.clientHeight, [vx, vy, vw, vh] = VISTA.vb || vistaIntera();
+  const s = Math.min(W / vw, H / vh), ox = (W - vw * s) / 2 - vx * s, oy = (H - vh * s) / 2 - vy * s;
+  return { s, ox, oy, W, H };
+}
+function disegnaComuni() {
+  VISTA.frame = 0;
+  const cv = $('comCanvas');
+  if (cv.classList.contains('hidden') || COM.stato !== 'ok') return;
+  coloriComuni();
+  const dpr = Math.min(window.devicePixelRatio || 1, 2), W = cv.clientWidth, H = cv.clientHeight;
+  if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+  const x = cv.getContext('2d'), T = trasformazione();
+  x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, cv.width, cv.height);
+  x.setTransform(dpr * T.s, 0, 0, dpr * T.s, dpr * T.ox, dpr * T.oy);
+  /* i limiti della vista, in coordinate della mappa: fuori non si disegna niente */
+  const vx0 = -T.ox / T.s, vy0 = -T.oy / T.s, vx1 = (W - T.ox) / T.s, vy1 = (H - T.oy) / T.s;
+  const [rx, ry, rw, rh] = MAPPA.canarie;
+  x.lineWidth = 1 / T.s; x.strokeStyle = 'rgba(255,255,255,.14)'; x.setLineDash([4 / T.s, 3 / T.s]); x.strokeRect(rx, ry, rw, rh); x.setLineDash([]);
+  const bordo = T.s > 2.5;   /* i confini fra comuni solo quando si distinguono */
+  x.lineWidth = 0.6 / T.s; x.strokeStyle = 'rgba(11,10,16,.6)';
+  for (const o of COM.lista) {
+    const b = o.bb; if (b[2] < vx0 || b[0] > vx1 || b[3] < vy0 || b[1] > vy1) continue;
+    x.fillStyle = COM.col.get(o.ine) || COL_VUOTO; x.fill(o.P);
+    if (bordo) x.stroke(o.P);
+  }
+  /* i confini delle province, più chiari quella ingrandita */
+  x.lineWidth = 0.9 / T.s;
+  for (const o of COM.contorni) {
+    const b = o.bb; if (b[2] < vx0 || b[0] > vx1 || b[3] < vy0 || b[1] > vy1) continue;
+    x.strokeStyle = S.zoomProv && o.c !== S.zoomProv ? 'rgba(255,255,255,.14)' : 'rgba(255,255,255,.32)'; x.stroke(o.P);
+  }
+  const sel = S.selM && COM.lista.find(o => o.ine === S.selM);
+  if (sel) { x.lineWidth = 2.2 / T.s; x.strokeStyle = '#fff'; x.stroke(sel.P); }
+  x.font = (11 / T.s) + 'px Inter, sans-serif'; x.fillStyle = '#7a7383';
+  x.fillText('Canarie', rx + 6, ry + rh - 6);
+  for (const c of ['51', '52']) { const p = MAPPA.p[c]; x.fillText(CIRC[c][0], p.x + 11, p.y + 4); }
+}
+function ridisegna() { if (!VISTA.frame) VISTA.frame = requestAnimationFrame(disegnaComuni); }
+/* il comune sotto un punto dello schermo, o null */
+function comuneIn(sx, sy) {
+  if (COM.stato !== 'ok') return null;
+  const T = trasformazione(), mx = (sx - T.ox) / T.s, my = (sy - T.oy) / T.s;
+  const cand = COM.griglia.get(Math.floor(mx / 20) + ':' + Math.floor(my / 20)) || [];
+  const x = $('comCanvas').getContext('2d');
+  x.save(); x.setTransform(1, 0, 0, 1, 0, 0);
+  let trovato = null;
+  for (const n of cand) { const o = COM.lista[n]; if (mx >= o.bb[0] && mx <= o.bb[2] && my >= o.bb[1] && my <= o.bb[3] && x.isPointInPath(o.P, mx, my)) { trovato = o.ine; break; } }
+  x.restore();
+  return trovato;
+}
+function zoomA(f, sx, sy) {
+  const T = trasformazione(), [vx, vy, vw, vh] = VISTA.vb || vistaIntera();
+  const nw = clamp(vw / f, 8, MAPPA.w * 1.2), k = nw / vw, nh = vh * k;
+  const mx = (sx - T.ox) / T.s, my = (sy - T.oy) / T.s;   /* il punto sotto il dito resta fermo */
+  VISTA.vb = [mx - (mx - vx) * k, my - (my - vy) * k, nw, nh];
+  aggiornaZoom(); ridisegna();
+}
+function spostaDi(dx, dy) {
+  const T = trasformazione(), [vx, vy, vw, vh] = VISTA.vb || vistaIntera();
+  VISTA.vb = [vx - dx / T.s, vy - dy / T.s, vw, vh];
+  aggiornaZoom(); ridisegna();
+}
+const ingrandita = () => { const v = VISTA.vb; return !!v && (v[2] < MAPPA.w * 0.98 || v[0] !== 0 || v[1] !== 0); };
+function aggiornaZoom() {
+  const z = ingrandita();
+  $('comCanvas').classList.toggle('zoom', z);
+  $('mapBack').classList.toggle('hidden', !z);
+}
+function eventiCanvas() {
+  const cv = $('comCanvas'), punti = new Map();
+  let mosso = 0, pizzico = null, ultimoTap = 0;
+  const pos = e => { const r = cv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+  cv.addEventListener('pointerdown', e => {
+    punti.set(e.pointerId, pos(e)); mosso = 0;
+    if (punti.size === 2) { const [a, b] = [...punti.values()]; pizzico = Math.hypot(a[0] - b[0], a[1] - b[1]); }
+    if (e.pointerType !== 'mouse' || e.button === 0) { try { cv.setPointerCapture(e.pointerId); } catch (_) { } }
+  });
+  cv.addEventListener('pointermove', e => {
+    const p = pos(e);
+    if (!punti.has(e.pointerId)) {   /* il puntatore del mouse: il nome del comune */
+      if (e.pointerType === 'mouse') { const ine = comuneIn(p[0], p[1]), h = $('comHint'); h.textContent = ine && COM.d23.m[ine] ? COM.d23.m[ine][0] + ' · ' + CIRC[ine.slice(0, 2)][0] : ''; h.classList.toggle('hidden', !ine); }
+      return;
+    }
+    const prima = punti.get(e.pointerId); punti.set(e.pointerId, p);
+    if (punti.size === 2 && pizzico) {
+      const [a, b] = [...punti.values()], d = Math.hypot(a[0] - b[0], a[1] - b[1]);
+      zoomA(d / pizzico, (a[0] + b[0]) / 2, (a[1] + b[1]) / 2); pizzico = d; mosso += 10;
+    } else if (punti.size === 1) {
+      const dx = p[0] - prima[0], dy = p[1] - prima[1];
+      mosso += Math.abs(dx) + Math.abs(dy);
+      if (ingrandita() && mosso > 6) spostaDi(dx, dy);
+    }
+  });
+  const fine = e => {
+    const p = punti.get(e.pointerId); punti.delete(e.pointerId);
+    if (punti.size < 2) pizzico = null;
+    if (e.type === 'pointerup' && p && punti.size === 0 && mosso <= 6) {
+      const ine = comuneIn(p[0], p[1]), ora = Date.now();
+      if (ora - ultimoTap < 300 && e.pointerType !== 'mouse') { zoomA(2, p[0], p[1]); ultimoTap = 0; return; }   /* doppio tocco */
+      ultimoTap = ora;
+      if (ine) selezionaComune(ine);
+    }
+  };
+  cv.addEventListener('pointerup', fine); cv.addEventListener('pointercancel', fine);
+  cv.addEventListener('pointerleave', () => $('comHint').classList.add('hidden'));
+  cv.addEventListener('wheel', e => { e.preventDefault(); const p = pos(e); zoomA(e.deltaY < 0 ? 1.25 : 0.8, p[0], p[1]); }, { passive: false });
+  window.addEventListener('resize', ridisegna);
 }
 
 /* ---------- disegno della mappa ---------- */
-let mappaCostruita = null;
+let mappaCostruita = false;
 function costruisciMappa() {
-  const svg = $('provMap'), com = S.mapLiv !== 'prov' && COM.stato === 'ok';
+  const svg = $('provMap');
   const [x, y, w, h] = MAPPA.canarie;
   let s = '<rect class="riquadro" x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="4"></rect>';
-  if (com) {
-    s += '<g class="com">';
-    for (const ine in COM.d) s += '<path data-m="' + ine + '" d="' + COM.d[ine] + '"></path>';
-    /* Ceuta e Melilla sono un comune ciascuna: un cerchio, come per le province */
-    for (const c of ['51', '52']) { const p = MAPPA.p[c]; s += '<path data-m="' + c + '001" d="M' + (p.x - 7) + ',' + p.y + 'a7,7 0 1,0 14,0a7,7 0 1,0 -14,0Z"></path>'; }
-    s += '</g><g class="contorni">' + COD.map(c => '<path data-o="' + c + '" d="' + MAPPA.p[c].d + '"></path>').join('') + '</g>';
-  } else {
-    for (const c of COD) {
-      const p = MAPPA.p[c]; if (!p) continue;
-      s += '<path data-c="' + c + '" d="' + p.d + '"><title>' + esc(CIRC[c][0]) + '</title></path>';
-    }
-    for (const c of ['51', '52']) { const p = MAPPA.p[c]; s += '<path data-c="' + c + '" d="M' + (p.x - 7) + ',' + p.y + 'a7,7 0 1,0 14,0a7,7 0 1,0 -14,0Z"><title>' + CIRC[c][0] + '</title></path>'; }
+  for (const c of COD) {
+    const p = MAPPA.p[c]; if (!p) continue;
+    s += '<path data-c="' + c + '" d="' + p.d + '"><title>' + esc(CIRC[c][0]) + '</title></path>';
   }
+  for (const c of ['51', '52']) { const p = MAPPA.p[c]; s += '<path data-c="' + c + '" d="M' + (p.x - 7) + ',' + p.y + 'a7,7 0 1,0 14,0a7,7 0 1,0 -14,0Z"><title>' + CIRC[c][0] + '</title></path>'; }
   for (const c of ['51', '52']) { const p = MAPPA.p[c]; s += '<text x="' + (p.x + 11) + '" y="' + (p.y + 4) + '">' + CIRC[c][0] + '</text>'; }
   s += '<text x="' + (x + 6) + '" y="' + (y + h - 6) + '">Canarie</text>';
   svg.innerHTML = s;
-  svg.style.aspectRatio = MAPPA.w + ' / ' + MAPPA.h;   /* con lo zoom cambia il riquadro, non l'altezza */
-  mappaCostruita = com ? 'com' : 'prov';
-}
-/* lo zoom su una provincia, al livello dei comuni */
-function vistaMappa() {
-  const svg = $('provMap'), c = S.mapLiv !== 'prov' ? S.zoomProv : null;
-  let vb = '0 0 ' + MAPPA.w + ' ' + MAPPA.h;
-  if (c) {
-    const el = svg.querySelector('path[data-o="' + c + '"]');
-    if (el) { const b = el.getBBox(), m = Math.max(b.width, b.height) * 0.06 + 4; vb = (b.x - m) + ' ' + (b.y - m) + ' ' + (b.width + 2 * m) + ' ' + (b.height + 2 * m); }
-  }
-  svg.setAttribute('viewBox', vb);
-  svg.classList.toggle('zoom', !!c);
-  svg.querySelectorAll('g.contorni path').forEach(p => p.classList.toggle('fuori', !!c && p.dataset.o !== c));
-  $('mapBack').classList.toggle('hidden', !c);
+  svg.setAttribute('viewBox', '0 0 ' + MAPPA.w + ' ' + MAPPA.h);
+  svg.style.aspectRatio = $('comCanvas').style.aspectRatio = MAPPA.w + ' / ' + MAPPA.h;
+  mappaCostruita = true;
 }
 function renderMappa() {
   const liv = S.mapLiv;
@@ -1713,7 +1879,9 @@ function renderMappa() {
     caricaComuni().then(() => { if (COM.stato === 'ok') { renderMappa(); if (liv === 'com') aggiornaComuni(); } });
   } else $('mapCarico').classList.add('hidden');
   const voluta = liv !== 'prov' && COM.stato === 'ok' ? 'com' : 'prov';
-  if (mappaCostruita !== voluta) costruisciMappa();
+  if (!mappaCostruita) costruisciMappa();
+  $('provMap').classList.toggle('hidden', voluta === 'com');
+  $('comCanvas').classList.toggle('hidden', voluta !== 'com');
   document.querySelectorAll('#mapLiv button').forEach(b => b.setAttribute('aria-pressed', b.dataset.liv === liv ? 'true' : 'false'));
   document.querySelectorAll('#mapMode button').forEach(b => {
     b.setAttribute('aria-pressed', b.dataset.mode === S.mapMode ? 'true' : 'false');
@@ -1726,19 +1894,19 @@ function renderMappa() {
   sel.innerHTML = gs.map(g => '<option value="' + esc(g) + '"' + (g === S.mapLista ? ' selected' : '') + '>' + esc(nomeBreve(infoG(g))) + '</option>').join('');
   $('boxCerca').classList.toggle('hidden', voluta !== 'com');
   if (voluta === 'com') {
-    document.querySelectorAll('#provMap g.com path').forEach(p => { p.style.fill = coloreComune(p.dataset.m); p.classList.toggle('sel', p.dataset.m === S.selM); });
-    const conVoti = Object.values(COM.live).reduce((s, lp) => s + Object.values(lp.m).filter(x => x[7] > 0).length, 0);
-    $('mapPill').textContent = liv === 'com23' ? 'voto del 23 luglio 2023' : conVoti ? nf(conVoti) + ' comuni su 8.131 con voti' : 'in attesa dei comuni';
+    coloriComuni();
+    $('mapPill').textContent = liv === 'com23' ? 'voto del 23 luglio 2023' : COM.conVoti ? nf(COM.conVoti) + ' comuni su 8.131 con voti' : 'in attesa dei comuni';
     $('mapTitolo').textContent = 'La mappa dei comuni';
+    aggiornaZoom(); ridisegna();
   } else {
     document.querySelectorAll('#provMap path[data-c]').forEach(p => { p.style.fill = coloreCirc(p.dataset.c); p.classList.toggle('sel', p.dataset.c === S.sel); });
     $('mapPill').textContent = D && D.conVoti ? D.conVoti + ' circoscrizioni su 52 con voti' : 'in attesa';
     $('mapTitolo').textContent = 'La mappa delle province';
+    $('mapBack').classList.add('hidden');
   }
   $('provMap').classList.toggle('hassel', voluta === 'prov' && !!S.sel);
-  vistaMappa();
   $('mapSub').textContent = voluta === 'com'
-    ? (liv === 'com23' ? 'Il voto del 2023 in ognuno degli 8.131 comuni. ' : ciSonoComuniLive() ? 'I comuni dove si è già contato; in grigio quelli che mancano. ' : 'I risultati dei comuni compaiono man mano che il Ministero li pubblica; fino ad allora c’è il 2023 nella scheda accanto. ') + 'Tocca un comune per ingrandire la sua provincia e vedere i voti, o cercalo per nome.'
+    ? (liv === 'com23' ? 'Il voto del 2023 in ognuno degli 8.131 comuni. ' : ciSonoComuniLive() ? 'I comuni dove si è già contato; in grigio quelli che mancano. ' : 'I risultati dei comuni compaiono man mano che il Ministero li pubblica; fino ad allora c’è il 2023 nella scheda accanto. ') + 'Tocca un comune per ingrandire la sua provincia e vedere i voti, o cercalo per nome. Con due dita si ingrandisce.'
     : 'Ogni provincia è una circoscrizione, più Ceuta e Melilla. Le Canarie sono nel riquadro in basso a sinistra. Tocca una provincia per vedere voti, seggi e l’ultimo seggio assegnato.';
   $('mapNote').textContent = voluta === 'com'
     ? 'Confini dei comuni: IGN, nella versione di es-atlas (MIT). Voto 2023 per comune: Ministero dell’Interno, senza il voto dall’estero, che si conta solo per provincia. ' + (COM.errore && liv === 'com' ? 'Comuni di stanotte: ' + COM.errore + '.' : '')
@@ -1749,8 +1917,8 @@ function renderLegenda() {
   const D = S.D, m = S.mapMode, com = S.mapLiv !== 'prov' && COM.stato === 'ok';
   let h = '';
   if (m === 'primo') {
-    const cnt = {};
-    if (com) Object.keys(COM.d).forEach(ine => { const { q } = quoteComune(ine, S.mapLiv); if (q) { const o = Object.entries(q).sort((a, b) => b[1] - a[1])[0]; if (o) cnt[o[0]] = (cnt[o[0]] || 0) + 1; } });
+    let cnt = {};
+    if (com) { coloriComuni(); cnt = COM.primi; }
     else if (D) COD.forEach(c => { const q = quoteCirc(c); if (q) { const g = Object.entries(q).sort((a, b) => b[1] - a[1])[0][0]; cnt[g] = (cnt[g] || 0) + 1; } });
     const o = Object.entries(cnt).sort((a, b) => b[1] - a[1]).slice(0, 10);
     h = '<h4>Il primo partito' + (com ? ', comuni' : '') + '</h4><div class="lg">' + (o.length ? o.map(([g, n]) => '<div><i style="background:' + infoG(g).c + '"></i><span>' + esc(nomeBreve(infoG(g))) + '</span><b>' + nf(n) + '</b></div>').join('') : '<div><span class="muted">' + (com ? 'nessun comune ancora' : 'nessuna circoscrizione ancora') + '</span></div>') + '</div><p>Il colore è più pieno dove il distacco dal secondo è più largo, da 20 punti in su.</p>';
@@ -1832,7 +2000,9 @@ function seleziona(c, scorri) {
   if (scorri) $('provMap').scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 function selezionaComune(ine, scorri) {
-  S.zoomProv = ine.slice(0, 2); S.selM = ine;
+  const c = ine.slice(0, 2);
+  if (!ingrandita() || S.zoomProv !== c) VISTA.vb = vistaProvincia(c);
+  S.zoomProv = c; S.selM = ine;
   renderMappa();
   if (S.mapLiv === 'com') aggiornaComuni(S.zoomProv);
   if (scorri) $('provMap').scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1856,7 +2026,7 @@ async function prendiComuni(c) {
   const r = await conTimeout(u.href, { cache: 'no-cache' }, 30000);
   const j = await r.json().catch(() => null);
   if (!r.ok || !j || !j.m) throw new Error(j && j.errore ? j.errore : 'HTTP ' + r.status);
-  COM.live[c] = j;
+  COM.live[c] = j; COM.versione++;
 }
 async function aggiornaComuni(prima) {
   if (PROVA || SOLO_COPIA || (!FORZA_FEED && Date.now() < ATTIVA_FEED) || S.mapLiv !== 'com' || COM.stato !== 'ok') return;
@@ -2040,7 +2210,7 @@ function provaApplica() {
   const f = Number($('provaRange').value) / 100;
   $('provaPct').textContent = Math.round(f * 100) + '%';
   const { R, live } = provaRiassunto(f);
-  COM.live = live;
+  COM.live = live; COM.versione++;
   applica(R, 'prova', new Date(R.quando));
   setFeed('Prova generale · 2023, avanzamento simulato ' + Math.round(f * 100) + '%', 'paused');
 }
@@ -2164,15 +2334,14 @@ function eventi() {
   document.querySelectorAll('#mapMode button').forEach(b => b.onclick = () => { S.mapMode = b.dataset.mode; salva(); renderMappa(); });
   $('mapLista').onchange = e => { S.mapLista = e.target.value; salva(); renderMappa(); };
   $('provMap').onclick = e => {
-    const m = e.target.closest('path[data-m]');
-    if (m) { selezionaComune(m.dataset.m); return; }
     const p = e.target.closest('path[data-c]'); seleziona(p ? p.dataset.c : S.sel);
   };
   document.querySelectorAll('#mapLiv button').forEach(b => b.onclick = () => {
     S.mapLiv = b.dataset.liv; if (S.mapLiv === 'com23' && (S.mapMode === 'sposta' || S.mapMode === 'scr')) S.mapMode = 'primo';
     salva(); renderMappa(); if (S.mapLiv === 'com') aggiornaComuni(S.zoomProv);
   });
-  $('mapBack').onclick = () => { S.zoomProv = null; S.selM = null; renderMappa(); };
+  $('mapBack').onclick = () => { VISTA.vb = null; S.zoomProv = null; S.selM = null; renderMappa(); };
+  eventiCanvas();
   $('cercaCom').oninput = cercaComune;
   $('cercaRis').onclick = e => { const r = e.target.closest('.lanrow[data-m]'); if (!r) return; $('cercaCom').value = ''; $('cercaRis').innerHTML = ''; selezionaComune(r.dataset.m, true); };
   $('bilici').onclick = e => { const r = e.target.closest('.bil'); if (r) seleziona(r.dataset.c, true); };

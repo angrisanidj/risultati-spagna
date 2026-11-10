@@ -57,7 +57,7 @@ Il workflow **Media dei sondaggi** (`.github/workflows/sondaggi.yml`) la rifà a
 
 ## Da dove arrivano i dati
 
-**Il sito dei risultati del 2026 non è ancora online** (30 ottobre). Nel 2023 il Ministero li pubblicava su `resultados.generales23j.es`, comparso quattro giorni prima del voto, accanto al sito informativo `generales23j.es`. Quest'anno il sito informativo è `29neleccionesgenerales.es`: il proxy prova quindi `https://resultados.29neleccionesgenerales.es/`, ma è un'ipotesi da verificare appena il sito esiste.
+**Il sito dei risultati del 2026 esiste ma non è ancora aperto.** Nel 2023 il Ministero li pubblicava su `resultados.generales23j.es`, aperto quattro giorni prima del voto, accanto al sito informativo `generales23j.es`. Quest'anno il sito informativo è `29neleccionesgenerales.es`, e dal 10 novembre `resultados.29neleccionesgenerales.es` risponde: è su CloudFront e per ora chiede una password (autenticazione HTTP «Basic», risposta 401), anche sui percorsi `backend-difu`. È la fase di preparazione. Appena si apre, la diagnostica del proxy lo dice.
 
 Il formato è quello del 2023, ricostruito dall'archivio di Wayback Machine: un'API JSON chiamata `backend-difu`, con un file per ambito.
 
@@ -91,7 +91,7 @@ npx vercel link        # crea il progetto «spagna-2026-feed-proxy»
 npx vercel --prod
 ```
 
-In alternativa, dalla dashboard di Vercel: *Add New → Project*, importa il repository e imposta **Root Directory = `proxy`**. La funzione gira a Parigi (`cdg1`, in `vercel.json`: Vercel non ha una regione in Spagna). Le richieste ammesse arrivano da `https://angrisanidj.github.io` e da `localhost`; per altri domini modifica `ORIGINI` in `api/mir.js`.
+**Il progetto Vercel non deve essere collegato al repository GitHub.** Il 10 novembre lo era (Vercel lo collega da solo al primo `vercel link`): a ogni commit, compresi quelli automatici della media dei sondaggi, ripubblicava la cartella principale, cioè la pagina, al posto del proxy, e `/api/mir` rispondeva 404. È stato scollegato con `npx vercel git disconnect`; il proxy si pubblica solo dalla cartella `proxy/` con `npx vercel --prod`. Se un giorno lo si vuole collegare di nuovo, va impostata **Root Directory = `proxy`** nelle impostazioni del progetto. La funzione gira a Parigi (`cdg1`, in `vercel.json`: Vercel non ha una regione in Spagna). Le richieste ammesse arrivano da `https://angrisanidj.github.io` e da `localhost`; per altri domini modifica `ORIGINI` in `api/mir.js`.
 
 Il proxy prova prima la Spagna con le province dentro (una richiesta); se la risposta non le contiene tutte, chiede le 52 province, 6 alla volta. La cache del CDN di Vercel tiene ogni risposta 20 secondi, quindi molti lettori aperti producono al massimo un giro di richieste al Ministero ogni 20 secondi. Dopo un 429 o un 403 il proxy si ferma un minuto.
 

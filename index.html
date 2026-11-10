@@ -915,9 +915,12 @@ const BLOCCHI = {
 };
 const ORD_BLOCCHI = ['S', 'N', 'X', 'D'];   /* da sinistra a destra nell'emiciclo */
 
-/* I partiti, riconosciuti dalla sigla della lista o dalla sigla nazionale che il Ministero le
-   associa: le liste territoriali (PSC, PSdeG…) confluiscono nel partito nazionale. L'ordine
-   conta: la prima regola che corrisponde vince. */
+/* I partiti, riconosciuti dalla sigla nazionale che il Ministero associa alla lista, poi dalla
+   sigla della lista, poi dal nome per esteso: le liste territoriali (PSC, PSdeG…) confluiscono
+   nel partito nazionale. L'ordine conta: la prima regola che corrisponde vince. Le regole sono
+   provate sulle candidature proclamate (BOE del 3 novembre 2026): a Ceuta Podemos ha la sigla
+   «PAZ,CASA Y TRABAJO», in Navarra UPN corre con il PP («UPN-PP»), alle Baleari Més per
+   Mallorca con il Frente Amplio («ARAMÉS-FRONT AMPLI»). */
 const GRUPPI = [
   { k: 'PP', n: 'Partito popolare', s: 'PP', re: /^PP\b|PARTIDO POPULAR/i, b: 'D', c: '#2f8fe0' },
   { k: 'PSOE', n: 'Partito socialista', s: 'PSOE', re: /PSOE|^PSC\b|PSdeG|PSE-EE|SOCIALISTA/i, b: 'S', c: '#e11d2b' },
@@ -926,7 +929,7 @@ const GRUPPI = [
      settembre 2026 prende il posto di Sumar; le liste di Sumar del 2023 sono il suo termine di
      confronto. Front Valencià (Compromís, Podemos ed EUPV nella Comunità Valenciana) viene dopo,
      così la lista «Sumar–Compromís» del 2023 resta a Sumar, cioè al Frente Amplio. */
-  { k: 'FA', n: 'Frente Amplio', s: 'Frente Amplio', re: /FRENTE AMPLIO|^FA\b|SUMAR|^ECP\b|COMUNS|EN COM[UÚ]|^M[AÁ]S MADRID|^M[AÁ]S PA[IÍ]S/i, b: 'S', c: '#e5197e' },
+  { k: 'FA', n: 'Frente Amplio', s: 'Frente Amplio', re: /FRENTE AMPLIO|FRONTE? AMPL|^FA\b|ARAM[EÉ]S|SUMAR|^ECP\b|COMUNS|EN COM[UÚ]|^M[AÁ]S MADRID|^M[AÁ]S PA[IÍ]S/i, b: 'S', c: '#e5197e' },
   { k: 'FV', n: 'Front Valencià', s: 'Front Valencià', re: /FRONT VALENCI|COMPROM[IÍ]S/i, b: 'S', c: '#f08a24' },
   { k: 'PODEMOS', n: 'Podemos', s: 'Podemos', re: /PODEMOS/i, b: 'S', c: '#7a3b9c' },
   { k: 'AA', n: 'Adelante Andalucía', s: 'Adelante And.', re: /ADELANTE ANDALUC/i, b: 'S', c: '#2e9e63' },
@@ -934,8 +937,8 @@ const GRUPPI = [
   { k: 'JUNTS', n: 'Junts', s: 'Junts', re: /JUNTS|JxCAT/i, b: 'N', c: '#22c1b0' },
   { k: 'BILDU', n: 'EH Bildu', s: 'Bildu', re: /BILDU/i, b: 'S', c: '#a5c93c' },
   { k: 'PNV', n: 'Partito nazionalista basco', s: 'PNV', re: /PNV|^EAJ/i, b: 'N', c: '#3f9e4d' },
-  { k: 'BNG', n: 'Blocco nazionalista galiziano', s: 'BNG', re: /^BNG\b|NACIONALISTA GALEGO/i, b: 'S', c: '#8cc4ea' },
-  { k: 'CC', n: 'Coalizione canaria', s: 'CC', re: /^CCa?\b|COALICI[OÓ]N CANARIA/i, b: 'N', c: '#f2d21b' },
+  { k: 'BNG', n: 'Blocco nazionalista galiziano', s: 'BNG', re: /^B\.?N\.?G\b|NACIONALISTA GALEGO/i, b: 'S', c: '#8cc4ea' },
+  { k: 'CC', n: 'Coalizione canaria', s: 'CC', re: /^CCa?\b|\bCCa\b|COALICI[OÓ]N CANARIA/i, b: 'N', c: '#f2d21b' },
   { k: 'UPN', n: 'Unione del popolo navarro', s: 'UPN', re: /^UPN\b/i, b: 'D', c: '#3557b8' },
   { k: 'SALF', n: 'Se acabó la fiesta', s: 'SALF', re: /^SALF\b|SE ACAB[OÓ] LA FIESTA/i, b: 'X', c: '#9a7b55' },
   { k: 'CUP', n: 'Candidatura di unità popolare', s: 'CUP', re: /^CUP\b/i, b: 'X', c: '#d9c23a' },
@@ -947,8 +950,8 @@ const GRUPPI = [
 ];
 const GMAP = Object.fromEntries(GRUPPI.map(g => [g.k, g]));
 const COL_ALTRO = '#6f6878';
-function gruppoDi(sigla, naz) {
-  for (const s of [naz, sigla]) {
+function gruppoDi(sigla, naz, nome) {
+  for (const s of [naz, sigla, nome]) {
     if (!s) continue;
     const t = String(s).replace(/[–—]/g, '-');
     const g = GRUPPI.find(x => x.re.test(t));
@@ -1065,7 +1068,7 @@ function elabora(R) {
     const a = R.circ && R.circ[c];
     const seggi = seggiCirc(c);
     if (!a) { circ[c] = { vuota: true, seggi, liste: [], g: {}, seg: {}, frac: 0 }; continue; }
-    const liste = Object.entries(a.v || {}).map(([k, [v]]) => { const p = P[k] || [k, '', '']; return { k, v, sigla: p[0], nome: p[1], g: gruppoDi(p[0], p[2]) }; })
+    const liste = Object.entries(a.v || {}).map(([k, [v]]) => { const p = P[k] || [k, '', '']; return { k, v, sigla: p[0], nome: p[1], g: gruppoDi(p[0], p[2], p[1]) }; })
       .sort((x, y) => y.v - x.v);
     const D = a.validi > 0 ? dhondt(liste, a.validi, seggi) : { seggi: {}, ultimo: null, primo: null, manca: null, min: 0 };
     const g = {}, seg = {};

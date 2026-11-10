@@ -103,6 +103,49 @@ def main():
     (base / 'dati').mkdir(exist_ok=True)
     (base / 'dati' / 'mappa.json').write_text(json.dumps(out, ensure_ascii=False, separators=(',', ':')), encoding='utf-8')
     print(len(out['p']), 'province', out['w'], 'x', out['h'], 'byte', len(json.dumps(out)))
+    comuni(sys.argv[2] if len(sys.argv) > 2 else None, cosl, x0, y0, base)
+
+
+URL_COMUNI = 'https://unpkg.com/es-atlas@0.6.0/es/municipalities.json'
+
+
+def comuni(percorso, cosl, x0, y0, base):
+    """I comuni, con la stessa proiezione e lo stesso riquadro delle Canarie delle province.
+
+    Si tiene la topologia (archi condivisi fra comuni vicini), che pesa molto meno dei percorsi:
+    ogni arco è una lista piatta di interi in decimi di unità, il primo punto assoluto e gli
+    altri come differenze. La pagina ricompone i percorsi quando apre il livello dei comuni.
+    Le «comunità» di più comuni (codici 53…) e i territori senza comune (54…) restano fuori."""
+    if percorso:
+        topo = json.loads(pathlib.Path(percorso).read_text(encoding='utf-8'))
+    else:
+        with urllib.request.urlopen(URL_COMUNI, timeout=120) as r:
+            topo = json.load(r)
+    A = archi(topo)
+    geoms = [g for g in topo['objects']['municipalities']['geometries'] if g['id'][:2] <= '52' and g.get('arcs')]
+    canarie = set()
+    for g in geoms:
+        if g['id'][:2] in CODICI_CANARIE:
+            for p in ([g['arcs']] if g['type'] == 'Polygon' else g['arcs']):
+                for r in p:
+                    canarie.update(i if i >= 0 else ~i for i in r)
+    out_archi = []
+    for i, a in enumerate(A):
+        dl, dt = CANARIE if i in canarie else (0, 0)
+        flat, px, py = [], 0, 0
+        for lon, lat in a:
+            x = round(((lon + dl) * cosl * K - x0) * 10)
+            y = round((-(lat + dt) * K - y0) * 10)
+            flat += [x - px, y - py]
+            px, py = x, y
+        out_archi.append(flat)
+    c = {}
+    for g in geoms:
+        poli = [g['arcs']] if g['type'] == 'Polygon' else g['arcs']
+        c[g['id']] = [r for p in poli for r in p]
+    out = {'arcs': out_archi, 'c': c}
+    (base / 'dati' / 'comuni-mappa.json').write_text(json.dumps(out, separators=(',', ':')), encoding='utf-8')
+    print(len(c), 'comuni', (base / 'dati' / 'comuni-mappa.json').stat().st_size, 'byte')
 
 
 if __name__ == '__main__':

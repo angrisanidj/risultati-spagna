@@ -14,6 +14,9 @@ Dashboard per seguire in diretta lo spoglio delle elezioni generali spagnole di 
 | `strumenti/base2023.py` | Rifà `dati/base2023.json`, i risultati 2023 per circoscrizione. |
 | `strumenti/mappa.py` | Rifà `dati/mappa.json`, i confini delle province già proiettati. |
 | `strumenti/incorpora.py` | Copia i due file di `dati/` dentro `index.html`. |
+| `dati/comuni2023.json` | Il voto del 2023 negli 8.131 comuni. Si carica solo quando si apre la mappa dei comuni. |
+| `dati/comuni-mappa.json` | I confini dei comuni, già proiettati (li scrive `strumenti/mappa.py`). |
+| `strumenti/comuni2023.py` | Rifà `dati/comuni2023.json` dal pacchetto ufficiale del Ministero in `strumenti/fonti/`. |
 | `.github/workflows/pages.yml` | Pubblica il sito a ogni push su `main`, senza il limite di 10 ricostruzioni l'ora. |
 
 ## Cosa mostra
@@ -25,6 +28,7 @@ Dashboard per seguire in diretta lo spoglio delle elezioni generali spagnole di 
 - **I seggi in bilico:** in ogni circoscrizione l'ultimo seggio assegnato e quanti voti mancano al primo escluso per prenderlo.
 - **Simulatore di maggioranza**, con le coalizioni già pronte.
 - **La mappa delle province:** primo partito, blocchi, un partito, spostamento di PP e Vox rispetto al 2023, avanzamento dello scrutinio. Toccando una provincia: voti, seggi, ultimo seggio, confronto con il 2023.
+- **La mappa dei comuni:** gli 8.131 comuni, con i voti di stanotte man mano che arrivano (livello «Comuni») o quelli del 2023 («Comuni 2023»). Toccando un comune la mappa ingrandisce la sua provincia; la scheda mostra i voti e il confronto con il 2023 nello stesso comune. Si può cercare un comune per nome.
 - **Stato dello scrutinio** provincia per provincia.
 - **Card per X e Instagram** (modalità redazione): seggi, voto, mappa, seggi in bilico, exit poll.
 
@@ -55,6 +59,16 @@ Il workflow **Media dei sondaggi** (`.github/workflows/sondaggi.yml`) la rifà a
 
 **La proiezione** si fa nella pagina (`proiezioneSondaggi()`): la media di ogni partito si distribuisce sulle province con il voto del 2023, in proporzione (PSOE, Vox, PP con UPN e i partiti regionali); Frente Amplio e Podemos fuori dalla Comunità Valenciana, Front Valencià solo lì e Adelante Andalucía solo in Andalusia, tutti sulle province dove era forte Sumar; SALF con la stessa quota ovunque. Poi il D'Hondt nelle 52 circoscrizioni con i seggi 2026. Le forchette vengono da 1.000 simulazioni con tre errori: uno comune fra destra e sinistra (2 punti, perché i sondaggi sbagliano spesso tutti dalla stessa parte: nel 2023 il PSOE era sottostimato di circa tre punti), uno per partito e uno per provincia. Al 30 ottobre la proiezione centrale (PP 131, PSOE 108, Vox 68) coincide quasi con la media dei seggi stimati dagli istituti (131, 109, 66).
 
+## I comuni
+
+**Il 2023.** I voti per comune vengono dal pacchetto ufficiale del Ministero `02202307_MUNI.zip` («Área de descargas» di infoelectoral), conservato in `strumenti/fonti/`. Il server di infoelectoral non risponde alla rete della redazione né ai server di GitHub (403): il file è stato scaricato il 10 novembre dal browser integrato di Claude, che invece lo raggiunge. I file sono a lunghezza fissa, descritti nel `FICHEROS.doc` dentro lo zip. Controlli fatti da `strumenti/comuni2023.py`: in tutti gli 8.131 comuni i voti delle liste tornano con il totale; la somma dei comuni è 204.649 voti validi sotto il totale nazionale, cioè il voto dall'estero (CERA), che il Ministero conta solo per provincia.
+
+**I confini** sono quelli dell'IGN nella versione di es-atlas (MIT), proiettati come le province da `strumenti/mappa.py` e salvati con la topologia (archi condivisi), circa 1 MB. I codici INE dei comuni coincidono con quelli del Ministero: 8.131 su 8.131.
+
+**La sera del voto** il proxy chiede al Ministero una provincia alla volta con la mappa dei suoi comuni (`?comuni=28`, percorso `MIR_COMUNI`, che nel 2023 era `getScopeData/<provincia>/1/2/1/1/90`: da verificare quando il sito apre). La pagina chiede i comuni solo se un lettore apre il livello «Comuni»: prima la provincia ingrandita, poi le altre, tre alla volta, ogni tre minuti. La cache del proxy tiene ogni provincia 90 secondi, quindi al Ministero arrivano al massimo 52 richieste ogni 90 secondi, comunque vada il traffico. Se i comuni non arrivano, la pagina lo scrive sotto la mappa e il resto funziona come prima.
+
+**La prova generale** (`?prova=2023`) ora rifà lo spoglio comune per comune: dentro ogni provincia arrivano prima i comuni piccoli, con un po' di disordine, e l'ultimo comune del momento è contato in parte. Il vantaggio iniziale del PP nei comuni piccoli si vede da solo. A fine spoglio si aggiunge il voto dall'estero di ogni provincia, e il riparto ridà esattamente i 350 seggi del 2023.
+
 ## Da dove arrivano i dati
 
 **Il sito dei risultati del 2026 esiste ma non è ancora aperto.** Nel 2023 il Ministero li pubblicava su `resultados.generales23j.es`, aperto quattro giorni prima del voto, accanto al sito informativo `generales23j.es`. Quest'anno il sito informativo è `29neleccionesgenerales.es`, e dal 10 novembre `resultados.29neleccionesgenerales.es` risponde: è su CloudFront e per ora chiede una password (autenticazione HTTP «Basic», risposta 401), anche sui percorsi `backend-difu`. È la fase di preparazione. Appena si apre, la diagnostica del proxy lo dice.
@@ -76,6 +90,7 @@ Se nel 2026 il Ministero cambia fornitore o formato, va riscritto solo `normaliz
 | `MIR_BASE` | `https://resultados.29neleccionesgenerales.es/` |
 | `MIR_RUTA` | `backend-difu/scope/data/getScopeData/{id}/1/2/1/0` |
 | `MIR_MAPA` | `backend-difu/scope/data/getScopeData/{id}/1/2/1/1/30` |
+| `MIR_COMUNI` | `backend-difu/scope/data/getScopeData/{id}/1/2/1/1/90` |
 
 **Il canale per i media.** Il Ministero apre un repository di dati riservato ai media accreditati, con i file di avanzamento e scrutinio e un documento che ne descrive il formato. La richiesta andava fatta alla Secretaría de Estado de Comunicación entro il **28 ottobre alle 15**; credenziali il 17 novembre, una connessione per testata. Se una testata con cui lavori è accreditata, quella è la fonte più solida: il proxy si adatta con una funzione nuova in `normalizza.js`.
 

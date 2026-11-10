@@ -78,5 +78,27 @@ export function riassumi(risposte) {
   return { quando, naz, circ, partiti };
 }
 
+/* I comuni di una provincia, dalla risposta con «mapa» al livello 90. Per ogni comune (codice
+   INE di cinque cifre) lo stesso schema di dati/comuni2023.json, più i seggi elettorali contati:
+   [nome, seggi elettorali, censo, bianche, nulle, validi, [codice, voti, …], scrutinati].
+   Le candidature hanno il codice del Ministero per questa elezione, con sigla e nome in «partiti». */
+export function comuni(risposta) {
+  const partiti = {}, m = {};
+  let quando = null;
+  const visita = s => {
+    if (!s || Number(s.nivel) !== 90) return;
+    const a = ambito(s, partiti);
+    const flat = Object.entries(a.v).sort((x, y) => y[1][0] - x[1][0]).flatMap(([k, [v]]) => [Number(k), v]);
+    m[String(s.codigo).padStart(5, '0')] = [a.n, a.mesas, a.censo, a.bianche, a.nulle, a.validi, flat, a.esc];
+    if (a.quando && (!quando || a.quando > quando)) quando = a.quando;
+  };
+  for (const r of [].concat(risposta || [])) {
+    if (!r) continue;
+    visita(r.scope || r);
+    for (const x of Array.isArray(r.mapa) ? r.mapa : []) visita(x);
+  }
+  return { quando, m, partiti: Object.fromEntries(Object.entries(partiti).map(([k, p]) => [k, [p[0], p[1]]])) };
+}
+
 /* Il riassunto ha senso? Almeno la Spagna o una circoscrizione, e i nomi dei partiti. */
 export const valido = R => !!R && (!!R.naz || Object.keys(R.circ).length > 0);

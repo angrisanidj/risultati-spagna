@@ -623,6 +623,20 @@ footer a{color:var(--t2)}
 .sondist summary{cursor:pointer;color:var(--t2);font-size:13px;font-weight:600;padding:10px 0}
 .sondist table th:first-child,.sondist table td:first-child{padding-left:0}
 #sondTable td small{display:inline;margin-left:6px}
+/* i comuni */
+.mapwrap{position:relative}
+.mapwrap .mapback{left:8px;bottom:8px}
+.mapcarico{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--t2);font-size:13px;background:rgba(11,10,16,.6)}
+#provMap g.com path{stroke:rgba(11,10,16,.55);stroke-width:.3;cursor:pointer;vector-effect:non-scaling-stroke;transition:fill .3s}
+#provMap g.com path:hover{stroke:#fff;stroke-width:1}
+#provMap g.com path.sel{stroke:#fff;stroke-width:2}
+#provMap g.contorni path{fill:none;stroke:rgba(255,255,255,.28);stroke-width:.7;pointer-events:none;cursor:default;vector-effect:non-scaling-stroke}
+#provMap g.contorni path:hover{stroke:rgba(255,255,255,.28);stroke-width:.7}
+#provMap.zoom g.contorni path.fuori{stroke:rgba(255,255,255,.12)}
+@media(max-width:760px){#mapLiv,#mapMode{flex-wrap:wrap;width:100%}#mapLiv button,#mapMode button{flex:1 1 auto}}
+#cercaRis{margin:-4px 0 10px}
+#cercaRis:empty{display:none}
+#cercaRis .lanrow{grid-template-columns:minmax(0,1fr) auto}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -773,8 +787,13 @@ footer a{color:var(--t2)}
 
   <section class="card" style="margin-bottom:14px">
     <div class="cardhead">
-      <div><h2>La mappa delle province</h2></div>
+      <div><h2 id="mapTitolo">La mappa delle province</h2></div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end">
+        <div class="mapfonte" id="mapLiv">
+          <button data-liv="prov" aria-pressed="true">Province</button>
+          <button data-liv="com" aria-pressed="false">Comuni</button>
+          <button data-liv="com23" aria-pressed="false">Comuni 2023</button>
+        </div>
         <div class="mapfonte" id="mapMode">
           <button data-mode="primo" aria-pressed="true">Primo partito</button>
           <button data-mode="blocco" aria-pressed="false">Blocchi</button>
@@ -789,10 +808,17 @@ footer a{color:var(--t2)}
     <p class="subcopy" id="mapSub">Ogni provincia è una circoscrizione, più Ceuta e Melilla. Le Canarie sono nel riquadro in basso a sinistra. Tocca una provincia per vedere voti, seggi e l’ultimo seggio assegnato.</p>
     <div class="mapgrid">
       <div>
-        <svg id="provMap" role="img" aria-label="Mappa delle province spagnole"></svg>
+        <div class="mapwrap">
+          <svg id="provMap" role="img" aria-label="Mappa delle province spagnole"></svg>
+          <button id="mapBack" class="sm mapback hidden">← Tutta la Spagna</button>
+          <div id="mapCarico" class="mapcarico hidden">Carico gli 8.131 comuni…</div>
+        </div>
         <div id="mapLegend" class="mapleg" style="margin-top:10px"></div>
       </div>
-      <div id="provDetail" class="landetail"></div>
+      <div>
+        <div id="boxCerca" class="hidden"><input id="cercaCom" class="cerca" placeholder="Cerca un comune…" autocomplete="off"><div id="cercaRis" class="maplist"></div></div>
+        <div id="provDetail" class="landetail"></div>
+      </div>
     </div>
     <p class="methodnote" id="mapNote"></p>
   </section>
@@ -939,18 +965,19 @@ const GRUPPI = [
   { k: 'PNV', n: 'Partito nazionalista basco', s: 'PNV', re: /PNV|^EAJ/i, b: 'N', c: '#3f9e4d' },
   { k: 'BNG', n: 'Blocco nazionalista galiziano', s: 'BNG', re: /^B\.?N\.?G\b|NACIONALISTA GALEGO/i, b: 'S', c: '#8cc4ea' },
   { k: 'CC', n: 'Coalizione canaria', s: 'CC', re: /^CCa?\b|\bCCa\b|COALICI[OÓ]N CANARIA/i, b: 'N', c: '#f2d21b' },
-  { k: 'UPN', n: 'Unione del popolo navarro', s: 'UPN', re: /^UPN\b/i, b: 'D', c: '#3557b8' },
+  { k: 'UPN', n: 'Unione del popolo navarro', s: 'UPN', re: /^U\.?P\.?N\b|UNI[OÓ]N DEL PUEBLO NAVARRO/i, b: 'D', c: '#3557b8' },
   { k: 'SALF', n: 'Se acabó la fiesta', s: 'SALF', re: /^SALF\b|SE ACAB[OÓ] LA FIESTA/i, b: 'X', c: '#9a7b55' },
   { k: 'CUP', n: 'Candidatura di unità popolare', s: 'CUP', re: /^CUP\b/i, b: 'X', c: '#d9c23a' },
   { k: 'PACMA', n: 'Partito animalista', s: 'PACMA', re: /PACMA|ANIMALISTA/i, b: 'X', c: '#7fae8c' },
   { k: 'NC', n: 'Nuova Canaria', s: 'NC', re: /^NC\b|NUEVA CANARIAS/i, b: 'X', c: '#7aa6c9' },
   { k: 'TE', n: 'Teruel Existe', s: 'Teruel Existe', re: /EXISTE/i, b: 'X', c: '#3c8a6b' },
-  { k: 'UPL', n: 'Unione del popolo leonese', s: 'UPL', re: /^UPL\b/i, b: 'X', c: '#b04a6a' },
+  { k: 'UPL', n: 'Unione del popolo leonese', s: 'UPL', re: /^U\.?P\.?L\b/i, b: 'X', c: '#b04a6a' },
   { k: 'SY', n: 'Soria ¡Ya!', s: 'Soria Ya', re: /^SY\b|SORIA/i, b: 'X', c: '#5f8f3e' }
 ];
 const GMAP = Object.fromEntries(GRUPPI.map(g => [g.k, g]));
 const COL_ALTRO = '#6f6878';
 function gruppoDi(sigla, naz, nome) {
+  if (naz && GMAP[naz] && naz === sigla) return naz;   /* la prova generale passa già il partito */
   for (const s of [naz, sigla, nome]) {
     if (!s) continue;
     const t = String(s).replace(/[–—]/g, '-');
@@ -1035,9 +1062,9 @@ const S = Object.assign({
   fonteDati: null, aggiornato: null,
   stime: { exit: {}, aggiornato: '' },
   manuale: null,
-  seatSrc: 'auto', mapMode: 'primo', mapLista: 'PP', sel: null
-}, (() => { const s = store(true); return { seatSrc: s.seatSrc || 'auto', mapMode: s.mapMode || 'primo', mapLista: s.mapLista || 'PP', manuale: s.manuale || null }; })());
-function salva() { store(false, { seatSrc: S.seatSrc, mapMode: S.mapMode, mapLista: S.mapLista, manuale: S.manuale }); }
+  seatSrc: 'auto', mapMode: 'primo', mapLista: 'PP', sel: null, mapLiv: 'prov', zoomProv: null, selM: null
+}, (() => { const s = store(true); return { seatSrc: s.seatSrc || 'auto', mapMode: s.mapMode || 'primo', mapLista: s.mapLista || 'PP', manuale: s.manuale || null, mapLiv: ['prov', 'com', 'com23'].includes(s.mapLiv) ? s.mapLiv : 'prov' }; })());
+function salva() { store(false, { seatSrc: S.seatSrc, mapMode: S.mapMode, mapLista: S.mapLista, manuale: S.manuale, mapLiv: S.mapLiv }); }
 
 /* Il 2023, con le stesse regole: gruppi, seggi ricalcolati e quote per provincia. */
 const B23 = (() => {
@@ -1199,7 +1226,7 @@ function proiezioneSondaggi() {
 
 function fontiSeggi() {
   const F = [{ k: 'c2023', tipo: 'base', n: 'Congresso 2023', s: '2023', seggi: B23.gs }];
-  const P = proiezioneSondaggi();
+  const P = PROVA ? null : proiezioneSondaggi();   /* nella prova del 2023 i sondaggi del 2026 non c’entrano */
   if (P) F.push({ k: 'sondaggi', tipo: 'stima', n: 'Media dei sondaggi', s: 'Sondaggi', seggi: P.centro });
   EXIT_ORDINE().forEach(k => { const e = exitDi(k); if (e && sum(e.seggi) > 0) F.push(e); });
   const D = S.D;
@@ -1462,7 +1489,7 @@ const giornoIT = iso => { const d = new Date(iso + 'T12:00:00Z'); return isNaN(d
 const ilGiorno = iso => { const s = giornoIT(iso); return (/^(8|11) /.test(s) ? 'l’' : 'il ') + s; };
 const probIT = p => p >= 0.995 ? 'più di 99 su 100' : p <= 0.005 ? 'meno di 1 su 100' : Math.round(p * 100) + ' su 100';
 function renderSondaggi() {
-  const so = S.stime.sondaggi, P = proiezioneSondaggi(), card = $('sondCard');
+  const so = S.stime.sondaggi, P = PROVA ? null : proiezioneSondaggi(), card = $('sondCard');
   card.classList.toggle('hidden', !P);
   if (!P) return;
   const ist = so.istituti || [], m = so.media;
@@ -1544,12 +1571,14 @@ function quoteCirc(c) {
 }
 function bloccoQuote(q) { const t = { S: 0, N: 0, X: 0, D: 0 }; for (const g in q) t[infoG(g).b] += q[g]; return t; }
 function q23(c) { const b = B23.circ[c]; const q = {}; for (const g in b.g) q[g] = b.g[g] / b.validi; return q; }
-function coloreCirc(c) {
-  const modo = S.mapMode, x = S.D && S.D.circ[c], q = quoteCirc(c);
-  if (modo === 'scr') { const f = x && !x.vuota ? x.frac : 0; return f > 0 ? mix('#2a2733', '#ffb199', 0.25 + 0.75 * f) : COL_VUOTO; }
+/* il colore di un'area dalle sue quote per partito (q), da quelle del 2023 (q2) e dalla parte
+   scrutinata (frac): lo stesso per le province e per i comuni */
+function coloreQuote(q, q2, frac, modo) {
+  if (modo === 'scr') return frac > 0 ? mix('#2a2733', '#ffb199', 0.25 + 0.75 * frac) : COL_VUOTO;
   if (!q) return COL_VUOTO;
   if (modo === 'primo') {
     const o = Object.entries(q).sort((a, b) => b[1] - a[1]);
+    if (!o.length) return COL_VUOTO;
     const m = o[0][1] - (o[1] ? o[1][1] : 0);
     return mix('#2a2733', infoG(o[0][0]).c, 0.5 + clamp(m / 0.2, 0, 1) * 0.5);
   }
@@ -1559,62 +1588,215 @@ function coloreCirc(c) {
   }
   if (modo === 'lista') { const v = q[S.mapLista] || 0; return v ? mix('#2a2733', infoG(S.mapLista).c, clamp(v / 0.45, 0.08, 1)) : COL_VUOTO; }
   if (modo === 'sposta') {
-    const a = bloccoQuote(q), b = bloccoQuote(q23(c)), d = a.D - b.D;
+    if (!q2) return COL_VUOTO;
+    const a = bloccoQuote(q), b = bloccoQuote(q2), d = a.D - b.D;
     return d >= 0 ? mix('#3a3546', '#3a86d8', clamp(d / 0.1, 0, 1)) : mix('#3a3546', '#e8384f', clamp(-d / 0.1, 0, 1));
   }
   return COL_VUOTO;
 }
-let mappaPronta = false;
+function coloreCirc(c) {
+  const x = S.D && S.D.circ[c];
+  return coloreQuote(quoteCirc(c), q23(c), x && !x.vuota ? x.frac : 0, S.mapMode);
+}
+
+/* ---------- i comuni ----------
+   Due file che si caricano solo quando si apre il livello dei comuni: dati/comuni2023.json, il
+   voto del 2023 comune per comune (Ministero dell'Interno, 02202307_MUNI.zip), e
+   dati/comuni-mappa.json, i confini (IGN) già proiettati come quelli delle province.
+   La sera del voto i comuni arrivano dal proxy una provincia alla volta (?comuni=28), ognuna
+   dalla risposta del Ministero con la mappa dei suoi comuni. */
+const COM = { stato: 'no', pronto: null, d23: null, geo: null, d: {}, prov: {}, g23: {}, q23: {}, cera: {}, live: {}, errore: '', timer: null, giro: false, ordine: null };
+const memoGruppi = new WeakMap();
+function gruppoCod(partiti, cod) {
+  let m = memoGruppi.get(partiti); if (!m) { m = {}; memoGruppi.set(partiti, m); }
+  if (m[cod] == null) { const p = partiti[cod] || [String(cod), '']; m[cod] = gruppoDi(p[0], '', p[1]); }
+  return m[cod];
+}
+/* da [codice, voti, codice, voti…] ai voti per partito */
+function gruppiFlat(flat, partiti) {
+  const g = {};
+  for (let i = 0; i < flat.length; i += 2) { const k = gruppoCod(partiti, flat[i]); g[k] = (g[k] || 0) + flat[i + 1]; }
+  return g;
+}
+function caricaComuni() {
+  if (COM.pronto) return COM.pronto;
+  COM.stato = 'carico';
+  COM.pronto = Promise.all([fetch('dati/comuni2023.json').then(r => r.json()), fetch('dati/comuni-mappa.json').then(r => r.json())]).then(([d23, geo]) => {
+    COM.d23 = d23; COM.geo = geo;
+    /* gli archi: interi in decimi, il primo punto assoluto e poi le differenze */
+    const archi = geo.arcs.map(a => { const p = []; let x = 0, y = 0; for (let i = 0; i < a.length; i += 2) { x += a[i]; y += a[i + 1]; p.push((x / 10).toFixed(1) + ',' + (y / 10).toFixed(1)); } return p; });
+    for (const [ine, anelli] of Object.entries(geo.c)) {
+      COM.d[ine] = anelli.map(r => { const p = []; r.forEach(i => { const a = i >= 0 ? archi[i] : archi[~i].slice().reverse(); p.push(...(p.length ? a.slice(1) : a)); }); return 'M' + p.join('L') + 'Z'; }).join('');
+    }
+    for (const [ine, x] of Object.entries(d23.m)) {
+      const c = ine.slice(0, 2), g = gruppiFlat(x[6], d23.partiti);
+      (COM.prov[c] = COM.prov[c] || []).push(ine);
+      COM.g23[ine] = g;
+      const q = {}; for (const k in g) q[k] = x[5] ? g[k] / x[5] : 0;
+      COM.q23[ine] = q;
+    }
+    /* il voto dall'estero (CERA) di ogni provincia: il totale del 2023 meno la somma dei comuni */
+    for (const c of COD) {
+      const s = {}; (COM.prov[c] || []).forEach(i => { for (const k in COM.g23[i]) s[k] = (s[k] || 0) + COM.g23[i][k]; });
+      const b = B23.circ[c], r = {};
+      for (const k in b.g) if (b.g[k] - (s[k] || 0) > 0) r[k] = b.g[k] - (s[k] || 0);
+      COM.cera[c] = r;
+    }
+    COM.stato = 'ok';
+  }).catch(e => { COM.stato = 'errore'; COM.errore = e.message; COM.pronto = null; });
+  return COM.pronto;
+}
+/* il dato di un comune: quello di stanotte se c'è, altrimenti niente (o il 2023, sul livello del 2023) */
+function datoComune(ine) {
+  const lp = COM.live[ine.slice(0, 2)];
+  const x = lp && lp.m[ine];
+  if (!x) return null;
+  return { x, g: gruppiFlat(x[6], lp.partiti), frac: x[1] ? (x[7] || 0) / x[1] : 0 };
+}
+const ciSonoComuniLive = () => Object.keys(COM.live).length > 0;
+function quoteComune(ine, liv) {
+  if (liv === 'com23') return { q: COM.q23[ine], frac: 1 };
+  const d = datoComune(ine);
+  if (!d || !d.x[5]) return { q: null, frac: d ? d.frac : 0 };
+  const q = {}; for (const k in d.g) q[k] = d.g[k] / d.x[5];
+  return { q, frac: d.frac };
+}
+function coloreComune(ine) {
+  const liv = S.mapLiv, modo = liv === 'com23' && (S.mapMode === 'sposta' || S.mapMode === 'scr') ? 'primo' : S.mapMode;
+  const { q, frac } = quoteComune(ine, liv);
+  return coloreQuote(q, COM.q23[ine], frac, modo);
+}
+
+/* ---------- disegno della mappa ---------- */
+let mappaCostruita = null;
 function costruisciMappa() {
-  const svg = $('provMap');
-  svg.setAttribute('viewBox', '0 0 ' + MAPPA.w + ' ' + MAPPA.h);
+  const svg = $('provMap'), com = S.mapLiv !== 'prov' && COM.stato === 'ok';
   const [x, y, w, h] = MAPPA.canarie;
   let s = '<rect class="riquadro" x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="4"></rect>';
-  for (const c of COD) {
-    const p = MAPPA.p[c]; if (!p) continue;
-    s += '<path data-c="' + c + '" d="' + p.d + '"><title>' + esc(CIRC[c][0]) + '</title></path>';
+  if (com) {
+    s += '<g class="com">';
+    for (const ine in COM.d) s += '<path data-m="' + ine + '" d="' + COM.d[ine] + '"></path>';
+    /* Ceuta e Melilla sono un comune ciascuna: un cerchio, come per le province */
+    for (const c of ['51', '52']) { const p = MAPPA.p[c]; s += '<path data-m="' + c + '001" d="M' + (p.x - 7) + ',' + p.y + 'a7,7 0 1,0 14,0a7,7 0 1,0 -14,0Z"></path>'; }
+    s += '</g><g class="contorni">' + COD.map(c => '<path data-o="' + c + '" d="' + MAPPA.p[c].d + '"></path>').join('') + '</g>';
+  } else {
+    for (const c of COD) {
+      const p = MAPPA.p[c]; if (!p) continue;
+      s += '<path data-c="' + c + '" d="' + p.d + '"><title>' + esc(CIRC[c][0]) + '</title></path>';
+    }
+    for (const c of ['51', '52']) { const p = MAPPA.p[c]; s += '<path data-c="' + c + '" d="M' + (p.x - 7) + ',' + p.y + 'a7,7 0 1,0 14,0a7,7 0 1,0 -14,0Z"><title>' + CIRC[c][0] + '</title></path>'; }
   }
-  /* Ceuta e Melilla, altrimenti invisibili: un cerchio sopra il territorio */
-  for (const c of ['51', '52']) { const p = MAPPA.p[c]; s += '<path data-c="' + c + '" d="M' + (p.x - 7) + ',' + p.y + 'a7,7 0 1,0 14,0a7,7 0 1,0 -14,0Z"><title>' + CIRC[c][0] + '</title></path><text x="' + (p.x + 11) + '" y="' + (p.y + 4) + '">' + CIRC[c][0] + '</text>'; }
+  for (const c of ['51', '52']) { const p = MAPPA.p[c]; s += '<text x="' + (p.x + 11) + '" y="' + (p.y + 4) + '">' + CIRC[c][0] + '</text>'; }
   s += '<text x="' + (x + 6) + '" y="' + (y + h - 6) + '">Canarie</text>';
   svg.innerHTML = s;
-  mappaPronta = true;
+  svg.style.aspectRatio = MAPPA.w + ' / ' + MAPPA.h;   /* con lo zoom cambia il riquadro, non l'altezza */
+  mappaCostruita = com ? 'com' : 'prov';
+}
+/* lo zoom su una provincia, al livello dei comuni */
+function vistaMappa() {
+  const svg = $('provMap'), c = S.mapLiv !== 'prov' ? S.zoomProv : null;
+  let vb = '0 0 ' + MAPPA.w + ' ' + MAPPA.h;
+  if (c) {
+    const el = svg.querySelector('path[data-o="' + c + '"]');
+    if (el) { const b = el.getBBox(), m = Math.max(b.width, b.height) * 0.06 + 4; vb = (b.x - m) + ' ' + (b.y - m) + ' ' + (b.width + 2 * m) + ' ' + (b.height + 2 * m); }
+  }
+  svg.setAttribute('viewBox', vb);
+  svg.classList.toggle('zoom', !!c);
+  svg.querySelectorAll('g.contorni path').forEach(p => p.classList.toggle('fuori', !!c && p.dataset.o !== c));
+  $('mapBack').classList.toggle('hidden', !c);
 }
 function renderMappa() {
-  if (!mappaPronta) costruisciMappa();
-  document.querySelectorAll('#mapMode button').forEach(b => b.setAttribute('aria-pressed', b.dataset.mode === S.mapMode ? 'true' : 'false'));
+  const liv = S.mapLiv;
+  if (liv !== 'prov' && COM.stato !== 'ok') {
+    $('mapCarico').classList.remove('hidden');
+    $('mapCarico').textContent = COM.stato === 'errore' ? 'I comuni non si caricano (' + COM.errore + ')' : 'Carico gli 8.131 comuni…';
+    caricaComuni().then(() => { if (COM.stato === 'ok') { renderMappa(); if (liv === 'com') aggiornaComuni(); } });
+  } else $('mapCarico').classList.add('hidden');
+  const voluta = liv !== 'prov' && COM.stato === 'ok' ? 'com' : 'prov';
+  if (mappaCostruita !== voluta) costruisciMappa();
+  document.querySelectorAll('#mapLiv button').forEach(b => b.setAttribute('aria-pressed', b.dataset.liv === liv ? 'true' : 'false'));
+  document.querySelectorAll('#mapMode button').forEach(b => {
+    b.setAttribute('aria-pressed', b.dataset.mode === S.mapMode ? 'true' : 'false');
+    b.disabled = liv === 'com23' && (b.dataset.mode === 'sposta' || b.dataset.mode === 'scr');
+  });
   const D = S.D, sel = $('mapLista');
   sel.classList.toggle('hidden', S.mapMode !== 'lista');
   const gs = D && sum(D.gv) ? Object.entries(D.gv).sort((a, b) => b[1] - a[1]).slice(0, 14).map(([g]) => g) : ['PP', 'PSOE', 'VOX', 'FA', 'ERC', 'JUNTS', 'BILDU', 'PNV'];
   if (!gs.includes(S.mapLista)) gs.push(S.mapLista);
   sel.innerHTML = gs.map(g => '<option value="' + esc(g) + '"' + (g === S.mapLista ? ' selected' : '') + '>' + esc(nomeBreve(infoG(g))) + '</option>').join('');
-  document.querySelectorAll('#provMap path[data-c]').forEach(p => { p.style.fill = coloreCirc(p.dataset.c); p.classList.toggle('sel', p.dataset.c === S.sel); });
-  $('provMap').classList.toggle('hassel', !!S.sel);
-  $('mapPill').textContent = D && D.conVoti ? D.conVoti + ' circoscrizioni su 52 con voti' : 'in attesa';
+  $('boxCerca').classList.toggle('hidden', voluta !== 'com');
+  if (voluta === 'com') {
+    document.querySelectorAll('#provMap g.com path').forEach(p => { p.style.fill = coloreComune(p.dataset.m); p.classList.toggle('sel', p.dataset.m === S.selM); });
+    const conVoti = Object.values(COM.live).reduce((s, lp) => s + Object.values(lp.m).filter(x => x[7] > 0).length, 0);
+    $('mapPill').textContent = liv === 'com23' ? 'voto del 23 luglio 2023' : conVoti ? nf(conVoti) + ' comuni su 8.131 con voti' : 'in attesa dei comuni';
+    $('mapTitolo').textContent = 'La mappa dei comuni';
+  } else {
+    document.querySelectorAll('#provMap path[data-c]').forEach(p => { p.style.fill = coloreCirc(p.dataset.c); p.classList.toggle('sel', p.dataset.c === S.sel); });
+    $('mapPill').textContent = D && D.conVoti ? D.conVoti + ' circoscrizioni su 52 con voti' : 'in attesa';
+    $('mapTitolo').textContent = 'La mappa delle province';
+  }
+  $('provMap').classList.toggle('hassel', voluta === 'prov' && !!S.sel);
+  vistaMappa();
+  $('mapSub').textContent = voluta === 'com'
+    ? (liv === 'com23' ? 'Il voto del 2023 in ognuno degli 8.131 comuni. ' : ciSonoComuniLive() ? 'I comuni dove si è già contato; in grigio quelli che mancano. ' : 'I risultati dei comuni compaiono man mano che il Ministero li pubblica; fino ad allora c’è il 2023 nella scheda accanto. ') + 'Tocca un comune per ingrandire la sua provincia e vedere i voti, o cercalo per nome.'
+    : 'Ogni provincia è una circoscrizione, più Ceuta e Melilla. Le Canarie sono nel riquadro in basso a sinistra. Tocca una provincia per vedere voti, seggi e l’ultimo seggio assegnato.';
+  $('mapNote').textContent = voluta === 'com'
+    ? 'Confini dei comuni: IGN, nella versione di es-atlas (MIT). Voto 2023 per comune: Ministero dell’Interno, senza il voto dall’estero, che si conta solo per provincia. ' + (COM.errore && liv === 'com' ? 'Comuni di stanotte: ' + COM.errore + '.' : '')
+    : 'Confini delle province: IGN, nella versione di es-atlas (MIT).';
   renderLegenda(); renderDettaglio();
 }
 function renderLegenda() {
-  const D = S.D, m = S.mapMode;
+  const D = S.D, m = S.mapMode, com = S.mapLiv !== 'prov' && COM.stato === 'ok';
   let h = '';
   if (m === 'primo') {
     const cnt = {};
-    if (D) COD.forEach(c => { const q = quoteCirc(c); if (q) { const g = Object.entries(q).sort((a, b) => b[1] - a[1])[0][0]; cnt[g] = (cnt[g] || 0) + 1; } });
-    const o = Object.entries(cnt).sort((a, b) => b[1] - a[1]);
-    h = '<h4>Il primo partito</h4><div class="lg">' + (o.length ? o.map(([g, n]) => '<div><i style="background:' + infoG(g).c + '"></i><span>' + esc(nomeBreve(infoG(g))) + '</span><b>' + n + '</b></div>').join('') : '<div><span class="muted">nessuna circoscrizione ancora</span></div>') + '</div><p>Il colore è più pieno dove il distacco dal secondo è più largo, da 20 punti in su.</p>';
+    if (com) Object.keys(COM.d).forEach(ine => { const { q } = quoteComune(ine, S.mapLiv); if (q) { const o = Object.entries(q).sort((a, b) => b[1] - a[1])[0]; if (o) cnt[o[0]] = (cnt[o[0]] || 0) + 1; } });
+    else if (D) COD.forEach(c => { const q = quoteCirc(c); if (q) { const g = Object.entries(q).sort((a, b) => b[1] - a[1])[0][0]; cnt[g] = (cnt[g] || 0) + 1; } });
+    const o = Object.entries(cnt).sort((a, b) => b[1] - a[1]).slice(0, 10);
+    h = '<h4>Il primo partito' + (com ? ', comuni' : '') + '</h4><div class="lg">' + (o.length ? o.map(([g, n]) => '<div><i style="background:' + infoG(g).c + '"></i><span>' + esc(nomeBreve(infoG(g))) + '</span><b>' + nf(n) + '</b></div>').join('') : '<div><span class="muted">' + (com ? 'nessun comune ancora' : 'nessuna circoscrizione ancora') + '</span></div>') + '</div><p>Il colore è più pieno dove il distacco dal secondo è più largo, da 20 punti in su.</p>';
   } else if (m === 'blocco') {
     h = '<h4>PP e Vox contro PSOE e alleati</h4><div class="ramp" style="background:linear-gradient(90deg,' + BLOCCHI.S.c + ',#3a3546,' + BLOCCHI.D.c + ')"></div><div class="rampl"><span>PSOE e alleati +40</span><span>pari</span><span>PP e Vox +40</span></div><p>La differenza in punti fra le quote dei due blocchi.</p>';
   } else if (m === 'lista') {
     const p = infoG(S.mapLista);
     h = '<h4>' + esc(nomeBreve(p)) + ', quota dei voti</h4><div class="ramp" style="background:linear-gradient(90deg,#2a2733,' + p.c + ')"></div><div class="rampl"><span>0%</span><span>45% e più</span></div>';
   } else if (m === 'sposta') {
-    h = '<h4>PP e Vox rispetto al 2023</h4><div class="ramp" style="background:linear-gradient(90deg,#e8384f,#3a3546,#3a86d8)"></div><div class="rampl"><span>−10 punti</span><span>uguale</span><span>+10 punti</span></div><p>Quota di PP, Vox e UPN sui voti contati, meno quella finale del 2023. Con lo scrutinio parziale pesa l’ordine di arrivo: i comuni piccoli, contati per primi, sono più a destra.</p>';
+    h = '<h4>PP e Vox rispetto al 2023</h4><div class="ramp" style="background:linear-gradient(90deg,#e8384f,#3a3546,#3a86d8)"></div><div class="rampl"><span>−10 punti</span><span>uguale</span><span>+10 punti</span></div><p>' + (com ? 'Quota di PP, Vox e UPN nel comune, meno quella del 2023 nello stesso comune.' : 'Quota di PP, Vox e UPN sui voti contati, meno quella finale del 2023. Con lo scrutinio parziale pesa l’ordine di arrivo: i comuni piccoli, contati per primi, sono più a destra.') + '</p>';
   } else {
     h = '<h4>Seggi elettorali scrutinati</h4><div class="ramp" style="background:linear-gradient(90deg,#2a2733,#ffb199)"></div><div class="rampl"><span>0%</span><span>100%</span></div>';
   }
   $('mapLegend').innerHTML = h;
 }
+/* le righe per partito di un dettaglio: sigla, quota, differenza dal 2023 */
+function righePartiti(voti, validi, q2, nomi) {
+  return Object.entries(voti).filter(([, v]) => validi && v / validi >= 0.01).sort((a, b) => b[1] - a[1]).map(([g, v]) => {
+    const p = infoG(g), q = v / validi, d = q2 && q2[g] != null ? (q - q2[g]) * 100 : null;
+    return '<div class="dh2"><span class="nm"><i style="background:' + p.c + '"></i><span>' + esc(nomi ? nomi(g) : nomeBreve(p)) + '</span></span><span>' + pct(q) + '</span><span class="' + (d == null ? 'mute' : d >= 0 ? 'plus' : 'minus') + '">' + (q2 ? (d == null ? 'nuovo' : segno(d)) : '') + '</span><span>' + nf(v) + '</span></div>';
+  }).join('');
+}
+function dettaglioComune(ine) {
+  const r23 = COM.d23.m[ine], c = ine.slice(0, 2), d = datoComune(ine);
+  let h = '<div class="dh"><h3>' + esc(r23 ? r23[0] : ine) + '</h3><span class="muted" style="font-size:12px">provincia di ' + esc(CIRC[c][0]) + '</span></div>';
+  const intest = (a, b) => '<div style="margin-top:12px"><div class="dh2 h"><span>' + a + '</span><span>%</span><span>' + b + '</span><span>Voti</span></div>';
+  if (S.mapLiv === 'com' && d && d.x[5]) {
+    h += '<div class="dm">Scrutinio ' + pctScr(d.frac) + ' · ' + nf(d.x[5]) + ' voti validi' + (d.x[2] ? ' · elettori ' + nf(d.x[2]) : '') + '</div>';
+    h += intest('Partito', '±2023') + righePartiti(d.g, d.x[5], COM.q23[ine]) + '</div>';
+  } else if (S.mapLiv === 'com') {
+    h += '<div class="dm">' + (ciSonoComuniLive() ? 'Nessun voto contato ancora.' : 'I voti di stanotte non sono ancora arrivati.') + '</div>';
+  }
+  if (r23) {
+    h += '<div class="' + (S.mapLiv === 'com23' ? 'dm' : 'cmp') + '">Nel 2023: ' + nf(r23[5]) + ' voti validi, ' + nf(r23[2]) + ' elettori, affluenza ' + pct((r23[5] + r23[4]) / r23[2]) + '.</div>';
+    h += intest('Partito nel 2023', '') + righePartiti(COM.g23[ine], r23[5], null) + '</div>';
+  }
+  return h;
+}
 function renderDettaglio() {
-  const c = S.sel, box = $('provDetail');
+  const box = $('provDetail'), com = S.mapLiv !== 'prov' && COM.stato === 'ok';
+  if (com) {
+    if (S.selM && COM.d23.m[S.selM]) { box.innerHTML = dettaglioComune(S.selM); return; }
+    box.innerHTML = '<div class="dh"><h3>Tocca un comune</h3></div><p class="muted" style="font-size:13px;margin:8px 0 0">Il primo tocco ingrandisce la sua provincia. Per ogni comune: i voti di stanotte, quando arrivano, e quelli del 2023.</p>';
+    return;
+  }
+  const c = S.sel;
   if (!c) {
     box.innerHTML = '<div class="dh"><h3>Tocca una provincia</h3></div><p class="muted" style="font-size:13px;margin:8px 0 0">Per ogni circoscrizione: voti, seggi con il D’Hondt, l’ultimo seggio assegnato e il confronto con il 2023.</p>';
     return;
@@ -1644,9 +1826,57 @@ function renderDettaglio() {
   box.innerHTML = h;
 }
 function seleziona(c, scorri) {
+  if (S.mapLiv !== 'prov') S.mapLiv = 'prov';
   S.sel = S.sel === c && !scorri ? null : c;
   renderMappa();
   if (scorri) $('provMap').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+function selezionaComune(ine, scorri) {
+  S.zoomProv = ine.slice(0, 2); S.selM = ine;
+  renderMappa();
+  if (S.mapLiv === 'com') aggiornaComuni(S.zoomProv);
+  if (scorri) $('provMap').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+function cercaComune() {
+  const t = $('cercaCom').value.trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''), box = $('cercaRis');
+  if (t.length < 2 || COM.stato !== 'ok') { box.innerHTML = ''; return; }
+  const norm = s => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  const ris = Object.entries(COM.d23.m).filter(([, x]) => norm(x[0]).includes(t))
+    .sort((a, b) => (norm(a[1][0]).startsWith(t) ? 0 : 1) - (norm(b[1][0]).startsWith(t) ? 0 : 1) || b[1][2] - a[1][2]).slice(0, 8);
+  box.innerHTML = ris.map(([ine, x]) => '<div class="lanrow" data-m="' + ine + '"><span class="ln">' + esc(x[0]) + '</span><span class="lc">' + esc(CIRC[ine.slice(0, 2)][0]) + '</span></div>').join('') || '<div class="lanrow mute"><span class="ln">Nessun comune con questo nome</span></div>';
+}
+
+/* ---------- i comuni di stanotte, dal proxy ----------
+   Solo quando la mappa è al livello dei comuni: prima la provincia ingrandita, poi le altre, tre
+   alla volta, e il giro si ripete ogni tre minuti. La cache del proxy tiene ogni provincia 90
+   secondi, quindi il Ministero riceve al massimo 52 richieste ogni 90 secondi. */
+const COM_GIRO_MS = 180000;
+async function prendiComuni(c) {
+  const u = new URL(PROXY); u.search = ''; u.searchParams.set('comuni', c);
+  const r = await conTimeout(u.href, { cache: 'no-cache' }, 30000);
+  const j = await r.json().catch(() => null);
+  if (!r.ok || !j || !j.m) throw new Error(j && j.errore ? j.errore : 'HTTP ' + r.status);
+  COM.live[c] = j;
+}
+async function aggiornaComuni(prima) {
+  if (PROVA || SOLO_COPIA || (!FORZA_FEED && Date.now() < ATTIVA_FEED) || S.mapLiv !== 'com' || COM.stato !== 'ok') return;
+  if (prima) { try { await prendiComuni(prima); COM.errore = ''; renderMappa(); } catch (e) { COM.errore = e.message; } }
+  if (COM.giro) return;
+  COM.giro = true; clearTimeout(COM.timer);
+  const coda = COD.filter(c => c !== prima);
+  let disegna = 0;
+  try {
+    await Promise.all([0, 1, 2].map(async () => {
+      while (coda.length) {
+        const c = coda.shift();
+        try { await prendiComuni(c); COM.errore = ''; } catch (e) { COM.errore = e.message; coda.length = 0; }
+        if (++disegna % 6 === 0) renderMappa();
+      }
+    }));
+  } finally {
+    COM.giro = false; renderMappa();
+    COM.timer = setTimeout(() => aggiornaComuni(S.zoomProv), COM_GIRO_MS);
+  }
 }
 
 /* ---------- scrutinio ---------- */
@@ -1751,53 +1981,77 @@ async function leggiStime() {
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && Date.now() - STIME_LETTURA.ultima > STIME_RAPIDO_MS) leggiStime(); });
 
 /* ---------- la prova generale con il 2023 ----------
-   Ogni circoscrizione ha un suo ritmo (le grandi più lente, un po' di caso); dentro ogni
-   provincia i primi seggi contati sono più a destra della media, come nelle notti vere, e la
-   distorsione sparisce a scrutinio completo. Al 100% il riparto deve dare il risultato ufficiale. */
-const PROVA_ST = { seme: 1, play: null };
+   Si rifà lo spoglio con i voti veri del 2023 comune per comune. Ogni circoscrizione ha un suo
+   ritmo (le grandi più lente, un po' di caso); dentro ogni provincia arrivano prima i comuni
+   piccoli, con un po' di disordine, e l'ultimo comune del momento è contato in parte. I comuni
+   piccoli sono più a destra della media: il vantaggio iniziale del PP si restringe da solo, come
+   nelle notti vere. A scrutinio completo si aggiunge il voto dall'estero (CERA), che il
+   Ministero conta solo per provincia, e il riparto deve dare il risultato ufficiale. */
+const PROVA_ST = { seme: 1, play: null, ordine: null };
 function rand(seed) { let x = Math.sin(seed * 9301 + 49297) * 233280; return x - Math.floor(x); }
-const DISTORSIONE = { PP: 0.10, VOX: 0.06, UPN: 0.08, PSOE: -0.02, FA: -0.16, ERC: -0.04, JUNTS: 0.04, BILDU: -0.05, PNV: 0, BNG: -0.06, CC: 0.02 };
+function ordineProva() {
+  const o = {};
+  for (const c of COD) {
+    const l = COM.prov[c] || [], n = l.length;
+    const rk = new Map([...l].sort((a, b) => COM.d23.m[a][5] - COM.d23.m[b][5]).map((ine, i) => [ine, n > 1 ? i / (n - 1) : 0]));
+    o[c] = [...l].sort((a, b) => (rk.get(a) * 0.6 + rand(PROVA_ST.seme * 7 + +a) * 0.4) - (rk.get(b) * 0.6 + rand(PROVA_ST.seme * 7 + +b) * 0.4));
+  }
+  return o;
+}
 function provaRiassunto(f) {
-  const partiti = {}, circ = {};
-  let tm = 0, te = 0;
+  const circ = {}, live = {}, chiavi = new Set(), M = COM.d23.m;
+  if (!PROVA_ST.ordine) PROVA_ST.ordine = ordineProva();
   COD.forEach((c, i) => {
-    const b = BASE23.circ[c];
+    const b = BASE23.circ[c], ord = PROVA_ST.ordine[c];
     const grande = Math.log10(b.validi) - 4.5;   /* da circa 0 (Soria) a 2 (Madrid) */
     const ritardo = 0.02 + rand(PROVA_ST.seme * 97 + i) * 0.12 + grande * 0.05;
     const durata = 0.45 + grande * 0.18 + rand(PROVA_ST.seme * 31 + i) * 0.2;
-    const fr = clamp((f - ritardo) / durata, 0, 1);
-    const mesas = Math.round(b.elettori / 600);
-    const esc = f >= 1 ? mesas : Math.round(mesas * fr);
-    tm += mesas; te += esc;
-    const k = mesas ? esc / mesas : 0;
+    const fr = f >= 1 ? 1 : clamp((f - ritardo) / durata, 0, 1);
+    const mesas = ord.reduce((s, ine) => s + M[ine][1], 0), obiettivo = fr * mesas;
+    const g = {}, m = {};
+    let esc = 0, censo = 0, censoEsc = 0, bianche = 0, nulle = 0, validi = 0;
+    for (const ine of ord) {
+      const x = M[ine]; censo += x[2];
+      if (esc >= obiettivo) continue;
+      const k = Math.min(1, (obiettivo - esc) / x[1]), sc = v => k >= 1 ? v : Math.round(v * k);
+      const flat = x[6].map((v, j) => j % 2 ? sc(v) : v);
+      for (const [gk, v] of Object.entries(COM.g23[ine])) g[gk] = (g[gk] || 0) + sc(v);
+      m[ine] = [x[0], x[1], x[2], sc(x[3]), sc(x[4]), sc(x[5]), flat, Math.max(1, Math.round(x[1] * k))];
+      esc += x[1] * k; censoEsc += sc(x[2]); bianche += sc(x[3]); nulle += sc(x[4]); validi += sc(x[5]);
+    }
+    if (fr >= 1) {   /* lo spoglio è finito: arriva il voto dall'estero */
+      for (const [gk, v] of Object.entries(COM.cera[c])) g[gk] = (g[gk] || 0) + v;
+      bianche = b.bianche; nulle = b.nulle; validi = b.validi;
+    }
     const v = {};
-    let pesi = 0;
-    const w = b.p.map(p => { const x = p.v * (1 + (DISTORSIONE[gruppoDi(p.s)] || 0) * (1 - k)); pesi += x; return x; });
-    const validiP = b.validi - b.bianche;
-    b.p.forEach((p, j) => {
-      partiti[p.s] = partiti[p.s] || [p.s, p.n, ''];
-      const voti = k >= 1 ? p.v : Math.round(w[j] / pesi * validiP * k);
-      if (voti) v[p.s] = [voti, 0];
-    });
-    circ[c] = { n: b.n, mesas, esc, censo: b.elettori, censoEsc: Math.round(b.elettori * k), votanti: Math.round(b.votanti * k), nulle: Math.round(b.nulle * k), bianche: Math.round(b.bianche * k), validi: Math.round(b.validi * k), pctEsc: k * 100, v };
-    if (k >= 1) circ[c].validi = b.validi;
+    for (const [gk, n] of Object.entries(g)) if (n > 0) { v[gk] = [n, 0]; chiavi.add(gk); }
+    circ[c] = { n: b.n, mesas, esc: Math.round(esc), censo, censoEsc, votanti: validi + nulle, nulle, bianche, validi, pctEsc: mesas ? esc / mesas * 100 : 0, v };
+    live[c] = { m, partiti: COM.d23.partiti };
   });
+  /* le chiavi sono già i partiti: gruppoDi le riconosce come tali */
+  const partiti = {};
+  chiavi.forEach(gk => { partiti[gk] = GMAP[gk] ? [gk, GMAP[gk].n, gk] : [gk.replace(/^L:/, ''), '', '']; });
   /* l'ora simulata: dalle 20:30 del 23 luglio 2023 a mezzanotte e mezza */
   const quando = new Date(Date.UTC(2023, 6, 23, 18, 30) + f * 4 * 3600e3).toISOString();
-  return { quando, naz: null, circ, partiti };
+  return { R: { quando, naz: null, circ, partiti }, live };
 }
 function provaApplica() {
+  if (COM.stato !== 'ok') return;
   const f = Number($('provaRange').value) / 100;
   $('provaPct').textContent = Math.round(f * 100) + '%';
-  const R = provaRiassunto(f);
+  const { R, live } = provaRiassunto(f);
+  COM.live = live;
   applica(R, 'prova', new Date(R.quando));
   setFeed('Prova generale · 2023, avanzamento simulato ' + Math.round(f * 100) + '%', 'paused');
 }
-function avviaProva() {
+async function avviaProva() {
   $('provaBar').classList.remove('hidden'); $('testBadge').classList.remove('hidden');
   $('refreshBtn').classList.add('hidden'); $('pauseBtn').classList.add('hidden');
   $('heroTitle').textContent = 'Spagna 2023 · prova';
   $('heroEyebrow').textContent = 'Prova generale · elezioni generali del 23 luglio 2023';
+  setFeed('Prova generale · carico i comuni del 2023…', 'loading');
+  await caricaComuni();
+  if (COM.stato !== 'ok') { setFeed('Prova: i comuni del 2023 non si caricano (' + COM.errore + ')', 'error'); avviso('La prova generale legge dati/comuni2023.json: apri la pagina da GitHub Pages o da un server locale, non dal disco.'); return; }
   provaApplica();
 }
 
@@ -1909,7 +2163,18 @@ function eventi() {
   $('blocchi').onclick = e => { const c = e.target.closest('.bloc'); if (!c) return; filtroEmi = filtroEmi && filtroEmi.t === 'b' && filtroEmi.v === c.dataset.b ? null : { t: 'b', v: c.dataset.b }; applicaFiltro(); };
   document.querySelectorAll('#mapMode button').forEach(b => b.onclick = () => { S.mapMode = b.dataset.mode; salva(); renderMappa(); });
   $('mapLista').onchange = e => { S.mapLista = e.target.value; salva(); renderMappa(); };
-  $('provMap').onclick = e => { const p = e.target.closest('path[data-c]'); seleziona(p ? p.dataset.c : S.sel); };
+  $('provMap').onclick = e => {
+    const m = e.target.closest('path[data-m]');
+    if (m) { selezionaComune(m.dataset.m); return; }
+    const p = e.target.closest('path[data-c]'); seleziona(p ? p.dataset.c : S.sel);
+  };
+  document.querySelectorAll('#mapLiv button').forEach(b => b.onclick = () => {
+    S.mapLiv = b.dataset.liv; if (S.mapLiv === 'com23' && (S.mapMode === 'sposta' || S.mapMode === 'scr')) S.mapMode = 'primo';
+    salva(); renderMappa(); if (S.mapLiv === 'com') aggiornaComuni(S.zoomProv);
+  });
+  $('mapBack').onclick = () => { S.zoomProv = null; S.selM = null; renderMappa(); };
+  $('cercaCom').oninput = cercaComune;
+  $('cercaRis').onclick = e => { const r = e.target.closest('.lanrow[data-m]'); if (!r) return; $('cercaCom').value = ''; $('cercaRis').innerHTML = ''; selezionaComune(r.dataset.m, true); };
   $('bilici').onclick = e => { const r = e.target.closest('.bil'); if (r) seleziona(r.dataset.c, true); };
   $('provList').onclick = e => { const r = e.target.closest('.provrow'); if (r) seleziona(r.dataset.c, true); };
   $('manualToggle').onclick = () => $('manualPanel').classList.toggle('hidden');
@@ -1926,7 +2191,7 @@ function eventi() {
   };
   if (PROVA) {
     $('provaRange').oninput = () => provaApplica();
-    $('provaNuova').onclick = () => { PROVA_ST.seme = Math.floor(Math.random() * 1e6); provaApplica(); };
+    $('provaNuova').onclick = () => { PROVA_ST.seme = Math.floor(Math.random() * 1e6); PROVA_ST.ordine = null; provaApplica(); };
     $('provaPlay').onclick = () => {
       if (PROVA_ST.play) { clearInterval(PROVA_ST.play); PROVA_ST.play = null; $('provaPlay').textContent = 'Avvia lo scorrimento'; return; }
       if (Number($('provaRange').value) >= 100) $('provaRange').value = 0;

@@ -10,6 +10,7 @@ Dashboard per seguire in diretta lo spoglio delle elezioni generali spagnole di 
 | `stime.json` | La media dei sondaggi (la scrive il workflow) e gli exit poll in seggi, che si scrivono a mano la sera del voto. |
 | `strumenti/sondaggi.py` | Legge i sondaggi da Wikipedia e calcola la media. |
 | `condivisione.jpg` | L'anteprima del link sui social (1200×630). |
+| `bandiera.svg` | La bandiera ufficiale, con lo stemma: icona in alto, icona della scheda del browser e sfondo dell'intestazione. |
 | `proxy/` | Il progetto Vercel: `api/mir.js` più `lib/normalizza.js`, che traduce il formato del Ministero. |
 | `strumenti/base2023.py` | Rifà `dati/base2023.json`, i risultati 2023 per circoscrizione. |
 | `strumenti/mappa.py` | Rifà `dati/mappa.json`, i confini delle province già proiettati. |
@@ -254,6 +255,8 @@ La stessa chiave delle dashboard di Israele e Brasile: `?redazione=CHIAVE` una v
 - **Card per X e Instagram:** cinque card (seggi, voto, mappa, seggi in bilico, exit poll) in 16:9 o 4:5, con titolo e testo del post che si rigenerano da soli finché non li modifichi. Scarica PNG, Condividi (menu del sistema con immagine e testo), Pubblica su X (l'immagine si allega a mano).
 
 ## Fonti e licenze
+
+- Bandiera: «Flag of Spain.svg» di Wikimedia Commons, pubblico dominio, disegnata secondo il Real Decreto 441/1981 (stemma compreso); aggiunto solo il `viewBox` perché si ridimensioni.
 
 - Voti: Ministero dell'Interno, dati provvisori.
 - Seggi per circoscrizione: Real Decreto 806/2026, BOE-A-2026-20742.

@@ -22,7 +22,7 @@
 <meta name="twitter:title" content="Spagna 2026 — Lo spoglio in diretta">
 <meta name="twitter:description" content="Voti, i 350 seggi del Congresso con il metodo D'Hondt, gli exit poll e la mappa delle province.">
 <meta name="twitter:image" content="https://angrisanidj.github.io/risultati-spagna/condivisione.jpg">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 16'%3E%3Crect width='22' height='16' fill='%23aa151b'/%3E%3Crect y='4' width='22' height='8' fill='%23f1bf00'/%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="bandiera.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -45,17 +45,18 @@
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
 body{margin:0;min-height:100vh;color:var(--t1);background:var(--bg);font:14.5px/1.5 var(--sans);position:relative;isolation:isolate}
 html,body{overflow-x:clip}
-/* la bandiera spagnola in cima alla pagina, in alto a destra: le tre fasce nelle proporzioni
-   vere (1:2:1), un panneggio leggero di luci e ombre, poca opacità, e una sfumatura che la
-   scioglie nel fondo verso il basso e verso sinistra */
-body::before{content:"";position:absolute;top:0;right:0;width:min(1180px,94vw);height:clamp(300px,34vw,380px);z-index:-1;pointer-events:none;
+/* la bandiera spagnola in cima alla pagina, in alto a destra: quella ufficiale, con lo stemma
+   (bandiera.svg, Wikimedia Commons, pubblico dominio), nelle sue proporzioni di 3:2 perché lo
+   stemma resti intero; un panneggio leggero di luci e ombre, poca opacità, e una sfumatura
+   ai bordi che la scioglie nel fondo, più ampia in basso */
+body::before{content:"";position:absolute;top:-80px;right:0;width:min(780px,62vw);aspect-ratio:3/2;z-index:-1;pointer-events:none;
   background:
     linear-gradient(102deg,rgba(0,0,0,0) 0%,rgba(255,255,255,.10) 16%,rgba(0,0,0,.22) 33%,rgba(255,255,255,.09) 51%,rgba(0,0,0,.2) 69%,rgba(255,255,255,.07) 85%,rgba(0,0,0,.1) 100%),
-    linear-gradient(180deg,var(--rojo) 0 25%,var(--gualda) 25% 75%,var(--rojo) 75% 100%);
-  opacity:.26;filter:blur(1.5px) saturate(.92);
-  -webkit-mask-image:radial-gradient(115% 105% at 100% 0%,#000 28%,rgba(0,0,0,.55) 52%,transparent 78%);
-  mask-image:radial-gradient(115% 105% at 100% 0%,#000 28%,rgba(0,0,0,.55) 52%,transparent 78%)}
-@media(max-width:760px){body::before{opacity:.2;height:420px;width:100vw}}
+    url("bandiera.svg") center/100% 100% no-repeat;
+  opacity:.22;filter:blur(1px) saturate(.9);
+  -webkit-mask-image:radial-gradient(ellipse 50% 52% at 50% 42%,#000 38%,rgba(0,0,0,.45) 68%,transparent 100%);
+  mask-image:radial-gradient(ellipse 50% 52% at 50% 42%,#000 38%,rgba(0,0,0,.45) 68%,transparent 100%)}
+@media(max-width:760px){body::before{width:100vw;top:-20px;opacity:.2}}
 /* in fondo alla pagina, un velo caldo appena percettibile */
 body::after{content:"";position:fixed;inset:auto 0 0 0;height:40vh;z-index:-1;pointer-events:none;background:radial-gradient(120% 100% at 50% 100%,rgba(170,21,27,.07),transparent 70%)}
 h1,h2,h3{font-family:var(--serif);font-weight:600;letter-spacing:-.01em;margin:0}
@@ -70,8 +71,8 @@ code{font-size:.92em;color:var(--acc)}
 .topbar{position:sticky;top:0;z-index:40;background:rgba(19,12,14,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
 .topbar-in{max-width:1400px;margin:auto;padding:9px var(--pad);display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 .brand{display:flex;align-items:center;gap:10px;font:600 15px/1 var(--serif);white-space:nowrap}
-.flagicon{width:22px;height:16px;flex:0 0 22px;border-radius:2px;
-  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 16'%3E%3Crect width='22' height='16' fill='%23aa151b'/%3E%3Crect y='4' width='22' height='8' fill='%23f1bf00'/%3E%3C/svg%3E") center/cover}
+.flagicon{width:24px;height:16px;flex:0 0 24px;border-radius:2px;box-shadow:0 0 0 1px rgba(255,255,255,.12);
+  background:url("bandiera.svg") center/cover no-repeat}
 .brand em{font:500 12.5px/1 var(--sans);font-style:normal;color:var(--t3)}
 .tabs{display:flex;gap:2px;background:var(--s1);border:1px solid var(--line);border-radius:var(--r);padding:2px}
 body:not(.redazione) .tabs{display:none}

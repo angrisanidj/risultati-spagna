@@ -16,13 +16,16 @@ Dashboard per seguire in diretta lo spoglio delle elezioni generali spagnole di 
 | `strumenti/incorpora.py` | Copia i due file di `dati/` dentro `index.html`. |
 | `dati/comuni2023.json` | Il voto del 2023 negli 8.131 comuni. Si carica solo quando si apre la mappa dei comuni. |
 | `dati/comuni-mappa.json` | I confini dei comuni, già proiettati (li scrive `strumenti/mappa.py`). |
-| `strumenti/comuni2023.py` | Rifà `dati/comuni2023.json` dal pacchetto ufficiale del Ministero in `strumenti/fonti/`. |
+| `strumenti/comuni.py` | Legge i pacchetti ufficiali del Ministero per comune (`strumenti/fonti/`): rifà `dati/comuni2023.json` e i file del backtest. |
+| `proxy/lib/modello.js` | La proiezione dello spoglio, usata dalla pagina (in un Web Worker, `proxy/lib/lavoratore.js`) e dal backtest. |
+| `strumenti/backtest/` | I backtest della proiezione dello spoglio e della media dei sondaggi, con i dati e i risultati. |
 | `.github/workflows/pages.yml` | Pubblica il sito a ogni push su `main`, senza il limite di 10 ricostruzioni l'ora. |
 
 ## Cosa mostra
 
 - **Scrutinio, affluenza, primo partito** e la fonte dell'emiciclo.
 - **Chi ha la maggioranza:** PP e Vox contro la soglia di 176, con il PSOE e i suoi alleati e i nazionalisti di centro.
+- **Come finirà lo spoglio:** la proiezione del risultato finale dai comuni già contati, con le forchette e la probabilità della maggioranza (vedi «La proiezione dello spoglio»).
 - **Voto nazionale:** voti, percentuali, differenza dal 2023, seggi sullo scrutinio, seggi 2023 e una colonna per ogni exit poll.
 - **I 350 seggi:** emiciclo con la fonte a scelta (Congresso 2023, exit poll, scrutinio, seggi manuali) e i blocchi secondo ogni fonte.
 - **I seggi in bilico:** in ogni circoscrizione l'ultimo seggio assegnato e quanti voti mancano al primo escluso per prenderlo.
@@ -61,15 +64,66 @@ Il workflow **Media dei sondaggi** (`.github/workflows/sondaggi.yml`) la rifà a
 
 ## I comuni
 
-**Il 2023.** I voti per comune vengono dal pacchetto ufficiale del Ministero `02202307_MUNI.zip` («Área de descargas» di infoelectoral), conservato in `strumenti/fonti/`. Il server di infoelectoral non risponde alla rete della redazione né ai server di GitHub (403): il file è stato scaricato il 10 novembre dal browser integrato di Claude, che invece lo raggiunge. I file sono a lunghezza fissa, descritti nel `FICHEROS.doc` dentro lo zip. Controlli fatti da `strumenti/comuni2023.py`: in tutti gli 8.131 comuni i voti delle liste tornano con il totale; la somma dei comuni è 204.649 voti validi sotto il totale nazionale, cioè il voto dall'estero (CERA), che il Ministero conta solo per provincia.
+**Il 2023.** I voti per comune vengono dal pacchetto ufficiale del Ministero `02202307_MUNI.zip` («Área de descargas» di infoelectoral), conservato in `strumenti/fonti/`. Il server di infoelectoral non risponde alla rete della redazione né ai server di GitHub (403): il file è stato scaricato il 10 novembre dal browser integrato di Claude, che invece lo raggiunge. I file sono a lunghezza fissa, descritti nel `FICHEROS.doc` dentro lo zip. Controlli fatti da `strumenti/comuni.py`: in tutti gli 8.131 comuni i voti delle liste tornano con il totale; la somma dei comuni è 204.649 voti validi sotto il totale nazionale, cioè il voto dall'estero (CERA), che il Ministero conta solo per provincia.
 
 **I confini** sono quelli dell'IGN nella versione di es-atlas (MIT), proiettati come le province da `strumenti/mappa.py` e salvati con la topologia (archi condivisi), circa 1 MB. I codici INE dei comuni coincidono con quelli del Ministero: 8.131 su 8.131.
 
 **Il disegno.** I comuni sono disegnati su un canvas, non come forme SVG: 8.133 forme SVG erano lente sul telefono (35-50 ms a ogni aggiornamento sul computer, 4-6 volte tanto su un telefono). Ora i colori si calcolano una volta per ogni nuovo dato, la mappa intera si ridisegna in circa 6 ms e una provincia ingrandita in meno di 1 ms; il comune toccato si trova con una griglia di celle in 0,2 ms. Sul telefono: un tocco ingrandisce la provincia e apre il comune nella scheda, subito sotto la mappa; due dita ingrandiscono, un dito sposta la mappa ingrandita, il doppio tocco ingrandisce. Sul computer la rotella ingrandisce e il puntatore mostra il nome del comune.
 
-**La sera del voto** il proxy chiede al Ministero una provincia alla volta con la mappa dei suoi comuni (`?comuni=28`, percorso `MIR_COMUNI`, che nel 2023 era `getScopeData/<provincia>/1/2/1/1/90`: da verificare quando il sito apre). La pagina chiede i comuni solo se un lettore apre il livello «Comuni»: prima la provincia ingrandita, poi le altre, tre alla volta, ogni tre minuti. La cache del proxy tiene ogni provincia 90 secondi, quindi al Ministero arrivano al massimo 52 richieste ogni 90 secondi, comunque vada il traffico. Se i comuni non arrivano, la pagina lo scrive sotto la mappa e il resto funziona come prima.
+**La sera del voto** il proxy chiede al Ministero le 52 province, ognuna con la mappa dei suoi comuni (percorso `MIR_COMUNI`, che nel 2023 era `getScopeData/<provincia>/1/2/1/1/90`: da verificare quando il sito apre), e le restituisce in una risposta sola (`?comuni=tutti`). La pagina la chiede ogni due minuti dai primi voti contati: serve alla mappa dei comuni e alla proiezione dello spoglio. La cache del proxy tiene la risposta 90 secondi, quindi al Ministero arrivano al massimo 52 richieste ogni 90 secondi, comunque vada il traffico. Se i comuni non arrivano, la pagina lo scrive sotto la mappa e il resto funziona come prima; `?comuni=28` restituisce una provincia sola, per controllo.
 
 **La prova generale** (`?prova=2023`) ora rifà lo spoglio comune per comune: dentro ogni provincia arrivano prima i comuni piccoli, con un po' di disordine, e l'ultimo comune del momento è contato in parte. Il vantaggio iniziale del PP nei comuni piccoli si vede da solo. A fine spoglio si aggiunge il voto dall'estero di ogni provincia, e il riparto ridà esattamente i 350 seggi del 2023.
+
+## La proiezione dello spoglio
+
+Durante lo spoglio il riquadro **Come finirà lo spoglio** stima il risultato finale del conteggio a partire dai comuni già contati. Dal 5% dei seggi elettorali scrutinati è anche la fonte automatica dell'emiciclo e del titolo principale, fino al 97%, quando passano i voti contati.
+
+**Il problema.** In Spagna arrivano prima i comuni piccoli, più a destra della media, e le grandi città per ultime. Il riparto sui voti contati, quello che mostra il Ministero, all'inizio sbaglia di molto: con il 2% dello spoglio di decine di seggi.
+
+**Il metodo** (`proxy/lib/modello.js`, usato dalla pagina in un Web Worker e dal backtest):
+- ogni comune contato si confronta con se stesso all'elezione precedente (per il 2026 il 2023), per famiglie di partiti che esistono in entrambe (Sumar 2023 è la famiglia di Frente Amplio, Podemos, Front Valencià e Adelante Andalucía; PP e UPN stanno insieme; le bianche sono una famiglia a sé);
+- per ogni famiglia si misura il rapporto fra i voti presi e quelli attesi con le quote della volta precedente, nella stessa provincia e nella stessa classe di dimensione dei comuni; dove i comuni contati sono pochi la stima si avvicina a quella della provincia e poi a quella nazionale della stessa classe;
+- un partito che la volta precedente non c'era (SALF) prende la quota osservata nei comuni contati della stessa provincia e classe;
+- i comuni non contati votano come la volta precedente, corretti da quei rapporti e dall'affluenza stimata allo stesso modo; un comune contato in parte vota, nella parte che manca, come nella parte contata;
+- poi il D'Hondt in ogni circoscrizione. L'incertezza viene da 400 simulazioni con un errore per famiglia comune a tutto il paese e uno per provincia, più largo dove si è contato poco.
+
+Il voto dall'estero (CERA) non entra: si conta giorni dopo. La proiezione stima il conteggio della notte, cioè il 100% del Ministero.
+
+**I dati.** La sera del voto la pagina chiede al proxy tutti i comuni insieme (`?comuni=tutti`) ogni due minuti, dai primi voti contati. Servono sia alla proiezione sia alla mappa dei comuni.
+
+### Il backtest dello spoglio
+
+`node strumenti/backtest/backtest.mjs 30` rifà lo spoglio di due elezioni vere partendo da quella precedente, con i dati ufficiali per comune (`strumenti/fonti/`, i 2019 dal repository JaimeObregon/infoelectoral che conserva i file del Ministero): aprile 2019 → novembre 2019 e novembre 2019 → luglio 2023. Per ognuna 30 notti simulate, con l'ordine di arrivo della prova generale (prima i comuni piccoli, ogni provincia con il suo ritmo); per il 2023 anche 30 notti con un ordine del tutto casuale. A ogni punto si confronta con il risultato finale del conteggio. «Seggi spostati» è la metà della somma degli scarti fra partiti; la forchetta è quella all'80%. I risultati completi sono in `strumenti/backtest/risultati.txt`.
+
+| Spoglio | Apr→nov 2019: grezzo | modello | forchetta 80% | Nov 2019→2023: grezzo | modello | forchetta 80% |
+|---|---|---|---|---|---|---|
+| 2% | 90,8 | 21,8 | 75% | 91,3 | 18,8 | 73% |
+| 5% | 49,4 | 17,2 | 81% | 49,2 | 11,9 | 81% |
+| 10% | 26,7 | 11,5 | 88% | 18,9 | 7,1 | 87% |
+| 20% | 12,7 | 5,4 | 97% | 10,9 | 4,5 | 91% |
+| 30% | 8,6 | 3,1 | 99% | 8,2 | 3,1 | 92% |
+| 50% | 4,7 | 1,9 | 100% | 5,3 | 2,3 | 94% |
+| 80% | 2,6 | 0,7 | 100% | 2,2 | 0,6 | 99% |
+
+Seggi spostati in media su 30 notti; «forchetta» è la quota di partiti il cui risultato vero cade nella forchetta all'80%. Sulla somma di PP e Vox, con il 5% contato, il riparto grezzo sbagliava in media di 27-39 seggi, la proiezione di 1-3; con il 10%, 4-7 contro 2.
+
+Con un ordine di arrivo del tutto casuale (2023, 30 notti) la proiezione fa anche meglio: 11,2 seggi spostati con il 2% contro 87,6 del riparto grezzo, 3,7 con il 10% contro 11,3, forchetta all'80% fra il 77% e il 100%.
+
+La proiezione batte sempre il riparto sui voti contati, e di molto all'inizio. La forchetta all'80% contiene il risultato vero circa 3 volte su 4 nei primissimi minuti e quasi sempre dopo il 20%: all'inizio è un po' stretta, dopo è prudente. Il backtest non può provare un ordine di arrivo molto diverso da quelli simulati, né un'elezione molto diversa dalla precedente: in quei casi l'errore iniziale sarà più alto.
+
+### Il backtest della media dei sondaggi
+
+`python -I strumenti/backtest/sondaggi2023.py` rifà la media dei sondaggi come sarebbe stata il 17 luglio 2023, ultimo giorno in cui si potevano pubblicare, con lo stesso codice di `strumenti/sondaggi.py` (26 istituti); `node strumenti/backtest/sondaggi2023.mjs` la proietta in seggi con le regole della pagina, partendo da novembre 2019.
+
+| | PP | PSOE | Vox | Sumar | PP+Vox+UPN |
+|---|---|---|---|---|---|
+| Media dei sondaggi, voti | 33,9% | 28,3% | 13,2% | 13,4% | |
+| Risultato, voti | 33,1% | 31,7% | 12,4% | 12,3% | |
+| Proiezione della media, seggi | 140 (122–152) | 104 (95–125) | 38 (29–44) | 36 (28–42) | 181 (159–193) |
+| Seggi medi stimati dagli istituti | 143 | 109 | 34 | 33 | |
+| Risultato, seggi | 137 | 121 | 33 | 31 | 171 |
+
+La proiezione avrebbe dato a PP e Vox la maggioranza in 56 simulazioni su 100; finirono a 171, dentro la forchetta, come 10 partiti su 11 (fuori UPN, per come Navarra Suma del 2019 è stata attribuita). L'errore viene soprattutto dai sondaggi, che sottostimavano il PSOE di 3,4 punti: date alla stessa proiezione le percentuali vere del 2023, i seggi spostati scendono da 19 a 6 (PP 134, PSOE 124, Vox 31, Sumar 30). La traduzione da voti a seggi regge; l'incertezza vera è quella dei sondaggi, e per questo la forchetta tiene conto di un errore comune fra destra e sinistra.
 
 ## Da dove arrivano i dati
 
@@ -166,7 +220,7 @@ Si scrivono in `stime.json`, in seggi, per partito. Un numero o una forchetta `[
 
 - `n` è il nome lungo (istituto e rete), `s` quello breve per le colonne, `ora` l'ora di pubblicazione.
 - Le chiavi dei partiti sono quelle di `GRUPPI`: `PP`, `PSOE`, `VOX`, `FA` (Frente Amplio), `FV` (Front Valencià), `PODEMOS`, `AA` (Adelante Andalucía), `ERC`, `JUNTS`, `BILDU`, `PNV`, `BNG`, `CC`, `UPN`, `SALF`, `CUP`, `NC`, `TE`, `UPL`, `SY`, `PACMA`. Una chiave sconosciuta compare con il suo nome fra gli altri partiti.
-- L'ordine degli exit poll nel file è l'ordine delle colonne; in automatico l'emiciclo usa la proiezione dei sondaggi fino al primo exit poll, quello fino al 40% dello scrutinio, poi i voti contati.
+- L'ordine degli exit poll nel file è l'ordine delle colonne; in automatico l'emiciclo usa la proiezione dei sondaggi fino al primo exit poll, gli exit poll fino al 5% dello scrutinio, poi la proiezione dello spoglio e, dal 97%, i voti contati.
 - Il campo `sondaggi` lo scrive il workflow: quando si modifica `stime.json` a mano va lasciato com'è.
 - La pagina rilegge `stime.json` ogni 15 secondi fra le 19:55 e le 22 italiane, ogni due minuti il resto del tempo.
 

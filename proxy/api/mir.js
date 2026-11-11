@@ -2,6 +2,7 @@
 
    GET /api/mir              la Spagna e le 52 circoscrizioni, in un riassunto compatto
    GET /api/mir?comuni=28    i comuni di una provincia (28 = Madrid), nello schema di dati/comuni2023.json
+   GET /api/mir?comuni=tutti i comuni di tutte le province, per la mappa e per la proiezione dello spoglio
    GET /api/mir?grezzo=28    un ambito così come lo pubblica il Ministero (28 = Madrid, 1 = Spagna)
    GET /api/mir?diag=1       diagnostica: raggiungibilità, stato HTTP, latenza, anti-bot, regione
 
@@ -21,8 +22,9 @@
    Una lettura prova prima MIR_MAPA (una richiesta). Se la risposta non contiene le 52
    province, chiede le province una per una, 6 alla volta. La cache del CDN di Vercel
    (s-maxage=20) fa sì che molti lettori aperti generino al massimo un giro ogni 20 secondi.
-   I comuni si chiedono una provincia alla volta, solo quando un lettore apre la mappa dei
-   comuni, e restano in cache 90 secondi: al massimo 52 richieste al Ministero ogni 90 secondi. */
+   I comuni si chiedono tutti insieme (?comuni=tutti), dopo i primi voti contati: servono alla
+   mappa dei comuni e alla proiezione dello spoglio. La risposta resta in cache 90 secondi:
+   al massimo 52 richieste al Ministero ogni 90 secondi, comunque vada il traffico. */
 
 import { scopeId, PROVINCE, riassumi, valido, comuni } from '../lib/normalizza.js';
 
@@ -40,7 +42,7 @@ const ORIGINI = [
 const originOk = o => ORIGINI.some(a => o === a || o.startsWith(a + ':'));
 
 /* Solo parametri conosciuti: ogni variante dell'indirizzo è una voce di cache a sé. */
-const PARAMETRI = { diag: v => v === '1', grezzo: v => v === '1' || PROVINCE.includes(v), comuni: v => PROVINCE.includes(v) };
+const PARAMETRI = { diag: v => v === '1', grezzo: v => v === '1' || PROVINCE.includes(v), comuni: v => v === 'tutti' || PROVINCE.includes(v) };
 const limitato = s => s === 429 || s === 403;
 /* Dopo un 429 o un 403, per un minuto questa istanza non chiede niente al Ministero. */
 const FRENO_MS = 60000;
@@ -145,6 +147,26 @@ export default async function handler(req, res) {
   if (Date.now() < frenoFino) {
     res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=30');
     return res.status(503).json({ errore: 'Il Ministero ha limitato le richieste: pausa di un minuto' });
+  }
+
+  if (q.comuni === 'tutti') {
+    /* le 52 province, 6 alla volta; una provincia che non risponde resta fuori da questo giro */
+    const ris = await aGruppi(PROVINCE, 6, c => json(url(COMUNI, scopeId(c, 30))).then(comuni));
+    const prov = {}; let quando = null, errori = 0, lim = false;
+    ris.forEach((C, i) => {
+      if (!C || C.errore) { errori++; if (C && C.errore && limitato(C.errore.stato)) lim = true; return; }
+      if (!Object.keys(C.m).length) { errori++; return; }
+      prov[PROVINCE[i]] = { m: C.m, partiti: C.partiti };
+      if (C.quando && (!quando || C.quando > quando)) quando = C.quando;
+    });
+    if (!Object.keys(prov).length) {
+      res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=' + (lim ? 300 : 30));
+      const e = ris.find(x => x && x.errore);
+      return res.status(502).json({ errore: 'Comuni non disponibili: ' + (e ? e.errore.message : 'nessun comune nelle risposte'), stato: e && e.errore.stato || 0 });
+    }
+    res.setHeader('X-Mir-Modo', 'comuni ' + Object.keys(prov).length + '/52');
+    res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=90, stale-while-revalidate=120');
+    return res.status(200).json({ quando, prov, mancanti: errori });
   }
 
   if (q.comuni) {

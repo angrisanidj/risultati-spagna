@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="color-scheme" content="dark">
-<meta name="theme-color" content="#0b0a10">
+<meta name="theme-color" content="#130c0e">
 <title>Spagna 2026 — Lo spoglio in diretta</title>
 <meta name="description" content="Elezioni generali spagnole del 29 novembre 2026: voti, i 350 seggi del Congresso provincia per provincia con il metodo D'Hondt, exit poll e mappa in diretta dai dati del Ministero dell'Interno.">
 <link rel="canonical" href="https://angrisanidj.github.io/risultati-spagna/">
@@ -29,21 +29,29 @@
 <link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{
-  --blue:#c8102e;--blue-lit:#ff8a7a;--acc:#ffc9a8;--white:#fbf6f2;
-  --bg:#0b0a10;--s1:#15131c;--s2:#1c1a25;--s3:#26232f;
+  --blue:#c8102e;--blue-lit:#e8b941;--acc:#f3d27a;--white:#fbf6ee;--rojo:#aa151b;--gualda:#f1bf00;
+  --bg:#130c0e;--s1:#1b1214;--s2:#22171a;--s3:#2e2023;
   --line:rgba(255,255,255,.08);--line-2:rgba(255,255,255,.14);
-  --t1:#f2eef0;--t2:#aca5b2;--t3:#7a7383;
+  --t1:#f6efe6;--t2:#bfb0a5;--t3:#8d7d73;
   --green:#4bd28b;--red:#ff6680;--amber:#f2c14e;
   --serif:Lora,Georgia,"Times New Roman",serif;
   --sans:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
   --r:6px;--r-s:4px;
   --pad:clamp(14px,3vw,24px);
 }
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;scrollbar-width:thin;scrollbar-color:#3a3646 transparent}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;scrollbar-width:thin;scrollbar-color:#4a3638 transparent}
 ::-webkit-scrollbar{width:8px;height:8px}
-::-webkit-scrollbar-thumb{background:#3a3646;border-radius:4px}
+::-webkit-scrollbar-thumb{background:#4a3638;border-radius:4px}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
-body{margin:0;min-height:100vh;color:var(--t1);background:var(--bg);font:14.5px/1.5 var(--sans)}
+body{margin:0;min-height:100vh;color:var(--t1);background:var(--bg);font:14.5px/1.5 var(--sans);position:relative;isolation:isolate}
+html,body{overflow-x:clip}
+/* la bandiera, appena accennata: le tre fasce sfocate in cima alla pagina, che sfumano nel fondo */
+body::before{content:"";position:absolute;left:-10%;right:-10%;top:-80px;height:min(980px,120vh);z-index:-1;pointer-events:none;
+  background:linear-gradient(180deg,var(--rojo) 0 25%,var(--gualda) 25% 75%,var(--rojo) 75% 100%);
+  opacity:.16;filter:blur(80px);transform:skewY(-4deg);
+  -webkit-mask-image:linear-gradient(180deg,#000 0,#000 25%,transparent 100%);mask-image:linear-gradient(180deg,#000 0,#000 25%,transparent 100%)}
+/* in fondo alla pagina, un velo caldo appena percettibile */
+body::after{content:"";position:fixed;inset:auto 0 0 0;height:40vh;z-index:-1;pointer-events:none;background:radial-gradient(120% 100% at 50% 100%,rgba(170,21,27,.07),transparent 70%)}
 h1,h2,h3{font-family:var(--serif);font-weight:600;letter-spacing:-.01em;margin:0}
 .mono{font-variant-numeric:tabular-nums}
 .muted{color:var(--t2)}
@@ -53,7 +61,7 @@ code{font-size:.92em;color:var(--acc)}
 
 /* ---------- testata ---------- */
 .flagbar{height:6px;background:linear-gradient(#aa151b 0 25%,#f1bf00 25% 75%,#aa151b 75%)}
-.topbar{position:sticky;top:0;z-index:40;background:rgba(11,10,16,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.topbar{position:sticky;top:0;z-index:40;background:rgba(19,12,14,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
 .topbar-in{max-width:1400px;margin:auto;padding:9px var(--pad);display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 .brand{display:flex;align-items:center;gap:10px;font:600 15px/1 var(--serif);white-space:nowrap}
 .flagicon{width:22px;height:16px;flex:0 0 22px;border-radius:2px;
@@ -116,7 +124,7 @@ select{background:var(--s2);color:var(--t1);border:1px solid var(--line-2);borde
 .provabar b{font-variant-numeric:tabular-nums}
 
 /* ---------- indicatori ---------- */
-.kpis{display:grid;grid-template-columns:repeat(4,1fr);margin-bottom:16px;background:var(--s1);border:1px solid var(--line);border-radius:var(--r)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);margin-bottom:16px;background:rgba(27,18,20,.88);border:1px solid var(--line);border-radius:var(--r)}
 .kpi{padding:14px 18px;min-width:0}
 .kpi+.kpi{border-left:1px solid var(--line)}
 .kpi span{display:block;color:var(--t2);font-size:12.5px;font-weight:500}
@@ -125,7 +133,7 @@ select{background:var(--s2);color:var(--t1);border:1px solid var(--line-2);borde
 .kpi.warn strong{color:var(--t1)}
 
 /* ---------- verdetto e barra della maggioranza ---------- */
-.verdetto{background:var(--s1);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px 20px;margin-bottom:16px}
+.verdetto{background:rgba(27,18,20,.88);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px 20px;margin-bottom:16px}
 .verdetto .vw{color:var(--t2);font-size:12.5px;font-weight:500}
 .verdetto h2{font-size:clamp(20px,2.6vw,27px);line-height:1.22;margin:6px 0 8px;max-width:62ch}
 .verdetto .vd{color:var(--t2);font-size:14px;line-height:1.55;max-width:90ch}
@@ -216,7 +224,7 @@ select{background:var(--s2);color:var(--t1);border:1px solid var(--line-2);borde
 .alert{border:1px solid rgba(255,102,128,.4);background:rgba(255,102,128,.08);color:#ffd6de;border-radius:var(--r);padding:11px 14px;margin:0 0 16px;font-size:13.5px}
 
 /* ---------- pannelli ---------- */
-.card{background:var(--s1);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.card{background:rgba(27,18,20,.88);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
 .cardhead{display:flex;justify-content:space-between;gap:12px;align-items:baseline;padding:16px 18px 0;flex-wrap:wrap}
 .cardhead h2{font-size:19px;line-height:1.25}
 .kicker{color:var(--t2);font-size:12.5px;font-weight:500}
@@ -359,10 +367,10 @@ table.conf th .corto{display:none}
 .mapstage.zoomed{touch-action:none}
 #locMap{display:block;height:clamp(520px,90vh,1080px);width:auto;max-width:100%;cursor:grab}
 #locMap.drag{cursor:grabbing}
-#baseLayer path{stroke:#3a3544;stroke-width:.8;pointer-events:none;vector-effect:non-scaling-stroke;transition:fill .3s;stroke-linejoin:round}
-#locMap.sd #baseLayer path{pointer-events:auto;cursor:pointer;stroke:#0b0a10;stroke-width:1}
+#baseLayer path{stroke:#433336;stroke-width:.8;pointer-events:none;vector-effect:non-scaling-stroke;transition:fill .3s;stroke-linejoin:round}
+#locMap.sd #baseLayer path{pointer-events:auto;cursor:pointer;stroke:#130c0e;stroke-width:1}
 #locMap.hassel #baseLayer path:not(.sel){opacity:.55}
-#locLayer path{stroke:#0b0a10;stroke-width:.5;stroke-linejoin:round;cursor:pointer;vector-effect:non-scaling-stroke;transition:fill .3s,opacity .3s}
+#locLayer path{stroke:#130c0e;stroke-width:.5;stroke-linejoin:round;cursor:pointer;vector-effect:non-scaling-stroke;transition:fill .3s,opacity .3s}
 #locMap.hassel #locLayer path:not(.sel){opacity:.5}
 #locMap.area #baseLayer path.fuori,#locMap.area #locLayer path.fuori{opacity:.32}
 #locMap.area #baseLayer path.aperta{pointer-events:none}
@@ -372,9 +380,9 @@ table.conf th .corto{display:none}
 #hiLayer path.ov-aperta{stroke:#f4f7ff;stroke-width:1.8}
 #hiLayer path.ov-sel{stroke-width:2.2}
 #hiLayer path.ov-hover{stroke-width:1.6;opacity:.9}
-#locMap.area #locLayer path:not(.fuori){stroke:#0b0a10;stroke-width:.7}
+#locMap.area #locLayer path:not(.fuori){stroke:#130c0e;stroke-width:.7}
 /* le bolle: un cerchio per località, area proporzionale ai voti validi */
-#bubLayer circle{stroke:#0b0a10;stroke-width:.7;vector-effect:non-scaling-stroke;cursor:pointer;fill-opacity:.88;transition:fill .3s,opacity .3s}
+#bubLayer circle{stroke:#130c0e;stroke-width:.7;vector-effect:non-scaling-stroke;cursor:pointer;fill-opacity:.88;transition:fill .3s,opacity .3s}
 #bubLayer circle:hover{stroke:#fff;stroke-width:1.4}
 #bubLayer circle.sel{stroke:#fff;stroke-width:2.2;fill-opacity:1}
 #locMap.hassel #bubLayer circle:not(.sel){opacity:.5}
@@ -390,9 +398,9 @@ table.conf th .corto{display:none}
 .frecceleg div{display:flex;align-items:center;gap:8px}
 .frecceleg svg path{fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .mapzoom{position:absolute;top:10px;right:10px;z-index:2;display:grid;gap:4px}
-.mapzoom button{width:34px;height:34px;padding:0;font:500 17px/1 var(--sans);border-radius:var(--r-s);background:rgba(21,19,28,.94)}
-.maphint{position:absolute;left:10px;top:10px;z-index:2;color:var(--t2);font-size:12px;background:rgba(21,19,28,.9);padding:5px 9px;border-radius:var(--r-s);pointer-events:none;max-width:calc(100% - 64px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.mapback{position:absolute;left:10px;bottom:10px;z-index:3;background:rgba(21,19,28,.96)}
+.mapzoom button{width:34px;height:34px;padding:0;font:500 17px/1 var(--sans);border-radius:var(--r-s);background:rgba(27,18,20,.94)}
+.maphint{position:absolute;left:10px;top:10px;z-index:2;color:var(--t2);font-size:12px;background:rgba(27,18,20,.9);padding:5px 9px;border-radius:var(--r-s);pointer-events:none;max-width:calc(100% - 64px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mapback{position:absolute;left:10px;bottom:10px;z-index:3;background:rgba(27,18,20,.96)}
 .mapleg{border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;background:var(--s2)}
 .mapleg h4,.maplist h4{margin:0 0 9px;font:600 13px/1.2 var(--sans);color:var(--t1)}
 .mapleg .lg{display:grid;gap:6px}
@@ -463,7 +471,7 @@ footer a{color:var(--t2)}
 .fld label{display:block;font-size:12.5px;color:var(--t2);margin:0 0 5px;font-weight:500}
 .fld input{width:100%;background:var(--bg);border:1px solid var(--line-2);color:var(--t1);border-radius:var(--r-s);padding:8px 10px;font:14px var(--sans)}
 .gencard{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--s1);margin:0 0 18px}
-.gencard canvas{display:block;width:100%;height:auto;background:#100e15}
+.gencard canvas{display:block;width:100%;height:auto;background:#170f11}
 .gencard.ig canvas{max-width:560px;margin:0 auto}
 .gencard .bar2{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 13px;border-top:1px solid var(--line);flex-wrap:wrap}
 .gencard .bar2 b{font-size:13.5px;font-weight:600}
@@ -609,10 +617,11 @@ footer a{color:var(--t2)}
 .dh2.sotto{color:var(--t3)}
 .forchetta{color:var(--t3);font-size:11.5px;font-weight:500}
 #provMap{display:block;width:100%;max-width:820px;height:auto;margin:0 auto}
-#provMap path{stroke:#0b0a10;stroke-width:.8;stroke-linejoin:round;cursor:pointer;vector-effect:non-scaling-stroke;transition:fill .3s,opacity .2s}
-#provMap path:hover{stroke:#fff;stroke-width:1.4}
-#provMap path.sel{stroke:#fff;stroke-width:2.2}
-#provMap.hassel path:not(.sel){opacity:.6}
+#provMap path{stroke:#130c0e;stroke-width:.8;stroke-linejoin:round;cursor:pointer;vector-effect:non-scaling-stroke;transition:fill .3s,opacity .2s}
+/* i contorni evidenziati stanno su uno strato sopra tutto: le province vicine non li coprono */
+#provMap path.ev{fill:none;stroke:#fff;stroke-width:2.2;pointer-events:none;transition:none}
+#provMap path#evHover{stroke-width:1.4;opacity:.85}
+#provMap.hassel path[data-c]:not(.sel){opacity:.6}
 #provMap .riquadro{fill:none;stroke:var(--line-2);stroke-width:1;stroke-dasharray:4 3;pointer-events:none}
 #provMap text{font:500 11px var(--sans);fill:var(--t3);pointer-events:none}
 #provMap .citta{fill:#fff;pointer-events:none}
@@ -626,7 +635,7 @@ footer a{color:var(--t2)}
 /* i comuni */
 .mapwrap{position:relative}
 .mapwrap .mapback{left:8px;bottom:8px}
-.mapcarico{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--t2);font-size:13px;background:rgba(11,10,16,.6)}
+.mapcarico{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--t2);font-size:13px;background:rgba(19,12,14,.6)}
 #comCanvas{display:block;width:100%;height:auto;max-width:820px;margin:0 auto;touch-action:pan-y;cursor:pointer;-webkit-user-select:none;user-select:none}
 #comCanvas.zoom{touch-action:none}
 /* sul telefono: la ricerca sopra la mappa, la scheda subito sotto, la legenda in fondo */
@@ -709,6 +718,14 @@ footer a{color:var(--t2)}
   </section>
 
   <section id="verdetto" class="verdetto"></section>
+
+  <section class="card hidden" id="proiezCard" style="margin-bottom:14px">
+    <div class="cardhead"><div><h2>Come finirà lo spoglio</h2></div><span class="cmeta" id="proiezMeta">—</span></div>
+    <p class="subcopy" id="proiezSub"></p>
+    <div id="proiezBlocchi" class="blocchi"></div>
+    <div class="tablewrap"><table id="proiezTable" class="conf"></table></div>
+    <p class="methodnote" id="proiezNota"></p>
+  </section>
 
   <section class="card hidden" id="sondCard" style="margin-bottom:14px">
     <div class="cardhead"><div><h2>Come potrebbe finire secondo i sondaggi</h2></div><span class="cmeta" id="sondMeta">—</span></div>
@@ -1239,6 +1256,7 @@ function fontiSeggi() {
   if (P) F.push({ k: 'sondaggi', tipo: 'stima', n: 'Media dei sondaggi', s: 'Sondaggi', seggi: P.centro });
   EXIT_ORDINE().forEach(k => { const e = exitDi(k); if (e && sum(e.seggi) > 0) F.push(e); });
   const D = S.D;
+  if (typeof proiezioneValida === 'function' && proiezioneValida()) F.push({ k: 'proiezione', tipo: 'proiez', n: 'Proiezione dello spoglio', s: 'Proiezione', seggi: PROIEZ.R.seggi, frac: PROIEZ.R.frac });
   if (D && sum(D.gv) > 0) F.push({ k: 'scrutinio', tipo: 'scrutinio', n: 'Scrutinio', s: 'Scrutinio', seggi: D.gs, frac: D.naz.frac });
   if (S.manuale && sum(S.manuale) > 0) F.push({ k: 'manuale', tipo: 'manuale', n: 'Seggi inseriti a mano', s: 'Manuale', seggi: S.manuale });
   return F;
@@ -1248,6 +1266,10 @@ function fonteAttiva(sel) {
   if (want !== 'auto') { const f = F.find(x => x.k === want); if (f) return f; }
   const man = F.find(x => x.k === 'manuale'); if (man) return man;
   const scr = F.find(x => x.k === 'scrutinio');
+  /* a spoglio quasi finito i voti contati; prima la proiezione dello spoglio, appena c'è (dal
+     5% dei seggi elettorali); senza proiezione, i voti contati dal 40% */
+  if (scr && scr.frac >= 0.97) return scr;
+  const pz = F.find(x => x.tipo === 'proiez'); if (pz && pz.frac >= 0.05) return pz;
   if (scr && scr.frac >= AUTO_SCRUTINIO) return scr;
   const ex = F.find(x => x.tipo === 'exit'); if (ex) return ex;
   if (scr) return scr;
@@ -1257,6 +1279,7 @@ function nomeFonte(f, lungo) {
   if (f.tipo === 'exit') return (lungo ? 'Exit poll ' : '') + f.n;
   if (f.tipo === 'scrutinio') return 'Scrutinio ' + alPct(f.frac);
   if (f.tipo === 'stima') return lungo ? 'Proiezione dalla media dei sondaggi' : f.n;
+  if (f.tipo === 'proiez') return lungo ? 'Proiezione dai comuni contati ' + alPct(f.frac) : 'Proiezione ' + alPct(f.frac).replace(/^(al|allo|all’) /, '');
   return f.n;
 }
 function totBlocchi(f) {
@@ -1271,7 +1294,7 @@ function totBlocchi(f) {
 function render() {
   S.D = elabora(S.dati);
   renderKpi(); renderVerdetto(); renderTabella(); renderEmiciclo(); renderExit(); renderBilico();
-  renderSondaggi(); renderSimulatore(); renderBarre(); renderMappa(); renderScrutinio();
+  renderProiezione(); renderSondaggi(); renderSimulatore(); renderBarre(); renderMappa(); renderScrutinio();
   if (window.CARD) window.CARD.segnaSporco();
 }
 
@@ -1291,8 +1314,8 @@ function renderKpi() {
     $('kAff').textContent = '—'; $('kAffMeta').textContent = 'nel 2023: 70,4% senza il voto dall’estero';
     $('kPrimo').textContent = '—'; $('kPrimoMeta').textContent = 'nel 2023 il PP, con il 33,1%';
   }
-  $('kFonte').textContent = f.tipo === 'scrutinio' ? 'Scrutinio' : f.tipo === 'exit' ? 'Exit poll' : f.tipo === 'stima' ? 'Sondaggi' : f.n;
-  $('kFonteMeta').textContent = f.tipo === 'scrutinio' ? 'seggi sui voti contati ' + alPct(f.frac) : f.tipo === 'exit' ? f.n + (f.ora ? ', ore ' + f.ora : '') : f.tipo === 'manuale' ? 'inseriti dalla redazione' : f.tipo === 'stima' ? 'proiezione dalla media, fino agli exit poll' : 'composizione uscente fino ai primi dati';
+  $('kFonte').textContent = f.tipo === 'scrutinio' ? 'Scrutinio' : f.tipo === 'exit' ? 'Exit poll' : f.tipo === 'stima' ? 'Sondaggi' : f.tipo === 'proiez' ? 'Proiezione' : f.n;
+  $('kFonteMeta').textContent = f.tipo === 'scrutinio' ? 'seggi sui voti contati ' + alPct(f.frac) : f.tipo === 'exit' ? f.n + (f.ora ? ', ore ' + f.ora : '') : f.tipo === 'manuale' ? 'inseriti dalla redazione' : f.tipo === 'stima' ? 'proiezione dalla media, fino agli exit poll' : f.tipo === 'proiez' ? 'dai comuni contati ' + alPct(f.frac) + ', fino a fine spoglio' : 'composizione uscente fino ai primi dati';
 }
 
 function barraMaggioranza(t) {
@@ -1320,6 +1343,7 @@ function renderVerdetto() {
   else if (f.tipo === 'scrutinio' && f.frac < 0.95) cav = 'Seggi sui voti contati ' + alPct(f.frac) + ': possono ancora cambiare';
   else if (f.tipo === 'manuale') cav = 'Seggi inseriti a mano dalla redazione';
   else if (f.tipo === 'stima') cav = 'Proiezione dalla media dei sondaggi: una stima prima del voto, non voti contati';
+  else if (f.tipo === 'proiez') { const B = blocchiProiezione(PROIEZ.R); cav = 'Proiezione dello spoglio dai comuni contati ' + alPct(f.frac) + ': PP e Vox fra ' + B.intD[0] + ' e ' + B.intD[1] + ' seggi, maggioranza in ' + probIT(B.pD) + ' simulazioni'; }
   box.innerHTML = '<div class="vw">Chi ha la maggioranza, a 176 seggi · ' + esc(nomeFonte(f, true)) + '</div><h2>' + esc(titolo) + '</h2><div class="vd">' + det + '</div>' + (cav ? '<span class="vcav">' + esc(cav) + '</span>' : '') + barraMaggioranza(t);
 }
 
@@ -1400,8 +1424,8 @@ function renderEmiciclo() {
   const el = ordinaEmiciclo(f), pts = disegnoEmiciclo(el), t = totBlocchi(f);
   let svg = pts.map(p => p.vuoto ? '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="' + EMI.r + '" fill="rgba(255,255,255,.08)"></circle>'
     : '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="' + EMI.r + '" fill="' + p.c + '" data-g="' + esc(p.g) + '" data-b="' + p.b + '"></circle>').join('');
-  svg += '<text x="280" y="244" text-anchor="middle" fill="#f2eef0" style="font:600 40px Inter,sans-serif">' + t.D + '</text>' +
-    '<text x="280" y="262" text-anchor="middle" fill="#aca5b2" style="font:500 12px Inter,sans-serif">PP e Vox</text>' +
+  svg += '<text x="280" y="244" text-anchor="middle" fill="#f6efe6" style="font:600 40px Inter,sans-serif">' + t.D + '</text>' +
+    '<text x="280" y="262" text-anchor="middle" fill="#bfb0a5" style="font:500 12px Inter,sans-serif">PP e Vox</text>' +
     '<text x="280" y="278" text-anchor="middle" fill="' + (t.D >= MAGG ? '#9fd0ff' : '#ff8a7a') + '" style="font:600 12px Inter,sans-serif">' + (t.D >= MAGG ? 'maggioranza raggiunta' : 'ne servono 176') + '</text>';
   $('hemicycle').innerHTML = svg;
   $('seatLegend').innerHTML = el.map(e => '<button class="seat-chip" data-g="' + esc(e.g) + '"><i style="background:' + e.p.c + '"></i>' + esc(nomeBreve(e.p)) + ' <strong>' + e.n + '</strong></button>').join('');
@@ -1422,9 +1446,10 @@ function renderEmiciclo() {
   if (f.tipo === 'scrutinio') m = 'Seggi ricalcolati sui voti contati ' + alPct(f.frac) + ': D’Hondt in ognuna delle 52 circoscrizioni, con la soglia del 3%. ';
   else if (f.tipo === 'exit') m = 'Seggi dell’exit poll ' + f.n + (f.ora ? ' delle ' + f.ora : '') + '; dove c’è una forchetta, il valore centrale. ';
   else if (f.tipo === 'manuale') m = 'Seggi inseriti a mano dalla redazione. ';
+  else if (f.tipo === 'proiez') m = 'Proiezione dello spoglio dai comuni contati ' + alPct(f.frac) + ': valori centrali, le forchette sono nel riquadro «Come finirà lo spoglio». ';
   else if (f.tipo === 'stima') m = 'Proiezione dei seggi dalla media dei sondaggi, provincia per provincia: valori centrali, le forchette sono nel riquadro «Come potrebbe finire». ';
   else m = 'Congresso uscente, eletto il 23 luglio 2023. ';
-  m += 'In automatico l’emiciclo mostra la proiezione dei sondaggi fino agli exit poll, gli exit poll fino al 40% dello scrutinio, poi i voti contati. I blocchi: PP e Vox con UPN; PSOE e alleati con Frente Amplio, Podemos, Front Valencià, Adelante Andalucía, ERC, Bildu e BNG; nazionalisti di centro Junts, PNV e Coalizione canaria.';
+  m += 'In automatico l’emiciclo mostra la proiezione dei sondaggi fino agli exit poll, gli exit poll fino al 5% dello scrutinio, poi la proiezione dello spoglio e, a spoglio quasi finito, i voti contati. I blocchi: PP e Vox con UPN; PSOE e alleati con Frente Amplio, Podemos, Front Valencià, Adelante Andalucía, ERC, Bildu e BNG; nazionalisti di centro Junts, PNV e Coalizione canaria.';
   $('seatMethod').textContent = m;
 }
 function applicaFiltro() {
@@ -1571,7 +1596,7 @@ function renderBarre() {
 }
 
 /* ---------- mappa ---------- */
-const COL_VUOTO = '#2a2733';
+const COL_VUOTO = '#2d2224';
 function quoteCirc(c) {
   const x = S.D && S.D.circ[c];
   if (!x || x.vuota || !x.validi) return null;
@@ -1583,23 +1608,23 @@ function q23(c) { const b = B23.circ[c]; const q = {}; for (const g in b.g) q[g]
 /* il colore di un'area dalle sue quote per partito (q), da quelle del 2023 (q2) e dalla parte
    scrutinata (frac): lo stesso per le province e per i comuni */
 function coloreQuote(q, q2, frac, modo) {
-  if (modo === 'scr') return frac > 0 ? mix('#2a2733', '#ffb199', 0.25 + 0.75 * frac) : COL_VUOTO;
+  if (modo === 'scr') return frac > 0 ? mix('#2d2224', '#ffb199', 0.25 + 0.75 * frac) : COL_VUOTO;
   if (!q) return COL_VUOTO;
   if (modo === 'primo') {
     const o = Object.entries(q).sort((a, b) => b[1] - a[1]);
     if (!o.length) return COL_VUOTO;
     const m = o[0][1] - (o[1] ? o[1][1] : 0);
-    return mix('#2a2733', infoG(o[0][0]).c, 0.5 + clamp(m / 0.2, 0, 1) * 0.5);
+    return mix('#2d2224', infoG(o[0][0]).c, 0.5 + clamp(m / 0.2, 0, 1) * 0.5);
   }
   if (modo === 'blocco') {
     const t = bloccoQuote(q), d = t.D - t.S;
-    return d >= 0 ? mix('#3a3546', BLOCCHI.D.c, 0.25 + clamp(d / 0.4, 0, 1) * 0.75) : mix('#3a3546', BLOCCHI.S.c, 0.25 + clamp(-d / 0.4, 0, 1) * 0.75);
+    return d >= 0 ? mix('#3d2f31', BLOCCHI.D.c, 0.25 + clamp(d / 0.4, 0, 1) * 0.75) : mix('#3d2f31', BLOCCHI.S.c, 0.25 + clamp(-d / 0.4, 0, 1) * 0.75);
   }
-  if (modo === 'lista') { const v = q[S.mapLista] || 0; return v ? mix('#2a2733', infoG(S.mapLista).c, clamp(v / 0.45, 0.08, 1)) : COL_VUOTO; }
+  if (modo === 'lista') { const v = q[S.mapLista] || 0; return v ? mix('#2d2224', infoG(S.mapLista).c, clamp(v / 0.45, 0.08, 1)) : COL_VUOTO; }
   if (modo === 'sposta') {
     if (!q2) return COL_VUOTO;
     const a = bloccoQuote(q), b = bloccoQuote(q2), d = a.D - b.D;
-    return d >= 0 ? mix('#3a3546', '#3a86d8', clamp(d / 0.1, 0, 1)) : mix('#3a3546', '#e8384f', clamp(-d / 0.1, 0, 1));
+    return d >= 0 ? mix('#3d2f31', '#3a86d8', clamp(d / 0.1, 0, 1)) : mix('#3d2f31', '#e8384f', clamp(-d / 0.1, 0, 1));
   }
   return COL_VUOTO;
 }
@@ -1763,7 +1788,7 @@ function disegnaComuni() {
   const [rx, ry, rw, rh] = MAPPA.canarie;
   x.lineWidth = 1 / T.s; x.strokeStyle = 'rgba(255,255,255,.14)'; x.setLineDash([4 / T.s, 3 / T.s]); x.strokeRect(rx, ry, rw, rh); x.setLineDash([]);
   const bordo = T.s > 2.5;   /* i confini fra comuni solo quando si distinguono */
-  x.lineWidth = 0.6 / T.s; x.strokeStyle = 'rgba(11,10,16,.6)';
+  x.lineWidth = 0.6 / T.s; x.strokeStyle = 'rgba(19,12,14,.6)';
   for (const o of COM.lista) {
     const b = o.bb; if (b[2] < vx0 || b[0] > vx1 || b[3] < vy0 || b[1] > vy1) continue;
     x.fillStyle = COM.col.get(o.ine) || COL_VUOTO; x.fill(o.P);
@@ -1777,7 +1802,7 @@ function disegnaComuni() {
   }
   const sel = S.selM && COM.lista.find(o => o.ine === S.selM);
   if (sel) { x.lineWidth = 2.2 / T.s; x.strokeStyle = '#fff'; x.stroke(sel.P); }
-  x.font = (11 / T.s) + 'px Inter, sans-serif'; x.fillStyle = '#7a7383';
+  x.font = (11 / T.s) + 'px Inter, sans-serif'; x.fillStyle = '#8d7d73';
   x.fillText('Canarie', rx + 6, ry + rh - 6);
   for (const c of ['51', '52']) { const p = MAPPA.p[c]; x.fillText(CIRC[c][0], p.x + 11, p.y + 4); }
 }
@@ -1866,6 +1891,7 @@ function costruisciMappa() {
   for (const c of ['51', '52']) { const p = MAPPA.p[c]; s += '<path data-c="' + c + '" d="M' + (p.x - 7) + ',' + p.y + 'a7,7 0 1,0 14,0a7,7 0 1,0 -14,0Z"><title>' + CIRC[c][0] + '</title></path>'; }
   for (const c of ['51', '52']) { const p = MAPPA.p[c]; s += '<text x="' + (p.x + 11) + '" y="' + (p.y + 4) + '">' + CIRC[c][0] + '</text>'; }
   s += '<text x="' + (x + 6) + '" y="' + (y + h - 6) + '">Canarie</text>';
+  s += '<path id="evHover" class="ev" d=""></path><path id="evSel" class="ev" d=""></path>';
   svg.innerHTML = s;
   svg.setAttribute('viewBox', '0 0 ' + MAPPA.w + ' ' + MAPPA.h);
   svg.style.aspectRatio = $('comCanvas').style.aspectRatio = MAPPA.w + ' / ' + MAPPA.h;
@@ -1876,7 +1902,7 @@ function renderMappa() {
   if (liv !== 'prov' && COM.stato !== 'ok') {
     $('mapCarico').classList.remove('hidden');
     $('mapCarico').textContent = COM.stato === 'errore' ? 'I comuni non si caricano (' + COM.errore + ')' : 'Carico gli 8.131 comuni…';
-    caricaComuni().then(() => { if (COM.stato === 'ok') { renderMappa(); if (liv === 'com') aggiornaComuni(); } });
+    caricaComuni().then(() => { if (COM.stato === 'ok') { renderMappa(); if (liv === 'com' && !ciSonoComuniLive()) aggiornaComuni(); } });
   } else $('mapCarico').classList.add('hidden');
   const voluta = liv !== 'prov' && COM.stato === 'ok' ? 'com' : 'prov';
   if (!mappaCostruita) costruisciMappa();
@@ -1900,6 +1926,8 @@ function renderMappa() {
     aggiornaZoom(); ridisegna();
   } else {
     document.querySelectorAll('#provMap path[data-c]').forEach(p => { p.style.fill = coloreCirc(p.dataset.c); p.classList.toggle('sel', p.dataset.c === S.sel); });
+    const ps = S.sel && $('provMap').querySelector('path[data-c="' + S.sel + '"]');
+    $('evSel').setAttribute('d', ps ? ps.getAttribute('d') : '');
     $('mapPill').textContent = D && D.conVoti ? D.conVoti + ' circoscrizioni su 52 con voti' : 'in attesa';
     $('mapTitolo').textContent = 'La mappa delle province';
     $('mapBack').classList.add('hidden');
@@ -1923,14 +1951,14 @@ function renderLegenda() {
     const o = Object.entries(cnt).sort((a, b) => b[1] - a[1]).slice(0, 10);
     h = '<h4>Il primo partito' + (com ? ', comuni' : '') + '</h4><div class="lg">' + (o.length ? o.map(([g, n]) => '<div><i style="background:' + infoG(g).c + '"></i><span>' + esc(nomeBreve(infoG(g))) + '</span><b>' + nf(n) + '</b></div>').join('') : '<div><span class="muted">' + (com ? 'nessun comune ancora' : 'nessuna circoscrizione ancora') + '</span></div>') + '</div><p>Il colore è più pieno dove il distacco dal secondo è più largo, da 20 punti in su.</p>';
   } else if (m === 'blocco') {
-    h = '<h4>PP e Vox contro PSOE e alleati</h4><div class="ramp" style="background:linear-gradient(90deg,' + BLOCCHI.S.c + ',#3a3546,' + BLOCCHI.D.c + ')"></div><div class="rampl"><span>PSOE e alleati +40</span><span>pari</span><span>PP e Vox +40</span></div><p>La differenza in punti fra le quote dei due blocchi.</p>';
+    h = '<h4>PP e Vox contro PSOE e alleati</h4><div class="ramp" style="background:linear-gradient(90deg,' + BLOCCHI.S.c + ',#3d2f31,' + BLOCCHI.D.c + ')"></div><div class="rampl"><span>PSOE e alleati +40</span><span>pari</span><span>PP e Vox +40</span></div><p>La differenza in punti fra le quote dei due blocchi.</p>';
   } else if (m === 'lista') {
     const p = infoG(S.mapLista);
-    h = '<h4>' + esc(nomeBreve(p)) + ', quota dei voti</h4><div class="ramp" style="background:linear-gradient(90deg,#2a2733,' + p.c + ')"></div><div class="rampl"><span>0%</span><span>45% e più</span></div>';
+    h = '<h4>' + esc(nomeBreve(p)) + ', quota dei voti</h4><div class="ramp" style="background:linear-gradient(90deg,#2d2224,' + p.c + ')"></div><div class="rampl"><span>0%</span><span>45% e più</span></div>';
   } else if (m === 'sposta') {
-    h = '<h4>PP e Vox rispetto al 2023</h4><div class="ramp" style="background:linear-gradient(90deg,#e8384f,#3a3546,#3a86d8)"></div><div class="rampl"><span>−10 punti</span><span>uguale</span><span>+10 punti</span></div><p>' + (com ? 'Quota di PP, Vox e UPN nel comune, meno quella del 2023 nello stesso comune.' : 'Quota di PP, Vox e UPN sui voti contati, meno quella finale del 2023. Con lo scrutinio parziale pesa l’ordine di arrivo: i comuni piccoli, contati per primi, sono più a destra.') + '</p>';
+    h = '<h4>PP e Vox rispetto al 2023</h4><div class="ramp" style="background:linear-gradient(90deg,#e8384f,#3d2f31,#3a86d8)"></div><div class="rampl"><span>−10 punti</span><span>uguale</span><span>+10 punti</span></div><p>' + (com ? 'Quota di PP, Vox e UPN nel comune, meno quella del 2023 nello stesso comune.' : 'Quota di PP, Vox e UPN sui voti contati, meno quella finale del 2023. Con lo scrutinio parziale pesa l’ordine di arrivo: i comuni piccoli, contati per primi, sono più a destra.') + '</p>';
   } else {
-    h = '<h4>Seggi elettorali scrutinati</h4><div class="ramp" style="background:linear-gradient(90deg,#2a2733,#ffb199)"></div><div class="rampl"><span>0%</span><span>100%</span></div>';
+    h = '<h4>Seggi elettorali scrutinati</h4><div class="ramp" style="background:linear-gradient(90deg,#2d2224,#ffb199)"></div><div class="rampl"><span>0%</span><span>100%</span></div>';
   }
   $('mapLegend').innerHTML = h;
 }
@@ -2004,7 +2032,6 @@ function selezionaComune(ine, scorri) {
   if (!ingrandita() || S.zoomProv !== c) VISTA.vb = vistaProvincia(c);
   S.zoomProv = c; S.selM = ine;
   renderMappa();
-  if (S.mapLiv === 'com') aggiornaComuni(S.zoomProv);
   if (scorri) $('provMap').scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 function cercaComune() {
@@ -2017,36 +2044,97 @@ function cercaComune() {
 }
 
 /* ---------- i comuni di stanotte, dal proxy ----------
-   Solo quando la mappa è al livello dei comuni: prima la provincia ingrandita, poi le altre, tre
-   alla volta, e il giro si ripete ogni tre minuti. La cache del proxy tiene ogni provincia 90
-   secondi, quindi il Ministero riceve al massimo 52 richieste ogni 90 secondi. */
-const COM_GIRO_MS = 180000;
-async function prendiComuni(c) {
-  const u = new URL(PROXY); u.search = ''; u.searchParams.set('comuni', c);
-  const r = await conTimeout(u.href, { cache: 'no-cache' }, 30000);
-  const j = await r.json().catch(() => null);
-  if (!r.ok || !j || !j.m) throw new Error(j && j.errore ? j.errore : 'HTTP ' + r.status);
-  COM.live[c] = j; COM.versione++;
-}
-async function aggiornaComuni(prima) {
-  if (PROVA || SOLO_COPIA || (!FORZA_FEED && Date.now() < ATTIVA_FEED) || S.mapLiv !== 'com' || COM.stato !== 'ok') return;
-  if (prima) { try { await prendiComuni(prima); COM.errore = ''; renderMappa(); } catch (e) { COM.errore = e.message; } }
-  if (COM.giro) return;
+   Tutti i comuni insieme (?comuni=tutti), ogni due minuti, appena il Ministero ha voti contati:
+   servono alla mappa dei comuni e alla proiezione dello spoglio. La cache del proxy tiene la
+   risposta 90 secondi, quindi il Ministero riceve al massimo 52 richieste ogni 90 secondi,
+   comunque vada il traffico. */
+const COM_GIRO_MS = 120000;
+async function aggiornaComuni() {
+  if (PROVA || SOLO_COPIA || (!FORZA_FEED && Date.now() < ATTIVA_FEED) || COM.giro) return;
+  if (!(S.D && S.D.naz.validi > 0) && S.mapLiv !== 'com') return;   /* prima dei voti contati non serve */
   COM.giro = true; clearTimeout(COM.timer);
-  const coda = COD.filter(c => c !== prima);
-  let disegna = 0;
   try {
-    await Promise.all([0, 1, 2].map(async () => {
-      while (coda.length) {
-        const c = coda.shift();
-        try { await prendiComuni(c); COM.errore = ''; } catch (e) { COM.errore = e.message; coda.length = 0; }
-        if (++disegna % 6 === 0) renderMappa();
-      }
-    }));
-  } finally {
-    COM.giro = false; renderMappa();
-    COM.timer = setTimeout(() => aggiornaComuni(S.zoomProv), COM_GIRO_MS);
+    await caricaComuni();
+    if (COM.stato !== 'ok') throw new Error('comuni del 2023 non caricati');
+    const u = new URL(PROXY); u.search = ''; u.searchParams.set('comuni', 'tutti');
+    const r = await conTimeout(u.href, { cache: 'no-cache' }, 40000);
+    const j = await r.json().catch(() => null);
+    if (!r.ok || !j || !j.prov) throw new Error(j && j.errore ? j.errore : 'HTTP ' + r.status);
+    COM.live = j.prov; COM.versione++; COM.errore = j.mancanti ? j.mancanti + ' province mancanti in questo giro' : '';
+    chiediProiezione();
+    renderMappa();
+  } catch (e) { COM.errore = e.message; }
+  finally {
+    COM.giro = false;
+    COM.timer = setTimeout(aggiornaComuni, COM_GIRO_MS);
   }
+}
+
+/* ---------- la proiezione dello spoglio ----------
+   Il modello è in proxy/lib/modello.js (descritto lì e nel README, con il backtest) e gira in
+   un Web Worker, così sul telefono la pagina resta fluida mentre si fanno le simulazioni. */
+const PROIEZ = { w: null, id: 0, R: null, inCorso: false, ancora: false, errore: '' };
+/* la base del confronto: il 2023 per comune. Nella prova generale, che rifà lo spoglio del 2023,
+   la base è novembre 2019, come nel backtest: con il 2023 la proiezione sarebbe esatta per forza. */
+function lavoratore() {
+  if (PROIEZ.w || COM.stato !== 'ok') return PROIEZ.w;
+  try {
+    PROIEZ.w = new Worker('proxy/lib/lavoratore.js', { type: 'module' });
+    const daFile = (d, gr) => { const base = {}; for (const [ine, x] of Object.entries(d.m)) base[ine] = { v: gr ? gr[ine] : gruppiFlat(x[6], d.partiti), validi: x[5], mesas: x[1] }; return base; };
+    if (PROVA) fetch('strumenti/backtest/comuni201911.json').then(r => r.json()).then(d => { PROIEZ.w.postMessage({ tipo: 'base', base: daFile(d) }); chiediProiezione(true); }).catch(e => { PROIEZ.errore = e.message; });
+    else PROIEZ.w.postMessage({ tipo: 'base', base: daFile(COM.d23, COM.g23) });
+    PROIEZ.w.onmessage = e => {
+      PROIEZ.inCorso = false;
+      if (e.data.errore) PROIEZ.errore = e.data.errore;
+      else if (e.data.R && e.data.id === PROIEZ.id) { PROIEZ.R = e.data.R; PROIEZ.errore = ''; render(); }
+      if (PROIEZ.ancora) { PROIEZ.ancora = false; chiediProiezione(); }
+    };
+    PROIEZ.w.onerror = e => { PROIEZ.inCorso = false; PROIEZ.errore = e.message || 'errore del modello'; };
+  } catch (e) { PROIEZ.errore = e.message; PROIEZ.w = null; }
+  return PROIEZ.w;
+}
+function chiediProiezione(forza) {
+  if (COM.stato !== 'ok' || !lavoratore()) return;
+  if (PROIEZ.inCorso && !forza) { PROIEZ.ancora = true; return; }
+  const live = {};
+  for (const lp of Object.values(COM.live)) for (const [ine, x] of Object.entries(lp.m)) {
+    if (x[7] > 0 && x[5] > 0) live[ine] = { v: gruppiFlat(x[6], lp.partiti), validi: x[5], mesas: x[1], esc: x[7] };
+  }
+  if (!Object.keys(live).length) { PROIEZ.R = null; return; }
+  const seggi = Object.fromEntries(COD.map(c => [c, seggiCirc(c)]));
+  PROIEZ.inCorso = true;
+  PROIEZ.w.postMessage({ tipo: 'proietta', id: ++PROIEZ.id, live, seggi });
+}
+/* i blocchi nelle simulazioni: forchette e probabilità della maggioranza */
+function blocchiProiezione(R) {
+  const t = { D: [], S: [], SN: [] };
+  for (const c of R.campioni) { const b = totBlocchi({ seggi: c }); t.D.push(b.D); t.S.push(b.S); t.SN.push(b.S + b.N); }
+  const q = (a, p) => { const s = [...a].sort((x, y) => x - y); return s[Math.min(s.length - 1, Math.floor(p * s.length))]; };
+  const pr = a => a.filter(x => x >= MAGG).length / a.length;
+  return { intD: [q(t.D, 0.1), q(t.D, 0.9)], intS: [q(t.S, 0.1), q(t.S, 0.9)], pD: pr(t.D), pS: pr(t.S), pSN: pr(t.SN) };
+}
+const proiezioneValida = () => !!(PROIEZ.R && PROIEZ.R.frac >= 0.02 && PROIEZ.R.frac < 0.999);
+function renderProiezione() {
+  const card = $('proiezCard'), R = PROIEZ.R, D = S.D;
+  card.classList.toggle('hidden', !proiezioneValida());
+  if (!proiezioneValida()) return;
+  const t = totBlocchi({ seggi: R.seggi }), B = blocchiProiezione(R);
+  $('proiezMeta').textContent = 'dai comuni contati ' + alPct(R.frac);
+  $('proiezSub').textContent = 'Come finirà il conteggio di stanotte secondo i comuni già contati: ognuno è confrontato con se stesso ' + (PROVA ? 'a novembre 2019' : 'nel 2023') + ', e da lì si stima come voteranno quelli che mancano, che non sono come i primi arrivati. Fra parentesi la forchetta che comprende 8 simulazioni su 10.';
+  $('proiezBlocchi').innerHTML =
+    '<div class="bloc' + (t.D >= MAGG ? ' win' : '') + '"><div><div class="bn"><i style="background:' + BLOCCHI.D.c + '"></i>PP e Vox</div><div class="bp">fra ' + B.intD[0] + ' e ' + B.intD[1] + ' seggi · maggioranza in ' + probIT(B.pD) + ' simulazioni</div></div><div><div class="bv">' + t.D + '</div><div class="bd">' + (t.D >= MAGG ? 'maggioranza' : 'mancano ' + (MAGG - t.D)) + '</div></div></div>' +
+    '<div class="bloc' + (t.S >= MAGG ? ' win' : '') + '"><div><div class="bn"><i style="background:' + BLOCCHI.S.c + '"></i>PSOE e alleati</div><div class="bp">fra ' + B.intS[0] + ' e ' + B.intS[1] + ' seggi · con i nazionalisti di centro la maggioranza in ' + probIT(B.pSN) + ' simulazioni</div></div><div><div class="bv">' + t.S + '</div><div class="bd">' + (t.S >= MAGG ? 'maggioranza' : 'mancano ' + (MAGG - t.S)) + ' · con i nazionalisti ' + (t.S + t.N) + '</div></div></div>';
+  const gs = Object.keys(R.seggi).concat(Object.keys(R.int).filter(g => R.int[g][1] > 0)).filter((g, i, a) => a.indexOf(g) === i)
+    .sort((a, b) => (R.seggi[b] || 0) - (R.seggi[a] || 0) || (R.voti[b] || 0) - (R.voti[a] || 0));
+  let h = '<thead><tr><th>Partito</th><th>Seggi<small>proiezione</small></th><th class="m-off">Seggi<small>voti contati</small></th><th>Voti<small>proiezione</small></th><th class="m-off">Voti<small>contati</small></th></tr></thead><tbody>';
+  gs.forEach(g => {
+    const p = infoG(g), it = R.int[g] || [0, 0], qv = R.validi ? (R.voti[g] || 0) / R.validi : 0, qc = D && D.naz.validi ? (D.gv[g] || 0) / D.naz.validi : null;
+    h += '<tr><td><div class="partylabel"><i class="partydot" style="background:' + p.c + '"></i><span>' + esc(nomeBreve(p)) + '</span></div></td>' +
+      '<td><b>' + (R.seggi[g] || 0) + '</b><small class="forchetta">' + (it[0] === it[1] ? '' : '(' + it[0] + '–' + it[1] + ')') + '</small></td>' +
+      '<td class="m-off mute">' + (D ? D.gs[g] || 0 : '—') + '</td><td>' + pct(qv) + '</td><td class="m-off mute">' + (qc != null ? pct(qc) : '—') + '</td></tr>';
+  });
+  $('proiezTable').innerHTML = h + '</tbody>';
+  $('proiezNota').textContent = (PROVA ? 'Nella prova generale la proiezione parte da novembre 2019, come nel backtest: indovinare il 2023 dal 2023 sarebbe troppo facile. ' : '') + 'Il modello è della redazione. Provato rifacendo lo spoglio di novembre 2019 e del 2023 in 30 notti simulate ciascuno, con i comuni piccoli contati per primi: con il 10% dei seggi elettorali scrutinati il riparto sui voti contati sbagliava in media di 19-27 seggi, la proiezione di 7-12; con il 30%, 8-9 contro 3; sulla somma di PP e Vox, con il 5%, 27-39 seggi contro 1-3. Non conta il voto dall’estero, che arriva giorni dopo. Se le cose vanno in modo molto diverso dalle elezioni passate, l’errore cresce: per questo la forchetta è larga all’inizio.';
 }
 
 /* ---------- scrutinio ---------- */
@@ -2119,7 +2207,7 @@ async function poll(forza) {
     const quando = F.R.quando ? new Date(F.R.quando) : new Date();
     const di = F.copia ? 'copia del Ministero ' : 'Ministero ';
     $('footProxy').textContent = F.copia ? 'Copia dei dati del Ministero pubblicata dalla redazione' : 'Proxy: ' + new URL(PROXY).host;
-    if (firma !== FEED.firma) { FEED.firma = firma; applica(F.R, 'feed', quando); }
+    if (firma !== FEED.firma) { FEED.firma = firma; applica(F.R, 'feed', quando); if (!COM.timer && !COM.giro) aggiornaComuni(); }
     const D = S.D;
     setFeed(D && D.naz.validi ? 'In diretta · ' + di + oraIT(quando) + ' · scrutinio ' + pctScr(D.naz.frac) : 'Collegato · il Ministero non ha ancora voti contati', 'ok');
     $('lastUpdate').textContent = 'Ultimo dato: ' + oraIT(quando);
@@ -2211,6 +2299,7 @@ function provaApplica() {
   $('provaPct').textContent = Math.round(f * 100) + '%';
   const { R, live } = provaRiassunto(f);
   COM.live = live; COM.versione++;
+  chiediProiezione();
   applica(R, 'prova', new Date(R.quando));
   setFeed('Prova generale · 2023, avanzamento simulato ' + Math.round(f * 100) + '%', 'paused');
 }
@@ -2333,12 +2422,14 @@ function eventi() {
   $('blocchi').onclick = e => { const c = e.target.closest('.bloc'); if (!c) return; filtroEmi = filtroEmi && filtroEmi.t === 'b' && filtroEmi.v === c.dataset.b ? null : { t: 'b', v: c.dataset.b }; applicaFiltro(); };
   document.querySelectorAll('#mapMode button').forEach(b => b.onclick = () => { S.mapMode = b.dataset.mode; salva(); renderMappa(); });
   $('mapLista').onchange = e => { S.mapLista = e.target.value; salva(); renderMappa(); };
+  $('provMap').addEventListener('pointerover', e => { const p = e.target.closest('path[data-c]'); $('evHover').setAttribute('d', p && e.pointerType === 'mouse' ? p.getAttribute('d') : ''); });
+  $('provMap').addEventListener('pointerleave', () => $('evHover').setAttribute('d', ''));
   $('provMap').onclick = e => {
     const p = e.target.closest('path[data-c]'); seleziona(p ? p.dataset.c : S.sel);
   };
   document.querySelectorAll('#mapLiv button').forEach(b => b.onclick = () => {
     S.mapLiv = b.dataset.liv; if (S.mapLiv === 'com23' && (S.mapMode === 'sposta' || S.mapMode === 'scr')) S.mapMode = 'primo';
-    salva(); renderMappa(); if (S.mapLiv === 'com') aggiornaComuni(S.zoomProv);
+    salva(); renderMappa(); if (S.mapLiv === 'com' && !ciSonoComuniLive()) aggiornaComuni();
   });
   $('mapBack').onclick = () => { VISTA.vb = null; S.zoomProv = null; S.selM = null; renderMappa(); };
   eventiCanvas();
@@ -2393,7 +2484,7 @@ avvio();
    ===================================================================== */
 window.CARD = (function () {
   const g = id => document.getElementById(id);
-  const C = { bg: '#0b0a10', panel: 'rgba(255,255,255,.035)', line: 'rgba(255,255,255,.12)', t1: '#f2eef0', t2: '#aca5b2', t3: '#7a7383', track: 'rgba(255,255,255,.07)', green: '#4bd28b', red: '#ff6680', amber: '#f2c14e' };
+  const C = { bg: '#130c0e', panel: 'rgba(255,255,255,.035)', line: 'rgba(255,255,255,.12)', t1: '#f6efe6', t2: '#bfb0a5', t3: '#8d7d73', track: 'rgba(255,255,255,.07)', green: '#4bd28b', red: '#ff6680', amber: '#f2c14e' };
   const F = (w, z, fam) => w + ' ' + z + 'px ' + (fam === 'serif' ? 'Lora, Georgia, serif' : 'Inter, system-ui, sans-serif');
   const DIM = { x: [1600, 900], ig: [1080, 1350] };
   let formato = 'x', sporco = true, pronto = false;

@@ -1,0 +1,165 @@
+{
+ "ultimo": "2023-07-17",
+ "media": {
+  "FA": 13.38,
+  "JUNTS": 1.9,
+  "BNG": 0.82,
+  "ERC": 2.11,
+  "CC": 0.3,
+  "PP": 33.92,
+  "EV": 0.16,
+  "CUP": 0.62,
+  "BILDU": 1.3,
+  "PNV": 1.2,
+  "UPN": 0.16,
+  "PSOE": 28.34,
+  "VOX": 13.22
+ },
+ "seggiIstituti": {
+  "FA": 32.6,
+  "JUNTS": 8.1,
+  "BNG": 1.4,
+  "ERC": 8.6,
+  "CC": 0.7,
+  "PP": 142.6,
+  "EV": 1.1,
+  "CUP": 1.1,
+  "BILDU": 5.8,
+  "PNV": 5.3,
+  "UPN": 0.5,
+  "PSOE": 108.7,
+  "VOX": 34.3
+ },
+ "istituti": [
+  {
+   "n": "GAD3/ABC",
+   "fine": "2023-07-17",
+   "peso": 2.0
+  },
+  {
+   "n": "EM-Analytics/Electomanía",
+   "fine": "2023-07-17",
+   "peso": 1.369
+  },
+  {
+   "n": "Data10/Okdiario",
+   "fine": "2023-07-17",
+   "peso": 1.225
+  },
+  {
+   "n": "Sigma Dos/El Mundo",
+   "fine": "2023-07-17",
+   "peso": 2.0
+  },
+  {
+   "n": "KeyData/Público",
+   "fine": "2023-07-17",
+   "peso": 1.0
+  },
+  {
+   "n": "YouGov",
+   "fine": "2023-07-17",
+   "peso": 2.0
+  },
+  {
+   "n": "GESOP/The Adelaide Review",
+   "fine": "2023-07-17",
+   "peso": 1.095
+  },
+  {
+   "n": "AtlasIntel",
+   "fine": "2023-07-17",
+   "peso": 1.725
+  },
+  {
+   "n": "40dB/Prisa",
+   "fine": "2023-07-16",
+   "peso": 1.281
+  },
+  {
+   "n": "NC Report/La Razón",
+   "fine": "2023-07-16",
+   "peso": 0.906
+  },
+  {
+   "n": "SocioMétrica/El Español",
+   "fine": "2023-07-16",
+   "peso": 1.109
+  },
+  {
+   "n": "Target Point/El Debate",
+   "fine": "2023-07-16",
+   "peso": 0.906
+  },
+  {
+   "n": "Sondaxe/La Voz de Galicia",
+   "fine": "2023-07-16",
+   "peso": 0.906
+  },
+  {
+   "n": "Simple Lógica/elDiario.es",
+   "fine": "2023-07-16",
+   "peso": 1.146
+  },
+  {
+   "n": "IMOP/El Confidencial",
+   "fine": "2023-07-14",
+   "peso": 1.009
+  },
+  {
+   "n": "Cluster17/El Grand Continent",
+   "fine": "2023-07-14",
+   "peso": 0.743
+  },
+  {
+   "n": "InvyMark/laSexta",
+   "fine": "2023-07-14",
+   "peso": 0.743
+  },
+  {
+   "n": "DYM/Henneo",
+   "fine": "2023-07-13",
+   "peso": 0.68
+  },
+  {
+   "n": "Hamalgama Métrica/Vozpópuli",
+   "fine": "2023-07-13",
+   "peso": 0.673
+  },
+  {
+   "n": "CIS {{smaller|(SocioMétrica)}}{{efn|name=\"AltCIS\"|Alternative projection based on raw CIS data.}}",
+   "fine": "2023-07-12",
+   "peso": 1.219
+  },
+  {
+   "n": "Celeste-Tel/Onda Cero",
+   "fine": "2023-07-12",
+   "peso": 0.639
+  },
+  {
+   "n": "Ipsos/La Vanguardia",
+   "fine": "2023-07-06",
+   "peso": 0.476
+  },
+  {
+   "n": "Top Position",
+   "fine": "2023-07-06",
+   "peso": 0.602
+  },
+  {
+   "n": "CIS",
+   "fine": "2023-07-05",
+   "peso": 0.61
+  },
+  {
+   "n": "Opinòmetre/Ara",
+   "fine": "2023-07-04",
+   "peso": 0.34
+  },
+  {
+   "n": "CIS {{smaller|(SocioMétrica)}}{{efn|name=\"AltCIS\"}}",
+   "fine": "2023-06-27",
+   "peso": 0.276
+  }
+ ]
+}

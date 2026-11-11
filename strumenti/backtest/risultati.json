@@ -1,0 +1,341 @@
+{
+ "quando": "2026-11-11T10:48:44.025Z",
+ "notti": 30,
+ "par": {},
+ "apr2019→nov2019": [
+  {
+   "punto": 0.02,
+   "frac": 0.020266419230783466,
+   "grezzo": 90.83333333333333,
+   "modello": 21.833333333333332,
+   "peggiore": 26,
+   "destraGrezzo": 63.86666666666667,
+   "destraModello": 2.7666666666666666,
+   "copertura": 0.7509803921568627
+  },
+  {
+   "punto": 0.05,
+   "frac": 0.0505139509746654,
+   "grezzo": 49.38333333333333,
+   "modello": 17.166666666666668,
+   "peggiore": 23,
+   "destraGrezzo": 27.3,
+   "destraModello": 1.3666666666666667,
+   "copertura": 0.8101761252446184
+  },
+  {
+   "punto": 0.1,
+   "frac": 0.10077086389622177,
+   "grezzo": 26.716666666666665,
+   "modello": 11.533333333333333,
+   "peggiore": 21,
+   "destraGrezzo": 4.166666666666667,
+   "destraModello": 1.8333333333333333,
+   "copertura": 0.8784313725490196
+  },
+  {
+   "punto": 0.2,
+   "frac": 0.201113783486374,
+   "grezzo": 12.666666666666666,
+   "modello": 5.366666666666666,
+   "peggiore": 12,
+   "destraGrezzo": 2.2,
+   "destraModello": 2.466666666666667,
+   "copertura": 0.9686274509803922
+  },
+  {
+   "punto": 0.3,
+   "frac": 0.30146285071986867,
+   "grezzo": 8.6,
+   "modello": 3.066666666666667,
+   "peggiore": 6,
+   "destraGrezzo": 1.8666666666666667,
+   "destraModello": 1.5666666666666667,
+   "copertura": 0.9941176470588236
+  },
+  {
+   "punto": 0.4,
+   "frac": 0.4016023167944786,
+   "grezzo": 6.4,
+   "modello": 2.8333333333333335,
+   "peggiore": 5,
+   "destraGrezzo": 1.5666666666666667,
+   "destraModello": 1.4,
+   "copertura": 0.9980392156862745
+  },
+  {
+   "punto": 0.5,
+   "frac": 0.5016153208257724,
+   "grezzo": 4.733333333333333,
+   "modello": 1.9333333333333333,
+   "peggiore": 4,
+   "destraGrezzo": 1.9666666666666666,
+   "destraModello": 1.0333333333333334,
+   "copertura": 1
+  },
+  {
+   "punto": 0.6,
+   "frac": 0.6014481827550034,
+   "grezzo": 3.933333333333333,
+   "modello": 1.6,
+   "peggiore": 3,
+   "destraGrezzo": 1.3666666666666667,
+   "destraModello": 0.7,
+   "copertura": 1
+  },
+  {
+   "punto": 0.7,
+   "frac": 0.7011897075249655,
+   "grezzo": 3.5,
+   "modello": 1.2333333333333334,
+   "peggiore": 3,
+   "destraGrezzo": 1.3666666666666667,
+   "destraModello": 0.6333333333333333,
+   "copertura": 1
+  },
+  {
+   "punto": 0.8,
+   "frac": 0.8009811925123526,
+   "grezzo": 2.6333333333333333,
+   "modello": 0.7333333333333333,
+   "peggiore": 2,
+   "destraGrezzo": 1.2,
+   "destraModello": 0.4666666666666667,
+   "copertura": 1
+  },
+  {
+   "punto": 0.9,
+   "frac": 0.9006400984329823,
+   "grezzo": 1.2666666666666666,
+   "modello": 0.4,
+   "peggiore": 1,
+   "destraGrezzo": 0.7,
+   "destraModello": 0.2,
+   "copertura": 1
+  }
+ ],
+ "nov2019→lug2023": [
+  {
+   "punto": 0.02,
+   "frac": 0.02016673524583148,
+   "grezzo": 91.25,
+   "modello": 18.766666666666666,
+   "peggiore": 29,
+   "destraGrezzo": 82.5,
+   "destraModello": 5.533333333333333,
+   "copertura": 0.7321428571428571
+  },
+  {
+   "punto": 0.05,
+   "frac": 0.050309118578639046,
+   "grezzo": 49.233333333333334,
+   "modello": 11.866666666666667,
+   "peggiore": 19,
+   "destraGrezzo": 39.333333333333336,
+   "destraModello": 2.8333333333333335,
+   "copertura": 0.8107416879795396
+  },
+  {
+   "punto": 0.1,
+   "frac": 0.10042893656801954,
+   "grezzo": 18.9,
+   "modello": 7.133333333333334,
+   "peggiore": 15,
+   "destraGrezzo": 7.166666666666667,
+   "destraModello": 2.1333333333333333,
+   "copertura": 0.8746666666666667
+  },
+  {
+   "punto": 0.2,
+   "frac": 0.2004463109413444,
+   "grezzo": 10.9,
+   "modello": 4.5,
+   "peggiore": 9,
+   "destraGrezzo": 3.6,
+   "destraModello": 2.566666666666667,
+   "copertura": 0.907608695652174
+  },
+  {
+   "punto": 0.3,
+   "frac": 0.30033074526348585,
+   "grezzo": 8.233333333333333,
+   "modello": 3.1,
+   "peggiore": 7,
+   "destraGrezzo": 3.7666666666666666,
+   "destraModello": 1,
+   "copertura": 0.915068493150685
+  },
+  {
+   "punto": 0.4,
+   "frac": 0.40013917548477107,
+   "grezzo": 6.333333333333333,
+   "modello": 2.4,
+   "peggiore": 4,
+   "destraGrezzo": 3.6333333333333333,
+   "destraModello": 0.8666666666666667,
+   "copertura": 0.9178082191780822
+  },
+  {
+   "punto": 0.5,
+   "frac": 0.49992417527751026,
+   "grezzo": 5.266666666666667,
+   "modello": 2.2666666666666666,
+   "peggiore": 4,
+   "destraGrezzo": 2.6666666666666665,
+   "destraModello": 0.9666666666666667,
+   "copertura": 0.9408450704225352
+  },
+  {
+   "punto": 0.6,
+   "frac": 0.5998781604607507,
+   "grezzo": 4.066666666666666,
+   "modello": 1.7666666666666666,
+   "peggiore": 4,
+   "destraGrezzo": 1.9,
+   "destraModello": 0.7333333333333333,
+   "copertura": 0.9678362573099415
+  },
+  {
+   "punto": 0.7,
+   "frac": 0.6998021846614946,
+   "grezzo": 3.033333333333333,
+   "modello": 1.2,
+   "peggiore": 3,
+   "destraGrezzo": 1.2666666666666666,
+   "destraModello": 0.3333333333333333,
+   "copertura": 0.990990990990991
+  },
+  {
+   "punto": 0.8,
+   "frac": 0.7997172563969822,
+   "grezzo": 2.2333333333333334,
+   "modello": 0.5666666666666667,
+   "peggiore": 1,
+   "destraGrezzo": 1.0333333333333334,
+   "destraModello": 0.13333333333333333,
+   "copertura": 0.9879518072289156
+  },
+  {
+   "punto": 0.9,
+   "frac": 0.8994660148623697,
+   "grezzo": 1.1333333333333333,
+   "modello": 0.23333333333333334,
+   "peggiore": 1,
+   "destraGrezzo": 0.7,
+   "destraModello": 0,
+   "copertura": 0.996969696969697
+  }
+ ],
+ "nov2019→lug2023 casuale": [
+  {
+   "punto": 0.02,
+   "frac": 0.01997455498275545,
+   "grezzo": 87.56666666666666,
+   "modello": 11.233333333333333,
+   "peggiore": 21,
+   "destraGrezzo": 80.96666666666667,
+   "destraModello": 5.4,
+   "copertura": 0.7684478371501272
+  },
+  {
+   "punto": 0.05,
+   "frac": 0.049900110567987134,
+   "grezzo": 40.9,
+   "modello": 6.933333333333334,
+   "peggiore": 14,
+   "destraGrezzo": 36.166666666666664,
+   "destraModello": 2.566666666666667,
+   "copertura": 0.8766066838046273
+  },
+  {
+   "punto": 0.1,
+   "frac": 0.09994601077245098,
+   "grezzo": 11.266666666666667,
+   "modello": 3.7333333333333334,
+   "peggiore": 14,
+   "destraGrezzo": 5.166666666666667,
+   "destraModello": 0.9666666666666667,
+   "copertura": 0.9249329758713136
+  },
+  {
+   "punto": 0.2,
+   "frac": 0.200010089954551,
+   "grezzo": 7.1,
+   "modello": 2.8,
+   "peggiore": 6,
+   "destraGrezzo": 2.066666666666667,
+   "destraModello": 1,
+   "copertura": 0.9331476323119777
+  },
+  {
+   "punto": 0.3,
+   "frac": 0.3002036154469557,
+   "grezzo": 6.333333333333333,
+   "modello": 2.5,
+   "peggiore": 5,
+   "destraGrezzo": 2.3,
+   "destraModello": 1.1666666666666667,
+   "copertura": 0.9329608938547486
+  },
+  {
+   "punto": 0.4,
+   "frac": 0.40021188040856726,
+   "grezzo": 5.266666666666667,
+   "modello": 2.033333333333333,
+   "peggiore": 4,
+   "destraGrezzo": 2.2,
+   "destraModello": 1,
+   "copertura": 0.9572649572649573
+  },
+  {
+   "punto": 0.5,
+   "frac": 0.5000582724362438,
+   "grezzo": 4.5,
+   "modello": 1.6666666666666667,
+   "peggiore": 4,
+   "destraGrezzo": 1.9666666666666666,
+   "destraModello": 0.7666666666666667,
+   "copertura": 0.9794721407624634
+  },
+  {
+   "punto": 0.6,
+   "frac": 0.5998791061441447,
+   "grezzo": 3.6,
+   "modello": 1.3333333333333333,
+   "peggiore": 3,
+   "destraGrezzo": 1.7,
+   "destraModello": 0.6333333333333333,
+   "copertura": 0.9852941176470589
+  },
+  {
+   "punto": 0.7,
+   "frac": 0.6997509431372304,
+   "grezzo": 2.8,
+   "modello": 0.8333333333333334,
+   "peggiore": 3,
+   "destraGrezzo": 1.4333333333333333,
+   "destraModello": 0.36666666666666664,
+   "copertura": 0.9940119760479041
+  },
+  {
+   "punto": 0.8,
+   "frac": 0.7997863449174327,
+   "grezzo": 2.1666666666666665,
+   "modello": 0.4,
+   "peggiore": 2,
+   "destraGrezzo": 1.2333333333333334,
+   "destraModello": 0.16666666666666666,
+   "copertura": 0.9969788519637462
+  },
+  {
+   "punto": 0.9,
+   "frac": 0.8996150811983259,
+   "grezzo": 1.1333333333333333,
+   "modello": 0.13333333333333333,
+   "peggiore": 1,
+   "destraGrezzo": 0.7666666666666667,
+   "destraModello": 0.06666666666666667,
+   "copertura": 1
+  }
+ ]
+}

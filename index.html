@@ -45,11 +45,17 @@
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
 body{margin:0;min-height:100vh;color:var(--t1);background:var(--bg);font:14.5px/1.5 var(--sans);position:relative;isolation:isolate}
 html,body{overflow-x:clip}
-/* la bandiera, appena accennata: le tre fasce sfocate in cima alla pagina, che sfumano nel fondo */
-body::before{content:"";position:absolute;left:-10%;right:-10%;top:-80px;height:min(980px,120vh);z-index:-1;pointer-events:none;
-  background:linear-gradient(180deg,var(--rojo) 0 25%,var(--gualda) 25% 75%,var(--rojo) 75% 100%);
-  opacity:.16;filter:blur(80px);transform:skewY(-4deg);
-  -webkit-mask-image:linear-gradient(180deg,#000 0,#000 25%,transparent 100%);mask-image:linear-gradient(180deg,#000 0,#000 25%,transparent 100%)}
+/* la bandiera spagnola in cima alla pagina, in alto a destra: le tre fasce nelle proporzioni
+   vere (1:2:1), un panneggio leggero di luci e ombre, poca opacità, e una sfumatura che la
+   scioglie nel fondo verso il basso e verso sinistra */
+body::before{content:"";position:absolute;top:0;right:0;width:min(1180px,94vw);height:clamp(300px,34vw,380px);z-index:-1;pointer-events:none;
+  background:
+    linear-gradient(102deg,rgba(0,0,0,0) 0%,rgba(255,255,255,.10) 16%,rgba(0,0,0,.22) 33%,rgba(255,255,255,.09) 51%,rgba(0,0,0,.2) 69%,rgba(255,255,255,.07) 85%,rgba(0,0,0,.1) 100%),
+    linear-gradient(180deg,var(--rojo) 0 25%,var(--gualda) 25% 75%,var(--rojo) 75% 100%);
+  opacity:.26;filter:blur(1.5px) saturate(.92);
+  -webkit-mask-image:radial-gradient(115% 105% at 100% 0%,#000 28%,rgba(0,0,0,.55) 52%,transparent 78%);
+  mask-image:radial-gradient(115% 105% at 100% 0%,#000 28%,rgba(0,0,0,.55) 52%,transparent 78%)}
+@media(max-width:760px){body::before{opacity:.2;height:420px;width:100vw}}
 /* in fondo alla pagina, un velo caldo appena percettibile */
 body::after{content:"";position:fixed;inset:auto 0 0 0;height:40vh;z-index:-1;pointer-events:none;background:radial-gradient(120% 100% at 50% 100%,rgba(170,21,27,.07),transparent 70%)}
 h1,h2,h3{font-family:var(--serif);font-weight:600;letter-spacing:-.01em;margin:0}
@@ -653,6 +659,9 @@ footer a{color:var(--t2)}
 #cercaRis{margin:-4px 0 10px}
 #cercaRis:empty{display:none}
 #cercaRis .lanrow{grid-template-columns:minmax(0,1fr) auto}
+.controllo{margin:2px 18px 4px;padding:8px 12px;border-left:3px solid var(--green);background:rgba(75,210,139,.06);border-radius:0 6px 6px 0;font-size:13px;line-height:1.5;color:var(--t2)}
+.controllo b{color:var(--t1);font-weight:600}
+.controllo.ko{border-left-color:var(--amber);background:rgba(242,193,78,.08)}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -722,6 +731,7 @@ footer a{color:var(--t2)}
   <section class="card hidden" id="proiezCard" style="margin-bottom:14px">
     <div class="cardhead"><div><h2>Come finirà lo spoglio</h2></div><span class="cmeta" id="proiezMeta">—</span></div>
     <p class="subcopy" id="proiezSub"></p>
+    <p class="controllo" id="proiezControllo"></p>
     <div id="proiezBlocchi" class="blocchi"></div>
     <div class="tablewrap"><table id="proiezTable" class="conf"></table></div>
     <p class="methodnote" id="proiezNota"></p>
@@ -854,6 +864,7 @@ footer a{color:var(--t2)}
     <div class="progress"><span id="progressBar"></span></div>
     <div class="progresslabels"><span id="progressText">In attesa dei dati del Ministero</span><span id="progressPct" class="mono">—</span></div>
     <div id="countCheck" class="countcheck">—</div>
+    <div id="proiezStato" class="countcheck solo-red"></div>
     <div id="provList" class="provlist"></div>
     <div class="nota" id="progressNote"><strong>Il ritmo.</strong> In Spagna lo spoglio è rapido: in poche ore si arriva oltre il 95%. I primi dati arrivano dai comuni piccoli e rurali, di solito più favorevoli al PP; Madrid, Barcellona e le grandi città pesano di più verso la fine. Il voto degli spagnoli residenti all’estero (CERA) si conta qualche giorno dopo e può spostare l’ultimo seggio di qualche provincia.</div>
   </section>
@@ -1266,10 +1277,10 @@ function fonteAttiva(sel) {
   if (want !== 'auto') { const f = F.find(x => x.k === want); if (f) return f; }
   const man = F.find(x => x.k === 'manuale'); if (man) return man;
   const scr = F.find(x => x.k === 'scrutinio');
-  /* a spoglio quasi finito i voti contati; prima la proiezione dello spoglio, appena c'è (dal
-     5% dei seggi elettorali); senza proiezione, i voti contati dal 40% */
+  /* a spoglio quasi finito i voti contati; prima la proiezione dello spoglio, dal 10% dei seggi
+     elettorali e solo se ha superato il controllo sull'ordine di arrivo; senza, i voti contati dal 40% */
   if (scr && scr.frac >= 0.97) return scr;
-  const pz = F.find(x => x.tipo === 'proiez'); if (pz && pz.frac >= 0.05) return pz;
+  const pz = F.find(x => x.tipo === 'proiez'); if (pz && proiezioneNeiTitoli()) return pz;
   if (scr && scr.frac >= AUTO_SCRUTINIO) return scr;
   const ex = F.find(x => x.tipo === 'exit'); if (ex) return ex;
   if (scr) return scr;
@@ -1449,7 +1460,7 @@ function renderEmiciclo() {
   else if (f.tipo === 'proiez') m = 'Proiezione dello spoglio dai comuni contati ' + alPct(f.frac) + ': valori centrali, le forchette sono nel riquadro «Come finirà lo spoglio». ';
   else if (f.tipo === 'stima') m = 'Proiezione dei seggi dalla media dei sondaggi, provincia per provincia: valori centrali, le forchette sono nel riquadro «Come potrebbe finire». ';
   else m = 'Congresso uscente, eletto il 23 luglio 2023. ';
-  m += 'In automatico l’emiciclo mostra la proiezione dei sondaggi fino agli exit poll, gli exit poll fino al 5% dello scrutinio, poi la proiezione dello spoglio e, a spoglio quasi finito, i voti contati. I blocchi: PP e Vox con UPN; PSOE e alleati con Frente Amplio, Podemos, Front Valencià, Adelante Andalucía, ERC, Bildu e BNG; nazionalisti di centro Junts, PNV e Coalizione canaria.';
+  m += 'In automatico l’emiciclo mostra la proiezione dei sondaggi fino agli exit poll, gli exit poll fino al 10% dello scrutinio, poi la proiezione dello spoglio (se ha superato il controllo sull’ordine di arrivo) e, a spoglio quasi finito, i voti contati. I blocchi: PP e Vox con UPN; PSOE e alleati con Frente Amplio, Podemos, Front Valencià, Adelante Andalucía, ERC, Bildu e BNG; nazionalisti di centro Junts, PNV e Coalizione canaria.';
   $('seatMethod').textContent = m;
 }
 function applicaFiltro() {
@@ -2072,21 +2083,64 @@ async function aggiornaComuni() {
 
 /* ---------- la proiezione dello spoglio ----------
    Il modello è in proxy/lib/modello.js (descritto lì e nel README, con il backtest) e gira in
-   un Web Worker, così sul telefono la pagina resta fluida mentre si fanno le simulazioni. */
-const PROIEZ = { w: null, id: 0, R: null, inCorso: false, ancora: false, errore: '' };
+   un Web Worker, così sul telefono la pagina resta fluida mentre si fanno le simulazioni.
+
+   Quando si vede:
+   - solo con i dati dei comuni: in ogni provincia dove il Ministero ha contato qualcosa, i comuni
+     ricevuti devono coprire almeno l'85% dei seggi elettorali che il Ministero dà per scrutinati
+     (altrimenti mancano province, o i comuni sono rimasti indietro);
+   - il riquadro dal 5% dei seggi elettorali scrutinati, l'emiciclo e il titolo dal 10%: sotto
+     il 5% il backtest dà errori di una ventina di seggi e una forchetta troppo stretta;
+   - il controllo sull'ordine di arrivo (vedi proxy/lib/lavoratore.js): se con i comuni contati
+     stanotte il modello, rifatto dal 2019 al 2023, sbaglia più del doppio di quanto sbagliava in
+     media nel backtest allo stesso punto, il riquadro avverte e la proiezione non va nei titoli. */
+const PROIEZ = { w: null, id: 0, R: null, controllo: null, inCorso: false, ancora: false, errore: '' };
+const PROIEZ_RIQUADRO = 0.05, PROIEZ_TITOLI = 0.10;
+/* l'errore medio del backtest (il peggiore dei due scenari con i comuni piccoli per primi), per
+   punto dello spoglio: seggi spostati e scarto su PP+Vox */
+const BACKTEST = [[0.02, 21.8, 5.5], [0.05, 17.2, 2.8], [0.1, 11.5, 2.1], [0.2, 5.4, 2.6], [0.3, 3.1, 1.6], [0.4, 2.8, 1.4], [0.5, 2.3, 1.0], [0.6, 1.8, 0.7], [0.7, 1.2, 0.6], [0.8, 0.7, 0.5], [0.9, 0.4, 0.2]];
+function attesoBacktest(f) {
+  const B = BACKTEST; if (f <= B[0][0]) return B[0]; if (f >= B[B.length - 1][0]) return B[B.length - 1];
+  for (let i = 1; i < B.length; i++) if (f <= B[i][0]) { const t = (f - B[i - 1][0]) / (B[i][0] - B[i - 1][0]); return [f, B[i - 1][1] + t * (B[i][1] - B[i - 1][1]), B[i - 1][2] + t * (B[i][2] - B[i - 1][2])]; }
+}
+function esitoControllo() {
+  const c = PROIEZ.controllo; if (!c) return null;
+  const [, s, d] = attesoBacktest(c.frac);
+  const limS = Math.max(3, 2 * s), limD = Math.max(3, 2.5 * d);
+  return { ...c, limS, limD, ok: c.spostati <= limS && c.destra <= limD };
+}
+/* i comuni ricevuti coprono lo scrutinio del Ministero? */
+function coperturaComuni() {
+  const D = S.D; if (!D) return { ok: false, mancano: [] };
+  const mancano = [];
+  for (const c of COD) {
+    const x = D.circ[c]; if (!x || x.vuota || !x.esc) continue;
+    const lp = COM.live[c]; let esc = 0;
+    if (lp) for (const r of Object.values(lp.m)) esc += r[7] || 0;
+    if (esc < 0.85 * x.esc) mancano.push(c);
+  }
+  return { ok: !mancano.length, mancano };
+}
 /* la base del confronto: il 2023 per comune. Nella prova generale, che rifà lo spoglio del 2023,
-   la base è novembre 2019, come nel backtest: con il 2023 la proiezione sarebbe esatta per forza. */
+   la base è novembre 2019, come nel backtest: con il 2023 la proiezione sarebbe esatta per forza.
+   Il controllo sull'ordine di arrivo ha bisogno di novembre 2019 in tutti e due i casi. */
 function lavoratore() {
   if (PROIEZ.w || COM.stato !== 'ok') return PROIEZ.w;
   try {
     PROIEZ.w = new Worker('proxy/lib/lavoratore.js', { type: 'module' });
     const daFile = (d, gr) => { const base = {}; for (const [ine, x] of Object.entries(d.m)) base[ine] = { v: gr ? gr[ine] : gruppiFlat(x[6], d.partiti), validi: x[5], mesas: x[1] }; return base; };
-    if (PROVA) fetch('strumenti/backtest/comuni201911.json').then(r => r.json()).then(d => { PROIEZ.w.postMessage({ tipo: 'base', base: daFile(d) }); chiediProiezione(true); }).catch(e => { PROIEZ.errore = e.message; });
-    else PROIEZ.w.postMessage({ tipo: 'base', base: daFile(COM.d23, COM.g23) });
+    const v23 = daFile(COM.d23, COM.g23), seggi23 = Object.fromEntries(COD.map(c => [c, CIRC[c][2]]));
+    if (!PROVA) PROIEZ.w.postMessage({ tipo: 'base', base: v23 });
+    fetch('strumenti/backtest/comuni201911.json').then(r => r.json()).then(d => {
+      const base19 = daFile(d);
+      if (PROVA) PROIEZ.w.postMessage({ tipo: 'base', base: base19 });
+      PROIEZ.w.postMessage({ tipo: 'controllo', base19, v23, seggi23 });
+      chiediProiezione(true);
+    }).catch(e => { PROIEZ.errore = e.message; });
     PROIEZ.w.onmessage = e => {
       PROIEZ.inCorso = false;
       if (e.data.errore) PROIEZ.errore = e.data.errore;
-      else if (e.data.R && e.data.id === PROIEZ.id) { PROIEZ.R = e.data.R; PROIEZ.errore = ''; render(); }
+      else if (e.data.R && e.data.id === PROIEZ.id) { PROIEZ.R = e.data.R; PROIEZ.controllo = e.data.controllo; PROIEZ.errore = ''; render(); }
       if (PROIEZ.ancora) { PROIEZ.ancora = false; chiediProiezione(); }
     };
     PROIEZ.w.onerror = e => { PROIEZ.inCorso = false; PROIEZ.errore = e.message || 'errore del modello'; };
@@ -2096,14 +2150,14 @@ function lavoratore() {
 function chiediProiezione(forza) {
   if (COM.stato !== 'ok' || !lavoratore()) return;
   if (PROIEZ.inCorso && !forza) { PROIEZ.ancora = true; return; }
-  const live = {};
+  const live = {}, k = {};
   for (const lp of Object.values(COM.live)) for (const [ine, x] of Object.entries(lp.m)) {
-    if (x[7] > 0 && x[5] > 0) live[ine] = { v: gruppiFlat(x[6], lp.partiti), validi: x[5], mesas: x[1], esc: x[7] };
+    if (x[7] > 0 && x[5] > 0) { live[ine] = { v: gruppiFlat(x[6], lp.partiti), validi: x[5], mesas: x[1], esc: x[7] }; k[ine] = Math.min(1, x[7] / (x[1] || 1)); }
   }
-  if (!Object.keys(live).length) { PROIEZ.R = null; return; }
+  if (!Object.keys(live).length) { PROIEZ.R = null; PROIEZ.controllo = null; return; }
   const seggi = Object.fromEntries(COD.map(c => [c, seggiCirc(c)]));
   PROIEZ.inCorso = true;
-  PROIEZ.w.postMessage({ tipo: 'proietta', id: ++PROIEZ.id, live, seggi });
+  PROIEZ.w.postMessage({ tipo: 'proietta', id: ++PROIEZ.id, live, seggi, k });
 }
 /* i blocchi nelle simulazioni: forchette e probabilità della maggioranza */
 function blocchiProiezione(R) {
@@ -2113,14 +2167,26 @@ function blocchiProiezione(R) {
   const pr = a => a.filter(x => x >= MAGG).length / a.length;
   return { intD: [q(t.D, 0.1), q(t.D, 0.9)], intS: [q(t.S, 0.1), q(t.S, 0.9)], pD: pr(t.D), pS: pr(t.S), pSN: pr(t.SN) };
 }
-const proiezioneValida = () => !!(PROIEZ.R && PROIEZ.R.frac >= 0.02 && PROIEZ.R.frac < 0.999);
+/* il riquadro: dal 5%, con i comuni completi; nei titoli: dal 10%, se il controllo è superato */
+const proiezioneValida = () => !!(PROIEZ.R && PROIEZ.R.frac >= PROIEZ_RIQUADRO && PROIEZ.R.frac < 0.999 && coperturaComuni().ok);
+const proiezioneNeiTitoli = () => { if (!proiezioneValida() || PROIEZ.R.frac < PROIEZ_TITOLI) return false; const c = esitoControllo(); return !!(c && c.ok); };
 function renderProiezione() {
   const card = $('proiezCard'), R = PROIEZ.R, D = S.D;
+  /* per la redazione, perché la proiezione non si vede */
+  const cop = PROIEZ.R ? coperturaComuni() : null;
+  $('proiezStato').textContent = !PROIEZ.R ? (PROIEZ.errore ? 'Proiezione: ' + PROIEZ.errore : '') :
+    !cop.ok ? 'Proiezione nascosta: i comuni ricevuti non coprono lo scrutinio in ' + cop.mancano.length + (cop.mancano.length === 1 ? ' provincia (' : ' province (') + cop.mancano.slice(0, 6).map(c => CIRC[c][0]).join(', ') + (cop.mancano.length > 6 ? '…' : '') + ').' :
+    R.frac < PROIEZ_RIQUADRO ? 'Proiezione pronta, si mostra dal 5% dei seggi elettorali scrutinati (ora ' + pctScr(R.frac) + ').' : '';
   card.classList.toggle('hidden', !proiezioneValida());
   if (!proiezioneValida()) return;
-  const t = totBlocchi({ seggi: R.seggi }), B = blocchiProiezione(R);
+  const t = totBlocchi({ seggi: R.seggi }), B = blocchiProiezione(R), C = esitoControllo();
   $('proiezMeta').textContent = 'dai comuni contati ' + alPct(R.frac);
   $('proiezSub').textContent = 'Come finirà il conteggio di stanotte secondo i comuni già contati: ognuno è confrontato con se stesso ' + (PROVA ? 'a novembre 2019' : 'nel 2023') + ', e da lì si stima come voteranno quelli che mancano, che non sono come i primi arrivati. Fra parentesi la forchetta che comprende 8 simulazioni su 10.';
+  $('proiezControllo').className = 'controllo' + (C && !C.ok ? ' ko' : '');
+  $('proiezControllo').innerHTML = !C ? '<b>Controllo sull’ordine di arrivo:</b> in preparazione.'
+    : '<b>Controllo sull’ordine di arrivo:</b> con gli stessi comuni contati finora, il modello rifatto dal 2019 al 2023 sbaglia di ' + nf(C.spostati) + (C.spostati === 1 ? ' seggio' : ' seggi') + ' in tutto e di ' + nf(C.destra) + ' su PP e Vox' +
+      (C.ok ? '. È in linea con il backtest: l’ordine di arrivo di stanotte non lo mette in difficoltà.' : ', più del doppio di quanto sbagliava in media nel backtest a questo punto. Con questo ordine di arrivo la proiezione è meno affidabile del solito: si legge con cautela, e non va nei titoli della pagina.') +
+      (C.ok && R.frac < PROIEZ_TITOLI ? ' Dal 10% dello scrutinio guiderà anche l’emiciclo e il titolo.' : '');
   $('proiezBlocchi').innerHTML =
     '<div class="bloc' + (t.D >= MAGG ? ' win' : '') + '"><div><div class="bn"><i style="background:' + BLOCCHI.D.c + '"></i>PP e Vox</div><div class="bp">fra ' + B.intD[0] + ' e ' + B.intD[1] + ' seggi · maggioranza in ' + probIT(B.pD) + ' simulazioni</div></div><div><div class="bv">' + t.D + '</div><div class="bd">' + (t.D >= MAGG ? 'maggioranza' : 'mancano ' + (MAGG - t.D)) + '</div></div></div>' +
     '<div class="bloc' + (t.S >= MAGG ? ' win' : '') + '"><div><div class="bn"><i style="background:' + BLOCCHI.S.c + '"></i>PSOE e alleati</div><div class="bp">fra ' + B.intS[0] + ' e ' + B.intS[1] + ' seggi · con i nazionalisti di centro la maggioranza in ' + probIT(B.pSN) + ' simulazioni</div></div><div><div class="bv">' + t.S + '</div><div class="bd">' + (t.S >= MAGG ? 'maggioranza' : 'mancano ' + (MAGG - t.S)) + ' · con i nazionalisti ' + (t.S + t.N) + '</div></div></div>';
@@ -2134,7 +2200,7 @@ function renderProiezione() {
       '<td class="m-off mute">' + (D ? D.gs[g] || 0 : '—') + '</td><td>' + pct(qv) + '</td><td class="m-off mute">' + (qc != null ? pct(qc) : '—') + '</td></tr>';
   });
   $('proiezTable').innerHTML = h + '</tbody>';
-  $('proiezNota').textContent = (PROVA ? 'Nella prova generale la proiezione parte da novembre 2019, come nel backtest: indovinare il 2023 dal 2023 sarebbe troppo facile. ' : '') + 'Il modello è della redazione. Provato rifacendo lo spoglio di novembre 2019 e del 2023 in 30 notti simulate ciascuno, con i comuni piccoli contati per primi: con il 10% dei seggi elettorali scrutinati il riparto sui voti contati sbagliava in media di 19-27 seggi, la proiezione di 7-12; con il 30%, 8-9 contro 3; sulla somma di PP e Vox, con il 5%, 27-39 seggi contro 1-3. Non conta il voto dall’estero, che arriva giorni dopo. Se le cose vanno in modo molto diverso dalle elezioni passate, l’errore cresce: per questo la forchetta è larga all’inizio.';
+  $('proiezNota').textContent = (PROVA ? 'Nella prova generale la proiezione parte da novembre 2019, come nel backtest: indovinare il 2023 dal 2023 sarebbe troppo facile. ' : '') + 'Il modello è della redazione. Provato rifacendo lo spoglio di novembre 2019 e del 2023 in 30 notti simulate ciascuno, con i comuni piccoli contati per primi: con il 10% dei seggi elettorali scrutinati il riparto sui voti contati sbagliava in media di 19-27 seggi, la proiezione di 7-12; con il 30%, 8-9 contro 3; sulla somma di PP e Vox, con il 5%, 27-39 seggi contro 1-3. Si mostra dal 5% dello scrutinio, solo quando sono arrivati i dati dei comuni. Non conta il voto dall’estero, che arriva giorni dopo.';
 }
 
 /* ---------- scrutinio ---------- */

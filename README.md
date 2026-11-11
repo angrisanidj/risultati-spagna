@@ -76,7 +76,15 @@ Il workflow **Media dei sondaggi** (`.github/workflows/sondaggi.yml`) la rifà a
 
 ## La proiezione dello spoglio
 
-Durante lo spoglio il riquadro **Come finirà lo spoglio** stima il risultato finale del conteggio a partire dai comuni già contati. Dal 5% dei seggi elettorali scrutinati è anche la fonte automatica dell'emiciclo e del titolo principale, fino al 97%, quando passano i voti contati.
+Durante lo spoglio il riquadro **Come finirà lo spoglio** stima il risultato finale del conteggio a partire dai comuni già contati.
+
+**Quando si vede** (le soglie vengono dal backtest qui sotto, e sono sulla quota di seggi elettorali scrutinati che pubblica il Ministero):
+- **sotto il 5%, mai:** l'errore è di una ventina di seggi e la forchetta all'80% contiene il risultato vero solo 3 volte su 4;
+- **dal 5%, il riquadro:** la forchetta è calibrata e su PP+Vox l'errore medio è di 1-3 seggi;
+- **dal 10%, anche l'emiciclo e il titolo principale,** se il controllo sull'ordine di arrivo è superato: prima la divisione fra i singoli partiti sbaglia ancora di 12-17 seggi; dal 97% tornano i voti contati;
+- **solo con i dati dei comuni:** in ogni provincia dove il Ministero ha contato qualcosa, i comuni ricevuti devono coprire almeno l'85% dei seggi elettorali che il Ministero dà per scrutinati. Se mancano province o i comuni restano indietro, la proiezione non si vede; in modalità redazione il riquadro dello scrutinio dice perché.
+
+**Il controllo sull'ordine di arrivo.** Il backtest prova ordini di arrivo simulati; quello vero di stanotte può essere diverso. A ogni aggiornamento il modello si mette alla prova da solo: con gli stessi comuni contati finora, nella stessa misura, rifà la proiezione da novembre 2019 al 2023, di cui conosce il risultato. Se così sbaglia più del doppio di quanto sbagliava in media nel backtest allo stesso punto dello spoglio (in seggi spostati, o 2,5 volte su PP+Vox, con un minimo di 3 seggi), il riquadro avverte in giallo che con quest'ordine di arrivo la proiezione è meno affidabile, e la proiezione non va nei titoli. Altrimenti il riquadro lo dice in verde. Il controllo è in `proxy/lib/lavoratore.js`, le soglie in `BACKTEST` nella pagina.
 
 **Il problema.** In Spagna arrivano prima i comuni piccoli, più a destra della media, e le grandi città per ultime. Il riparto sui voti contati, quello che mostra il Ministero, all'inizio sbaglia di molto: con il 2% dello spoglio di decine di seggi.
 
@@ -220,7 +228,7 @@ Si scrivono in `stime.json`, in seggi, per partito. Un numero o una forchetta `[
 
 - `n` è il nome lungo (istituto e rete), `s` quello breve per le colonne, `ora` l'ora di pubblicazione.
 - Le chiavi dei partiti sono quelle di `GRUPPI`: `PP`, `PSOE`, `VOX`, `FA` (Frente Amplio), `FV` (Front Valencià), `PODEMOS`, `AA` (Adelante Andalucía), `ERC`, `JUNTS`, `BILDU`, `PNV`, `BNG`, `CC`, `UPN`, `SALF`, `CUP`, `NC`, `TE`, `UPL`, `SY`, `PACMA`. Una chiave sconosciuta compare con il suo nome fra gli altri partiti.
-- L'ordine degli exit poll nel file è l'ordine delle colonne; in automatico l'emiciclo usa la proiezione dei sondaggi fino al primo exit poll, gli exit poll fino al 5% dello scrutinio, poi la proiezione dello spoglio e, dal 97%, i voti contati.
+- L'ordine degli exit poll nel file è l'ordine delle colonne; in automatico l'emiciclo usa la proiezione dei sondaggi fino al primo exit poll, gli exit poll fino al 10% dello scrutinio, poi la proiezione dello spoglio (se ha superato il controllo sull'ordine di arrivo; altrimenti i voti contati dal 40%) e, dal 97%, i voti contati.
 - Il campo `sondaggi` lo scrive il workflow: quando si modifica `stime.json` a mano va lasciato com'è.
 - La pagina rilegge `stime.json` ogni 15 secondi fra le 19:55 e le 22 italiane, ogni due minuti il resto del tempo.
 

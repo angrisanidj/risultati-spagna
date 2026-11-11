@@ -3,6 +3,7 @@
    GET /api/mir              la Spagna e le 52 circoscrizioni, in un riassunto compatto
    GET /api/mir?comuni=28    i comuni di una provincia (28 = Madrid), nello schema di dati/comuni2023.json
    GET /api/mir?comuni=tutti i comuni di tutte le province, per la mappa e per la proiezione dello spoglio
+   GET /api/mir?senato=1     il Senato: le 47 province, le isole, Ceuta e Melilla, con i senatori per candidatura
    GET /api/mir?grezzo=28    un ambito così come lo pubblica il Ministero (28 = Madrid, 1 = Spagna)
    GET /api/mir?diag=1       diagnostica: raggiungibilità, stato HTTP, latenza, anti-bot, regione
 
@@ -18,6 +19,11 @@
      MIR_COMUNI percorso di una provincia con i comuni dentro
                 (predefinito backend-difu/scope/data/getScopeData/{id}/1/2/1/1/90: nel 2023 il
                 sito mostrava così la mappa dei comuni di una provincia, da verificare)
+     MIR_SENATO percorso della Spagna con le province dentro, per il Senato (elezione 3)
+                (predefinito backend-difu/scope/data/getScopeData/{id}/2/3/1/1/30: nel 2023 il
+                sito chiedeva il Senato con «2/3» al posto di «1/2», da verificare)
+     MIR_SENATO_ISOLE lo stesso per una provincia con le sue isole (livello 70)
+                (predefinito backend-difu/scope/data/getScopeData/{id}/2/3/1/1/70)
 
    Una lettura prova prima MIR_MAPA (una richiesta). Se la risposta non contiene le 52
    province, chiede le province una per una, 6 alla volta. La cache del CDN di Vercel
@@ -26,12 +32,15 @@
    mappa dei comuni e alla proiezione dello spoglio. La risposta resta in cache 90 secondi:
    al massimo 52 richieste al Ministero ogni 90 secondi, comunque vada il traffico. */
 
-import { scopeId, PROVINCE, riassumi, valido, comuni } from '../lib/normalizza.js';
+import { scopeId, PROVINCE, riassumi, valido, comuni, senato } from '../lib/normalizza.js';
 
 const BASE = process.env.MIR_BASE || 'https://resultados.29neleccionesgenerales.es/';
 const RUTA = process.env.MIR_RUTA || 'backend-difu/scope/data/getScopeData/{id}/1/2/1/0';
 const MAPA = process.env.MIR_MAPA || 'backend-difu/scope/data/getScopeData/{id}/1/2/1/1/30';
 const COMUNI = process.env.MIR_COMUNI || 'backend-difu/scope/data/getScopeData/{id}/1/2/1/1/90';
+const SENATO = process.env.MIR_SENATO || 'backend-difu/scope/data/getScopeData/{id}/2/3/1/1/30';
+const SENATO_ISOLE = process.env.MIR_SENATO_ISOLE || 'backend-difu/scope/data/getScopeData/{id}/2/3/1/1/70';
+const PROV_ISOLE = ['07', '35', '38'];
 const ESPANA = scopeId(1, 1);
 
 /* Origini ammesse. Aggiungi qui il dominio se la pagina va anche altrove. */
@@ -42,7 +51,7 @@ const ORIGINI = [
 const originOk = o => ORIGINI.some(a => o === a || o.startsWith(a + ':'));
 
 /* Solo parametri conosciuti: ogni variante dell'indirizzo è una voce di cache a sé. */
-const PARAMETRI = { diag: v => v === '1', grezzo: v => v === '1' || PROVINCE.includes(v), comuni: v => v === 'tutti' || PROVINCE.includes(v) };
+const PARAMETRI = { diag: v => v === '1', grezzo: v => v === '1' || PROVINCE.includes(v), comuni: v => v === 'tutti' || PROVINCE.includes(v), senato: v => v === '1' };
 const limitato = s => s === 429 || s === 403;
 /* Dopo un 429 o un 403, per un minuto questa istanza non chiede niente al Ministero. */
 const FRENO_MS = 60000;
@@ -147,6 +156,21 @@ export default async function handler(req, res) {
   if (Date.now() < frenoFino) {
     res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=30');
     return res.status(503).json({ errore: 'Il Ministero ha limitato le richieste: pausa di un minuto' });
+  }
+
+  if (q.senato) {
+    /* la Spagna con le province, poi le tre province con le isole: quattro richieste */
+    const ris = await aGruppi([['1', SENATO], ...PROV_ISOLE.map(c => [c, SENATO_ISOLE])], 4, ([c, ruta]) => json(url(ruta, c === '1' ? ESPANA : scopeId(c, 30))));
+    const ok = ris.filter(r => r && !r.errore);
+    const lim = ris.find(r => r && r.errore && limitato(r.errore.stato));
+    if (!ok.length) {
+      res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=' + (lim ? 300 : 30));
+      const e = ris.find(r => r && r.errore);
+      return res.status(502).json({ errore: 'Senato non disponibile: ' + (e ? e.errore.message : 'nessuna risposta'), stato: e && e.errore.stato || 0 });
+    }
+    const S = senato(ok);
+    res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=30, stale-while-revalidate=60');
+    return res.status(200).json({ ...S, mancanti: ris.length - ok.length });
   }
 
   if (q.comuni === 'tutti') {

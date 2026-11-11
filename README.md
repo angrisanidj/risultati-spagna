@@ -1,6 +1,6 @@
 # risultati-spagna
 
-Dashboard per seguire in diretta lo spoglio delle elezioni generali spagnole di domenica 29 novembre 2026 (Congresso dei deputati). È costruita sulla falsariga di `risultati-israele` e `risultati-brasile`: una sola pagina statica su GitHub Pages che legge i dati del Ministero dell'Interno attraverso un proxy Vercel.
+Dashboard per seguire in diretta lo spoglio delle elezioni generali spagnole di domenica 29 novembre 2026 (Congresso dei deputati e Senato). È costruita sulla falsariga di `risultati-israele` e `risultati-brasile`: una sola pagina statica su GitHub Pages che legge i dati del Ministero dell'Interno attraverso un proxy Vercel.
 
 ## Cosa c'è
 
@@ -16,6 +16,7 @@ Dashboard per seguire in diretta lo spoglio delle elezioni generali spagnole di 
 | `strumenti/mappa.py` | Rifà `dati/mappa.json`, i confini delle province già proiettati. |
 | `strumenti/incorpora.py` | Copia i due file di `dati/` dentro `index.html`. |
 | `dati/comuni2023.json` | Il voto del 2023 negli 8.131 comuni. Si carica solo quando si apre la mappa dei comuni. |
+| `dati/senato2023.json` | I senatori del 2023 collegio per collegio, con i voti dei candidati: base della scheda del Senato. |
 | `dati/comuni-mappa.json` | I confini dei comuni, già proiettati (li scrive `strumenti/mappa.py`). |
 | `strumenti/comuni.py` | Legge i pacchetti ufficiali del Ministero per comune (`strumenti/fonti/`): rifà `dati/comuni2023.json` e i file del backtest. |
 | `proxy/lib/modello.js` | La proiezione dello spoglio, usata dalla pagina (in un Web Worker, `proxy/lib/lavoratore.js`) e dal backtest. |
@@ -31,6 +32,7 @@ Dashboard per seguire in diretta lo spoglio delle elezioni generali spagnole di 
 - **I 350 seggi:** emiciclo con la fonte a scelta (Congresso 2023, exit poll, scrutinio, seggi manuali) e i blocchi secondo ogni fonte.
 - **I seggi in bilico:** in ogni circoscrizione l'ultimo seggio assegnato e quanti voti mancano al primo escluso per prenderlo.
 - **Simulatore di maggioranza**, con le coalizioni già pronte.
+- **Il Senato:** i 209 senatori eletti per partito, il confronto con il 2023 e i 60 collegi con eletti, voti e seggio più conteso; filtri per i collegi in bilico e per quelli dell'accordo PP-Vox (vedi «Il Senato»).
 - **La mappa delle province:** primo partito, blocchi, un partito, spostamento di PP e Vox rispetto al 2023, avanzamento dello scrutinio. Toccando una provincia: voti, seggi, ultimo seggio, confronto con il 2023.
 - **La mappa dei comuni:** gli 8.131 comuni, con i voti di stanotte man mano che arrivano (livello «Comuni») o quelli del 2023 («Comuni 2023»). Toccando un comune la mappa ingrandisce la sua provincia; la scheda mostra i voti e il confronto con il 2023 nello stesso comune. Si può cercare un comune per nome. Nella legenda «Il primo partito» ogni partito è un filtro: un tocco lascia accese solo le province o i comuni dove è primo, un secondo tocco (o «Mostra tutti») torna alla mappa completa.
 - **Stato dello scrutinio** provincia per provincia.
@@ -74,6 +76,20 @@ Il workflow **Media dei sondaggi** (`.github/workflows/sondaggi.yml`) la rifà a
 **La sera del voto** il proxy chiede al Ministero le 52 province, ognuna con la mappa dei suoi comuni (percorso `MIR_COMUNI`, che nel 2023 era `getScopeData/<provincia>/1/2/1/1/90`: da verificare quando il sito apre), e le restituisce in una risposta sola (`?comuni=tutti`). La pagina la chiede ogni due minuti dai primi voti contati: serve alla mappa dei comuni e alla proiezione dello spoglio. La cache del proxy tiene la risposta 90 secondi, quindi al Ministero arrivano al massimo 52 richieste ogni 90 secondi, comunque vada il traffico. Se i comuni non arrivano, la pagina lo scrive sotto la mappa e il resto funziona come prima; `?comuni=28` restituisce una provincia sola, per controllo.
 
 **La prova generale** (`?prova=2023`) ora rifà lo spoglio comune per comune: dentro ogni provincia arrivano prima i comuni piccoli, con un po' di disordine, e l'ultimo comune del momento è contato in parte. Il vantaggio iniziale del PP nei comuni piccoli si vede da solo. A fine spoglio si aggiunge il voto dall'estero di ogni provincia, e il riparto ridà esattamente i 350 seggi del 2023.
+
+## Il Senato
+
+Si vota anche per il Senato, con una scheda a parte. I senatori eletti sono **209** in **60 collegi**: 4 per provincia, 3 a Mallorca, Gran Canaria e Tenerife, 1 in ciascuna delle altre isole, 2 a Ceuta e 2 a Melilla. Dal 2026 Formentera elegge un senatore suo, separata da Eivissa (riforma dell'articolo 69.3 della Costituzione, sancita a maggio 2026, e Ley Orgánica 2/2026 sulla legge elettorale): nel 2023 i collegi erano 59 e gli eletti 208. Il voto è limitato (3 preferenze dove si eleggono 4 senatori, 2 dove 3, una dove 1 o 2) e sono eletti i candidati più votati. I senatori designati dai parlamenti delle comunità autonome non si votano alle generali e la pagina non li conta.
+
+**Nella pagina** c'è una scheda «Il Senato» prima della mappa: una barra con i senatori eletti o in testa per partito, la tabella con il confronto con il 2023 e i 60 collegi, ognuno con gli eletti (o i primi in quel momento), i voti, il seggio più conteso e l'esito del 2023. Il filtro «In bilico» mostra i collegi dove il seggio più conteso, cioè la sfida più stretta fra un escluso e l'ultimo eletto di un altro partito, si decide per meno di 500 voti o del 3% dei voti dell'ultimo eletto. Il filtro «Accordo PP-Vox» mostra i collegi toccati dall'accordo del 26 ottobre 2026: Vox non presenta candidati a Valencia, Castellón, Cádiz, nelle Baleari, a Las Palmas e a Santa Cruz de Tenerife (nelle liste del PP c'è un indipendente indicato da Vox); il PP non si presenta a Gipuzkoa, Girona e Tarragona. Nel dettaglio di ogni provincia, sotto la mappa, c'è anche il suo risultato al Senato.
+
+**I gruppi.** Le candidature del Senato passano per le stesse regole del Congresso, con due eccezioni: «Sa Unió de Formentera» (PP e Compromís di Formentera) va al PP e non al Front Valencià; le coalizioni «Senado de Progreso» (PSOE e Movimiento Sumar, in alcune province) hanno un gruppo loro, nel blocco della sinistra.
+
+**Il 2023** è in `dati/senato2023.json`: per ogni collegio nome, senatori, voti validi e i candidati con candidatura, voti ed esito (il nome solo per gli eletti). Viene dal pacchetto ufficiale del Ministero `03202307_MUNI.zip` (file 03, 04, 07 e 08), scaricato il 11 novembre dal browser integrato e letto lì: il file JSON è uscito dal browser, lo zip no. Controlli: 59 collegi, 208 eletti, PP 120; la prova generale a spoglio completo rielegge gli stessi senatori in tutti i 59 collegi.
+
+**La sera del voto** il proxy risponde a `?senato=1` con quattro richieste al Ministero: la Spagna con le province dentro (`MIR_SENATO`) e le tre province con le isole (`MIR_SENATO_ISOLE`, livello 70), con 30 secondi di cache. La pagina la chiede al massimo una volta al minuto, dopo ogni aggiornamento del Congresso. **Il percorso del Senato non si è potuto verificare**: nel 2023 il sito dei risultati lo chiedeva con `2/3` al posto di `1/2`, e non è certo che il Ministero pubblichi i voti dei singoli candidati nello stesso file. `normalizza.js` legge i campi più probabili (`candidatos`, con `nombre`, `votos`, `electo`); se mancano usa i senatori per candidatura (`cargos`). Appena il sito apre va controllato con `?grezzo` e, se serve, si cambiano le variabili su Vercel. Se il Senato non arriva, la scheda lo scrive in fondo e il Congresso funziona come prima.
+
+**La prova generale** rifà anche il Senato: i voti dei candidati del 2023, nella parte contata della loro provincia, con un po' di rumore finché lo spoglio non finisce.
 
 ## La proiezione dello spoglio
 
@@ -156,6 +172,8 @@ Se nel 2026 il Ministero cambia fornitore o formato, va riscritto solo `normaliz
 | `MIR_RUTA` | `backend-difu/scope/data/getScopeData/{id}/1/2/1/0` |
 | `MIR_MAPA` | `backend-difu/scope/data/getScopeData/{id}/1/2/1/1/30` |
 | `MIR_COMUNI` | `backend-difu/scope/data/getScopeData/{id}/1/2/1/1/90` |
+| `MIR_SENATO` | `backend-difu/scope/data/getScopeData/{id}/2/3/1/1/30` (da verificare) |
+| `MIR_SENATO_ISOLE` | `backend-difu/scope/data/getScopeData/{id}/2/3/1/1/70` (da verificare) |
 
 **Il canale per i media.** Il Ministero apre un repository di dati riservato ai media accreditati, con i file di avanzamento e scrutinio e un documento che ne descrive il formato. La richiesta andava fatta alla Secretaría de Estado de Comunicación entro il **28 ottobre alle 15**; credenziali il 17 novembre, una connessione per testata. Se una testata con cui lavori è accreditata, quella è la fonte più solida: il proxy si adatta con una funzione nuova in `normalizza.js`.
 
@@ -260,6 +278,7 @@ La stessa chiave delle dashboard di Israele e Brasile: `?redazione=CHIAVE` una v
 
 - Voti: Ministero dell'Interno, dati provvisori.
 - Seggi per circoscrizione: Real Decreto 806/2026, BOE-A-2026-20742.
+- Senato 2023: Ministero dell'Interno, `03202307_MUNI.zip` (infoelectoral). Candidature del Senato 2026 e accordo PP-Vox: BOE delle candidature proclamate e le agenzie del 26 ottobre 2026.
 - Base 2023: Junta Electoral Central, tramite le voci di Wikipedia in inglese sulle circoscrizioni (CC BY-SA).
 - Sondaggi: la tabella di Wikipedia in inglese (CC BY-SA), con gli istituti e i committenti indicati sulla pagina.
 - Confini delle province: Istituto geografico nazionale (IGN), nella versione TopoJSON di [es-atlas](https://github.com/martgnz/es-atlas) 0.6.0 (MIT), proiettati da `strumenti/mappa.py`; le Canarie spostate in un riquadro.

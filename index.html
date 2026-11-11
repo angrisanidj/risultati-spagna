@@ -361,6 +361,35 @@ table.conf th .corto{display:none}
 .bl.S:before{background:#e8384f}.bl.N:before{background:#2fb3a3}.bl.X:before{background:#a59a7a}.bl.D:before{background:#3a86d8}
 .rif{color:var(--t3);font-size:12px}
 
+/* ---------- senato ---------- */
+.sen-somma{padding:2px 18px 4px}
+.sen-barra{display:flex;height:14px;border-radius:3px;overflow:hidden;background:var(--s3);margin:4px 0 6px}
+.sen-barra b{display:block;height:100%;flex:none}
+.sen-barra b+b{box-shadow:inset 1px 0 0 rgba(0,0,0,.35)}
+.sen-barranota{color:var(--t2);font-size:12.5px}
+.sen-barranota b{color:var(--t1)}
+.sen-filtri{padding:14px 18px 0;display:flex}
+.sen-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px;padding:10px 18px 4px}
+.sen-d{border:1px solid var(--line);border-radius:var(--r-s);padding:9px 11px 10px;background:rgba(255,255,255,.015);font-size:12.5px;min-width:0}
+.sen-d.bilico{border-color:rgba(242,193,78,.45);background:rgba(242,193,78,.04)}
+.sen-h{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.sen-h b{font-size:13.5px;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sen-h span{color:var(--t3);font-size:11.5px;white-space:nowrap}
+.sen-d .seggiprov{margin-top:7px}
+.sen-d .seggiprov i.testa{opacity:.7}
+.sen-d .seggiprov i.v23{opacity:.38}
+.sen-d .seggiprov i.vuoto{background:transparent;border:1px dashed var(--line-2)}
+.sen-el{margin:7px 0 0;padding:0;list-style:none;color:var(--t1);line-height:1.5}
+.sen-el li{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sen-el li i{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;vertical-align:1px}
+.sen-el li span{color:var(--t3);font-size:11.5px;font-variant-numeric:tabular-nums}
+.sen-m{margin-top:5px;color:var(--t3);font-size:11.5px;line-height:1.45}
+.sen-m b{color:var(--t2);font-variant-numeric:tabular-nums}
+.sen-d.bilico .sen-marg,.sen-d.bilico .sen-marg b{color:var(--amber)}
+.sen-patto{display:block;margin-top:7px;font-size:11px;line-height:1.4;color:var(--acc);border-left:2px solid rgba(243,210,122,.5);padding:1px 0 1px 7px}
+@media(max-width:760px){.sen-grid{grid-template-columns:1fr 1fr;padding-left:14px;padding-right:14px}.sen-somma,.sen-filtri{padding-left:14px;padding-right:14px}}
+@media(max-width:480px){.sen-grid{grid-template-columns:1fr}}
+
 /* ---------- mappa ---------- */
 .mapfonte{display:flex;gap:2px;background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:2px}
 .mapfonte button{border:0;background:transparent;color:var(--t2);border-radius:var(--r-s);padding:5px 10px;font:600 12px/1 var(--sans);cursor:pointer;white-space:nowrap}
@@ -694,7 +723,7 @@ footer a{color:var(--t2)}
     <div class="hero-main">
       <div class="eyebrow" id="heroEyebrow">Elezioni generali, domenica 29 novembre 2026</div>
       <h1 id="heroTitle">Spagna 2026</h1>
-      <p id="heroText">Lo spoglio in diretta dai dati del Ministero dell’Interno: i 350 seggi del Congresso ripartiti con il metodo D’Hondt in ognuna delle 52 circoscrizioni, gli exit poll, la mappa delle province e i seggi che si decidono per poche centinaia di voti. Le urne chiudono alle 20, la stessa ora in Italia; alle Canarie un’ora dopo.</p>
+      <p id="heroText">Lo spoglio in diretta dai dati del Ministero dell’Interno: i 350 seggi del Congresso ripartiti con il metodo D’Hondt in ognuna delle 52 circoscrizioni, i 209 senatori eletti nelle province e nelle isole, gli exit poll, la mappa delle province e i seggi che si decidono per poche centinaia di voti. Le urne chiudono alle 20, la stessa ora in Italia; alle Canarie un’ora dopo.</p>
     </div>
     <div class="hero-side">
       <div class="metaline">
@@ -825,6 +854,20 @@ footer a{color:var(--t2)}
     </div>
     <div id="bars" class="bars"></div>
     <p class="methodnote" id="barsNote">Percentuali sui voti validi scrutinati in tutta la Spagna; a destra i seggi e la differenza dal 2023. La soglia del 3% vale in ogni provincia, non a livello nazionale: un partito regionale entra con lo 0,5% nazionale, uno diffuso al 2% può restare senza seggi.</p>
+  </section>
+
+  <section class="card" id="senCard" style="margin-bottom:14px">
+    <div class="cardhead"><div><h2>Il Senato</h2></div><span class="cmeta" id="senMeta">—</span></div>
+    <p class="subcopy">Si vota anche per il Senato, con una scheda a parte: 209 senatori eletti in 60 collegi: 4 in ogni provincia, 3 a Mallorca, Gran Canaria e Tenerife, 1 in ciascuna delle altre isole, 2 a Ceuta e 2 a Melilla. Si votano i candidati, non le liste.</p>
+    <div class="sen-somma"><div id="senBarra" class="sen-barra"></div><div class="sen-barranota" id="senBarraNota"></div></div>
+    <div class="tablewrap"><table id="senTable" class="conf"></table></div>
+    <div class="sen-filtri"><div class="mapfonte" id="senFiltri">
+      <button data-f="tutti" aria-pressed="true">Tutti i collegi</button>
+      <button data-f="bilico" aria-pressed="false">In bilico</button>
+      <button data-f="patto" aria-pressed="false">Accordo PP-Vox</button>
+    </div></div>
+    <div id="senGrid" class="sen-grid"></div>
+    <p class="methodnote" id="senNota"></p>
   </section>
 
   <section class="card" style="margin-bottom:14px">
@@ -1017,7 +1060,11 @@ const GRUPPI = [
   { k: 'NC', n: 'Nuova Canaria', s: 'NC', re: /^NC\b|NUEVA CANARIAS/i, b: 'X', c: '#7aa6c9' },
   { k: 'TE', n: 'Teruel Existe', s: 'Teruel Existe', re: /EXISTE/i, b: 'X', c: '#3c8a6b' },
   { k: 'UPL', n: 'Unione del popolo leonese', s: 'UPL', re: /^U\.?P\.?L\b/i, b: 'X', c: '#b04a6a' },
-  { k: 'SY', n: 'Soria ¡Ya!', s: 'Soria Ya', re: /^SY\b|SORIA/i, b: 'X', c: '#5f8f3e' }
+  { k: 'SY', n: 'Soria ¡Ya!', s: 'Soria Ya', re: /^SY\b|SORIA/i, b: 'X', c: '#5f8f3e' },
+  { k: 'ASG', n: 'Agrupación Socialista Gomera', s: 'ASG', re: /^ASG\b|SOCIALISTA GOMERA/i, b: 'X', c: '#c77b5a' },
+  { k: 'AHI', n: 'Agrupación Herreña Independiente', s: 'AHI', re: /^A\.?H\.?I\.?$|HERRE[NÑ]A INDEPENDIENTE/i, b: 'X', c: '#8f8a3c' },
+  /* solo al Senato: le liste comuni di PSOE e Frente Amplio in alcune province */
+  { k: 'SDP', n: 'Senado de Progreso', s: 'Senado de Progreso', re: /SENADO DE PROGRESO|^SDP\b/i, b: 'S', c: '#c4405f' }
 ];
 const GMAP = Object.fromEntries(GRUPPI.map(g => [g.k, g]));
 const COL_ALTRO = '#6f6878';
@@ -1313,7 +1360,7 @@ function totBlocchi(f) {
 function render() {
   S.D = elabora(S.dati);
   renderKpi(); renderVerdetto(); renderTabella(); renderEmiciclo(); renderExit(); renderBilico();
-  renderProiezione(); renderSondaggi(); renderSimulatore(); renderBarre(); renderMappa(); renderScrutinio();
+  renderProiezione(); renderSondaggi(); renderSimulatore(); renderBarre(); renderSenato(); renderMappa(); renderScrutinio();
   if (window.CARD) window.CARD.segnaSporco();
 }
 
@@ -1612,6 +1659,187 @@ function renderBarre() {
       '<div class="vv">' + pct(q) + '</div><div class="dd">' + (D.gs[g] || 0) + ' seggi · ' + (q23 ? segno((q - q23) * 100) : 'nuovo') + '</div></div>';
   }).join('');
   $('barsNote').textContent = 'Percentuali sui voti validi contati in tutta la Spagna; la linea verticale è il risultato del 2023. A destra i seggi sui voti contati e la differenza dal 2023 in punti. La soglia del 3% vale provincia per provincia: un partito regionale entra con l’1% nazionale, uno diffuso al 2% può restare senza seggi.';
+}
+
+/* =====================================================================
+   IL SENATO
+   Si eleggono 209 senatori: 4 per provincia, 3 a Mallorca, Gran Canaria e Tenerife, 1 in ognuna
+   delle altre isole, 2 a Ceuta e a Melilla. Dal 2026 Formentera elegge un senatore suo, separata
+   da Eivissa (riforma dell'articolo 69.3 della Costituzione e Ley Orgánica 2/2026): nel 2023 i
+   collegi erano 59 e i senatori 208. Il voto è limitato: dove si eleggono 4 senatori se ne
+   possono votare 3, dove 3 se ne votano 2, dove 2 o 1 uno solo. Sono eletti i candidati più
+   votati, uno per uno: di solito il primo partito ne prende 3 e il secondo 1. I senatori
+   designati dai parlamenti delle comunità autonome non si votano il 29 novembre.
+   Base: dati/senato2023.json (Ministero dell'Interno, 03202307_MUNI.zip). Stanotte: il proxy
+   con ?senato=1, letto ogni minuto finché lo spoglio va avanti.
+   ===================================================================== */
+const SEN = { stato: 'no', pronto: null, b: null, g23: {}, tot23: {}, live: null, quando: null, ultimo: 0, errore: '', filtro: 'tutti' };
+const SEN_TOT = () => PROVA ? 208 : 209;
+/* gli accordi per le liste del Senato annunciati da PP e Vox il 26 ottobre 2026 */
+const SEN_NO_VOX = new Set(['11', '12', '46', '07', '35', '38']);
+const SEN_NO_PP = new Set(['20', '17', '43']);
+const SEN_ISOLE = [['073', /EIVISSA|IBIZA/], ['074', /FORMENTERA/], ['071', /MALLORCA/], ['072', /MENORCA/], ['351', /GRAN CANARIA/], ['352', /LANZAROTE/], ['353', /FUERTEVENTURA/],
+  ['384', /TENERIFE/], ['385', /PALMA/], ['386', /GOMERA/], ['387', /HIERRO/]];
+const senzaAccenti = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase();
+function gruppoSen(sigla, nome) {
+  const t = (sigla || '') + ' ' + (nome || '');
+  if (/SA UNI[OÓ]|PP-COMPROM/i.test(t)) return 'PP';   /* Formentera: la coalizione del PP con il Compromís locale */
+  if (/SENADO DE PROGRESO|^SDP\b/i.test(t)) return 'SDP';
+  return gruppoDi(sigla, '', nome);
+}
+function caricaSenato() {
+  if (SEN.pronto) return SEN.pronto;
+  SEN.pronto = fetch('dati/senato2023.json').then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }).then(j => {
+    SEN.b = j;
+    for (const [k, [, , , cand]] of Object.entries(j.d)) {
+      SEN.g23[k] = cand.filter(c => c[3]).map(c => gruppoSen(j.partiti[c[1]], ''));
+      for (const g of SEN.g23[k]) SEN.tot23[g] = (SEN.tot23[g] || 0) + 1;
+    }
+    SEN.stato = 'ok';
+  }).catch(e => { SEN.stato = 'errore'; SEN.errore = e.message; });
+  return SEN.pronto;
+}
+/* i collegi: quelli del 2023 per la prova, quelli del 2026 (Eivissa e Formentera separate) per stanotte */
+function collegiSenato() {
+  if (!SEN.b) return [];
+  const o = [];
+  for (const [k, [n, s]] of Object.entries(SEN.b.d)) {
+    if (k === '073' && !PROVA) { o.push({ k: '073', n: 'Eivissa', s: 1, c: '07', k23: '073' }, { k: '074', n: 'Formentera', s: 1, c: '07', k23: null }); continue; }
+    o.push({ k, n, s, c: k.slice(0, 2), k23: k });
+  }
+  return o.sort((a, b) => a.n.localeCompare(b.n, 'es'));
+}
+/* l'esito di un collegio: i più votati sono eletti; il margine è la sfida più stretta fra un
+   escluso e l'ultimo eletto di un altro partito, cioè il seggio che passerebbe di mano */
+function esitoSenato(x, seggi) {
+  if (!x || !(x.frac > 0)) return null;
+  const sg = {}; let eletti = [], margine = null;
+  if (x.cand.some(c => c[2] > 0)) {
+    const o = [...x.cand].sort((a, b) => b[2] - a[2]);
+    eletti = o.slice(0, seggi);
+    const fuori = o.slice(seggi), visti = new Set();
+    for (const f of fuori) {
+      if (visti.has(f[1])) continue; visti.add(f[1]);
+      const r = [...eletti].reverse().find(e => e[1] !== f[1]);
+      if (r && (!margine || r[2] - f[2] < margine.d)) margine = { d: r[2] - f[2], dentro: r, fuori: f };
+    }
+    for (const e of eletti) sg[e[1]] = (sg[e[1]] || 0) + 1;
+  } else if (sum(x.seggi)) Object.assign(sg, x.seggi);
+  else return null;
+  return { sg, eletti, margine, frac: x.frac, finale: x.frac >= 0.9995 };
+}
+/* dalla risposta del proxy ai collegi; le province con isole si leggono dalle isole */
+function senatoDaFeed(j) {
+  const out = {};
+  for (const a of j.d || []) {
+    let k = null;
+    if (a.nivel === 30) { const c = String(a.codigo).padStart(2, '0'); if (!['07', '35', '38'].includes(c)) k = c + '9'; }
+    else if (a.nivel === 70) { const n = senzaAccenti(a.n); const t = SEN_ISOLE.find(([, re]) => re.test(n)); if (t) k = t[0]; }
+    if (!k) continue;
+    const seggi = {}, cand = [];
+    for (const [sigla, nome, sg] of Object.values(a.partiti || {})) { const g = gruppoSen(sigla, nome); if (sg) seggi[g] = (seggi[g] || 0) + sg; }
+    for (const [nome, cod, voti] of a.cand || []) { const p = (a.partiti || {})[cod] || [cod, '']; cand.push([nome, gruppoSen(p[0], p[1]), voti, p[0]]); }
+    out[k] = { frac: a.mesas ? a.esc / a.mesas : 0, seggi, cand };
+  }
+  return out;
+}
+async function aggiornaSenato(forza) {
+  if (PROVA || (!forza && Date.now() - SEN.ultimo < 60e3)) return;
+  SEN.ultimo = Date.now();
+  await caricaSenato();
+  try {
+    const r = await conTimeout(PROXY + '?senato=1', { cache: 'no-cache' }, 30000);
+    const j = await r.json().catch(() => null);
+    if (!r.ok || !j || !Array.isArray(j.d)) throw new Error(j && j.errore ? j.errore : 'HTTP ' + r.status);
+    SEN.live = senatoDaFeed(j); SEN.quando = j.quando; SEN.errore = '';
+  } catch (e) { SEN.errore = e.name === 'AbortError' ? 'tempo scaduto' : e.message; }
+  renderSenato(); renderDettaglio();
+}
+/* la prova: i voti dei candidati del 2023, nella parte contata della loro provincia, con un po'
+   di rumore finché lo spoglio non finisce; a spoglio finito gli eletti devono essere quelli veri */
+function provaSenato(R) {
+  const out = {};
+  for (const [k, [, , , cand]] of Object.entries(SEN.b.d)) {
+    const x = R.circ[k.slice(0, 2)], fr = x && x.mesas ? (x.esc >= x.mesas ? 1 : x.esc / x.mesas) : 0;
+    out[k] = { frac: fr, seggi: {}, cand: cand.map((c, i) => [c[0], gruppoSen(SEN.b.partiti[c[1]], ''), fr >= 1 ? c[2] : Math.round(c[2] * fr * (1 + (rand(PROVA_ST.seme * 13 + i * 7 + +k) - 0.5) * 0.06 * (1 - fr))), SEN.b.partiti[c[1]]]) };
+  }
+  return out;
+}
+/* l'ordine dei partiti nella barra e fra i pallini: sinistra, nazionalisti, altri, destra */
+function ordineBlocchi(gs, n) {
+  const ord = { S: 0, N: 1, X: 2, D: 3 };
+  return gs.sort((a, b) => ord[infoG(a).b] - ord[infoG(b).b] || (n[b] || 0) - (n[a] || 0) || (a < b ? -1 : a > b ? 1 : 0));
+}
+function riassuntoSeggi(gs) {
+  const n = {}; gs.forEach(g => n[g] = (n[g] || 0) + 1);
+  return Object.entries(n).sort((a, b) => b[1] - a[1]).map(([g, k]) => esc(nomeBreve(infoG(g))) + ' ' + k).join(', ') || '—';
+}
+const senBilico = e => !!(e && e.margine && e.eletti.length && e.margine.d <= Math.max(500, e.margine.dentro[2] * 0.03));
+const senPatto = d => !PROVA && (SEN_NO_VOX.has(d.c) || SEN_NO_PP.has(d.c));
+function tesseraSenato(d, e) {
+  const g23 = d.k23 ? SEN.g23[d.k23] || [] : [];
+  const nuovo = 'Collegio nuovo: nel 2023 Formentera votava con Eivissa';
+  const ieri = d.k23 ? 'Nel 2023: ' + riassuntoSeggi(g23) + (d.k === '073' && !PROVA ? ' (con Formentera)' : '') : nuovo;
+  let t = '<div class="sen-d' + (senBilico(e) ? ' bilico' : '') + '"><div class="sen-h"><b>' + esc(d.n) + '</b><span>' + d.s + (d.s === 1 ? ' seggio' : ' seggi') + (e ? ' · ' + pctScr(e.frac) : '') + '</span></div>';
+  if (e) {
+    const dots = e.eletti.length ? e.eletti.map(c => c[1]) : Object.entries(e.sg).flatMap(([g, n]) => Array(n).fill(g));
+    t += '<div class="seggiprov">' + ordineBlocchi(dots, {}).map(g => '<i class="' + (e.finale ? '' : 'testa') + '" style="background:' + infoG(g).c + '" title="' + esc(nomeBreve(infoG(g))) + '"></i>').join('') + '</div>';
+    if (e.eletti.length) t += '<ul class="sen-el">' + e.eletti.map(c => '<li><i style="background:' + infoG(c[1]).c + '"></i>' + esc(c[0] || nomeBreve(infoG(c[1]))) + ' <span>' + (c[0] ? esc(nomeBreve(infoG(c[1]))) + ' · ' : '') + nf(c[2]) + '</span></li>').join('') + '</ul>';
+    if (e.margine) t += '<div class="sen-m sen-marg">' + (e.finale ? 'L’ultimo seggio: ' : 'Il seggio più conteso: ') + esc(nomeBreve(infoG(e.margine.dentro[1]))) + ' davanti a ' + esc(nomeBreve(infoG(e.margine.fuori[1]))) + ' di <b>' + nf(e.margine.d) + '</b> voti</div>';
+  } else {
+    t += '<div class="seggiprov">' + (g23.length ? ordineBlocchi([...g23], {}).map(g => '<i class="v23" style="background:' + infoG(g).c + '" title="2023: ' + esc(nomeBreve(infoG(g))) + '"></i>').join('') : '<i class="vuoto"></i>') + '</div>';
+  }
+  t += '<div class="sen-m">' + ieri + '</div>';
+  if (senPatto(d)) t += '<span class="sen-patto">' + (SEN_NO_VOX.has(d.c) ? 'Vox non si presenta, per l’accordo con il PP' : 'Il PP non si presenta, per l’accordo con Vox') + '</span>';
+  return t + '</div>';
+}
+function renderSenato() {
+  if (SEN.stato !== 'ok') { $('senMeta').textContent = SEN.stato === 'errore' ? 'i dati del 2023 non si caricano' : 'carico i dati…'; return; }
+  const col = collegiSenato(), TOT = SEN_TOT(), tot = {}, es = {};
+  let assegnati = 0, finali = 0, conVoti = 0;
+  for (const d of col) {
+    const e = es[d.k] = esitoSenato(SEN.live && SEN.live[d.k], d.s);
+    if (!e) continue;
+    conVoti++; if (e.finale) finali++;
+    for (const g in e.sg) { tot[g] = (tot[g] || 0) + e.sg[g]; assegnati += e.sg[g]; }
+  }
+  $('senMeta').textContent = conVoti ? conVoti + ' collegi su ' + col.length + ' con voti · ' + finali + ' completi' : col.length + ' collegi · ' + TOT + ' senatori';
+  /* la barra: i senatori eletti o in testa, per blocco; vuota la parte ancora da assegnare */
+  const gs = ordineBlocchi([...new Set([...Object.keys(tot), ...Object.keys(SEN.tot23)])], conVoti ? tot : SEN.tot23);
+  const fonte = conVoti ? tot : SEN.tot23, nb = conVoti ? TOT : 208;
+  $('senBarra').innerHTML = gs.filter(g => fonte[g]).map(g => '<b style="width:' + (fonte[g] / nb * 100).toFixed(3) + '%;background:' + infoG(g).c + '" title="' + esc(nomeBreve(infoG(g))) + ' ' + fonte[g] + '"></b>').join('');
+  $('senBarraNota').innerHTML = conVoti
+    ? '<b>' + nf(assegnati) + '</b> senatori su ' + TOT + (finali === col.length ? ' eletti' : ' eletti o in testa') + (assegnati < TOT ? '; <b>' + (TOT - assegnati) + '</b> nei collegi ancora senza voti' : '') + '.'
+    : 'In attesa dei voti: la barra mostra i <b>208</b> senatori eletti nel 2023.';
+  let h = '<thead><tr><th>Partito</th><th>Senatori<small>' + (conVoti && finali < col.length ? 'eletti o in testa' : 'eletti') + '</small></th><th>2023<small>eletti</small></th><th class="m-off">Differenza</th></tr></thead><tbody>';
+  [...gs].sort((a, b) => (tot[b] || 0) - (tot[a] || 0) || (SEN.tot23[b] || 0) - (SEN.tot23[a] || 0)).forEach(g => {
+    const p = infoG(g), a = tot[g] || 0, b = SEN.tot23[g] || 0;
+    h += '<tr><td><div class="partylabel"><i class="partydot" style="background:' + p.c + '"></i><span>' + esc(nomeBreve(p)) + '</span></div></td><td><b>' + (conVoti ? a : '—') + '</b></td><td class="mute">' + b + '</td><td class="m-off">' + (conVoti ? '<span class="' + (a > b ? 'plus' : a < b ? 'minus' : 'mute') + '">' + (a === b ? '=' : segno(a - b, 0)) + '</span>' : '—') + '</td></tr>';
+  });
+  $('senTable').innerHTML = h + '</tbody>';
+  /* i collegi, con il filtro */
+  const nBil = col.filter(d => senBilico(es[d.k])).length;
+  document.querySelectorAll('#senFiltri button').forEach(b => {
+    b.setAttribute('aria-pressed', b.dataset.f === SEN.filtro ? 'true' : 'false');
+    if (b.dataset.f === 'patto') b.classList.toggle('hidden', PROVA);
+    if (b.dataset.f === 'bilico') b.textContent = 'In bilico' + (nBil ? ' · ' + nBil : '');
+  });
+  const vis = col.filter(d => SEN.filtro === 'bilico' ? senBilico(es[d.k]) : SEN.filtro === 'patto' ? senPatto(d) : true);
+  $('senGrid').innerHTML = vis.length ? vis.map(d => tesseraSenato(d, es[d.k])).join('')
+    : '<div class="mapempty">' + (SEN.filtro === 'bilico' ? 'Nessun seggio in bilico per ora. Si segnalano i collegi dove il seggio più conteso si decide per meno di 500 voti, o per meno del 3% dei voti dell’ultimo eletto.' : 'Nessun collegio.') + '</div>';
+  $('senNota').innerHTML = 'Il voto è limitato: dove si eleggono 4 senatori ogni elettore ne può votare al massimo 3 (2 dove se ne eleggono 3, uno solo dove se ne eleggono 1 o 2), e sono eletti i candidati più votati. Per questo il primo partito prende di solito 3 seggi e il secondo 1. ' +
+    (PROVA ? '' : 'Il 26 ottobre PP e Vox hanno annunciato un accordo per il Senato: Vox non presenta candidati a Valencia, Castellón, Cádiz, nelle Baleari e nelle due province canarie, dove nella lista del PP c’è un indipendente indicato da Vox; il PP non si presenta a Gipuzkoa, Girona e Tarragona. Dal 2026 Formentera elegge un senatore suo, separata da Eivissa. ') +
+    'Ai senatori eletti si aggiungono quelli designati dai parlamenti delle comunità autonome, che non si votano alle elezioni generali. Voti e candidati: Ministero dell’Interno' + (SEN.errore && !PROVA && Date.now() >= ATTIVA_FEED ? '. I dati del Senato di stanotte non arrivano (' + esc(SEN.errore) + ')' : '') + '.';
+}
+/* nel dettaglio di una provincia: i suoi senatori (le isole sommate) */
+function senatoProv(c) {
+  if (SEN.stato !== 'ok') return '';
+  const col = collegiSenato().filter(d => d.c === c);
+  const n = {}; let con = 0, fin = true;
+  for (const d of col) { const e = esitoSenato(SEN.live && SEN.live[d.k], d.s); if (!e) continue; con++; fin = fin && e.finale; for (const g in e.sg) n[g] = (n[g] || 0) + e.sg[g]; }
+  const g23 = col.flatMap(d => d.k23 ? SEN.g23[d.k23] || [] : []);
+  const txt = Object.entries(n).sort((a, b) => b[1] - a[1]).map(([g, k]) => esc(nomeBreve(infoG(g))) + ' <b>' + k + '</b>').join(', ');
+  return '<div class="cmp">Al Senato' + (col.length > 1 ? ' (' + col.length + ' collegi, uno per isola)' : '') + ': ' + (con ? txt + (fin && con === col.length ? '' : ', eletti o in testa') + '. ' : 'nessun voto contato. ') + 'Nel 2023: ' + riassuntoSeggi(g23) + '.</div>';
 }
 
 /* ---------- mappa ---------- */
@@ -2030,7 +2258,7 @@ function renderDettaglio() {
   let h = '<div class="dh"><h3>' + esc(nome) + '</h3><span class="muted" style="font-size:12px">' + esc(CIRC[c][3]) + ' · ' + seggiCirc(c) + (seggiCirc(c) === 1 ? ' seggio' : ' seggi') + (CIRC[c][1] !== CIRC[c][2] && !PROVA ? ' (' + CIRC[c][2] + ' nel 2023)' : '') + '</span></div>';
   if (!x || x.vuota || !x.validi) {
     h += '<div class="dm">Nessun voto contato. Nel 2023: ' + Object.entries(b.seg).sort((a, z) => z[1] - a[1]).map(([g, n]) => nomeBreve(infoG(g)) + ' ' + n).join(', ') + '.</div>';
-    box.innerHTML = h; return;
+    box.innerHTML = h + senatoProv(c); return;
   }
   h += '<div class="dm">Scrutinio ' + pctScr(x.frac) + ' · ' + nf(x.validi) + ' voti validi' + (x.censoEsc ? ' · affluenza ' + pct(x.votanti / x.censoEsc) : '') + ' · soglia ' + nf(Math.ceil(x.D.min)) + ' voti</div>';
   const pall = [];
@@ -2048,7 +2276,7 @@ function renderDettaglio() {
     h += '<div class="cmp">L’ultimo seggio va a <b>' + esc(A.sigla) + '</b>; il primo escluso è <b>' + esc(B.sigla) + '</b>, a <b>' + nf(x.D.manca) + '</b> voti dal sorpasso.</div>';
   }
   h += '<div class="cmp">Nel 2023: ' + Object.entries(b.seg).sort((a, z) => z[1] - a[1]).map(([g, n]) => esc(nomeBreve(infoG(g))) + ' <b>' + n + '</b>').join(', ') + '.</div>';
-  box.innerHTML = h;
+  box.innerHTML = h + senatoProv(c);
 }
 function seleziona(c, scorri) {
   if (S.mapLiv !== 'prov') S.mapLiv = 'prov';
@@ -2292,6 +2520,7 @@ async function poll(forza) {
     const di = F.copia ? 'copia del Ministero ' : 'Ministero ';
     $('footProxy').textContent = F.copia ? 'Copia dei dati del Ministero pubblicata dalla redazione' : 'Proxy: ' + new URL(PROXY).host;
     if (firma !== FEED.firma) { FEED.firma = firma; applica(F.R, 'feed', quando); if (!COM.timer && !COM.giro) aggiornaComuni(); }
+    aggiornaSenato();
     const D = S.D;
     setFeed(D && D.naz.validi ? 'In diretta · ' + di + oraIT(quando) + ' · scrutinio ' + pctScr(D.naz.frac) : 'Collegato · il Ministero non ha ancora voti contati', 'ok');
     $('lastUpdate').textContent = 'Ultimo dato: ' + oraIT(quando);
@@ -2383,6 +2612,7 @@ function provaApplica() {
   $('provaPct').textContent = Math.round(f * 100) + '%';
   const { R, live } = provaRiassunto(f);
   COM.live = live; COM.versione++;
+  if (SEN.stato === 'ok') SEN.live = provaSenato(R);
   chiediProiezione();
   applica(R, 'prova', new Date(R.quando));
   setFeed('Prova generale · 2023, avanzamento simulato ' + Math.round(f * 100) + '%', 'paused');
@@ -2393,7 +2623,7 @@ async function avviaProva() {
   $('heroTitle').textContent = 'Spagna 2023 · prova';
   $('heroEyebrow').textContent = 'Prova generale · elezioni generali del 23 luglio 2023';
   setFeed('Prova generale · carico i comuni del 2023…', 'loading');
-  await caricaComuni();
+  await Promise.all([caricaComuni(), caricaSenato()]);
   if (COM.stato !== 'ok') { setFeed('Prova: i comuni del 2023 non si caricano (' + COM.errore + ')', 'error'); avviso('La prova generale legge dati/comuni2023.json: apri la pagina da GitHub Pages o da un server locale, non dal disco.'); return; }
   provaApplica();
 }
@@ -2491,7 +2721,8 @@ function eventi() {
     if (b.id === 'tabbtn-card' && window.CARD) window.CARD.mostra();
     window.scrollTo({ top: 0 });
   });
-  $('refreshBtn').onclick = () => { FEED.firma = null; poll(true); };
+  $('refreshBtn').onclick = () => { FEED.firma = null; SEN.ultimo = 0; poll(true); };
+  document.querySelectorAll('#senFiltri button').forEach(b => b.onclick = () => { SEN.filtro = SEN.filtro === b.dataset.f && b.dataset.f !== 'tutti' ? 'tutti' : b.dataset.f; renderSenato(); });
   $('pauseBtn').onclick = () => {
     FEED.pausa = !FEED.pausa;
     $('pauseBtn').textContent = FEED.pausa ? 'Riprendi l’aggiornamento' : 'Metti in pausa';
@@ -2562,6 +2793,7 @@ async function avvio() {
   costruisciManuale(); eventi(); eventiSocial();
   $('footProxy').textContent = 'Proxy: ' + (() => { try { return new URL(PROXY).host; } catch (_) { return PROXY; } })();
   render();
+  caricaSenato().then(() => { renderSenato(); renderDettaglio(); });
   leggiStime();
   if (PROVA) avviaProva();
   else poll(true);

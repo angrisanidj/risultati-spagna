@@ -100,5 +100,36 @@ export function comuni(risposta) {
   return { quando, m, partiti: Object.fromEntries(Object.entries(partiti).map(([k, p]) => [k, [p[0], p[1]]])) };
 }
 
+/* Il Senato: ogni circoscrizione (una provincia, livello 30, o un'isola, livello 70) con i
+   senatori per candidatura («cargos») e, se il Ministero li pubblica, i candidati con i loro voti.
+   Il formato dei candidati del Senato non si è potuto verificare sul 2023: si leggono i campi
+   più probabili (nombre, votos, electo/elegido) e, se mancano, restano i seggi per candidatura.
+   { quando, d: [ { codigo, nivel, n, mesas, esc, validi, partiti: { cod: [sigla, nome, seggi] },
+                    cand: [[nome, cod, voti, eletto]] } ] } */
+export function senato(risposte) {
+  const d = []; let quando = null;
+  const visita = s => {
+    const liv = Number(s && s.nivel); if (liv !== 30 && liv !== 70) return;
+    const e = s.escrutinio || {}, partiti = {}, cand = [];
+    for (const p of e.partidos || []) {
+      const cod = String(p.codigo);
+      const ag = (p.agrupaciones || []).find(a => a && a.nivel === 1);
+      partiti[cod] = [p.siglas || cod, p.nombre || '', n(p.cargos), ag && ag.siglas ? ag.siglas : ''];
+      for (const c of p.candidatos || []) {
+        const nome = [c.nombre, c.apellido1 || c.primerApellido, c.apellido2 || c.segundoApellido].filter(Boolean).join(' ') || c.nombreCompleto || '';
+        cand.push([nome, cod, n(c.votos), c.electo || c.elegido || c.electoProvisional ? 1 : 0]);
+      }
+    }
+    d.push({ codigo: String(s.codigo), nivel: liv, n: s.nombre || '', mesas: n(s.numMesas), esc: n(e.mesasEscrutadas), validi: n(e.votosValidos), partiti, cand: cand.sort((a, b) => b[2] - a[2]) });
+    if (e.fecha && (!quando || e.fecha > quando)) quando = e.fecha;
+  };
+  for (const r of [].concat(risposte || [])) {
+    if (!r) continue;
+    visita(r.scope || r);
+    for (const x of Array.isArray(r.mapa) ? r.mapa : []) visita(x);
+  }
+  return { quando, d };
+}
+
 /* Il riassunto ha senso? Almeno la Spagna o una circoscrizione, e i nomi dei partiti. */
 export const valido = R => !!R && (!!R.naz || Object.keys(R.circ).length > 0);

@@ -412,6 +412,13 @@ table.conf th .corto{display:none}
 .mapleg h4,.maplist h4{margin:0 0 9px;font:600 13px/1.2 var(--sans);color:var(--t1)}
 .mapleg .lg{display:grid;gap:6px}
 .mapleg .lg div{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:center;font-size:13px}
+.mapleg .lg.filtrabile div[data-g]{cursor:pointer;margin:0 -6px;padding:3px 6px;border-radius:var(--r-s);transition:background .12s,opacity .12s}
+.mapleg .lg.filtrabile div[data-g]:hover{background:rgba(255,255,255,.05)}
+.mapleg .lg.filtrabile div[data-g]:focus-visible{outline:2px solid var(--blue-lit);outline-offset:0}
+.mapleg .lg.filtro div[data-g]:not(.att){opacity:.45}
+.mapleg .lg div.att{background:rgba(255,255,255,.07);box-shadow:inset 2px 0 0 var(--blue-lit)}
+.mapleg h4{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.mapleg h4 .tutti{font-size:12px;padding:3px 9px;font-weight:600}
 .mapleg .lg i{width:10px;height:10px;border-radius:2px}
 .mapleg .lg b{font-weight:600;font-variant-numeric:tabular-nums}
 .mapleg .ramp{height:8px;border-radius:2px;margin:4px 0 5px}
@@ -1645,6 +1652,11 @@ function coloreCirc(c) {
   return coloreQuote(quoteCirc(c), q23(c), x && !x.vuota ? x.frac : 0, S.mapMode);
 }
 
+/* il filtro della legenda «Il primo partito»: vale solo in quel modo della mappa */
+const COL_SPENTO = '#211819';
+const filtroPrimoAttivo = () => S.mapMode === 'primo' && !!S.filtroPrimo;
+function primoCirc(c) { const q = quoteCirc(c); if (!q) return null; let gm = null, vm = -1; for (const k in q) if (q[k] > vm) { vm = q[k]; gm = k; } return gm; }
+
 /* ---------- i comuni ----------
    Due file che si caricano solo quando si apre il livello dei comuni: dati/comuni2023.json, il
    voto del 2023 comune per comune (Ministero dell'Interno, 02202307_MUNI.zip), e
@@ -1751,18 +1763,18 @@ function coloriComuni() {
   const liv = S.mapLiv, modo = liv === 'com23' && (S.mapMode === 'sposta' || S.mapMode === 'scr') ? 'primo' : S.mapMode;
   const chiave = COM.versione + '|' + liv + '|' + modo + '|' + S.mapLista;
   if (COM.colChiave === chiave) return;
-  const col = new Map(), primi = {};
+  const col = new Map(), primi = {}, primo = new Map();
   let conVoti = 0;
   for (const o of COM.lista) {
     const { q, frac } = quoteComune(o.ine, liv);
     col.set(o.ine, coloreQuote(q, COM.q23[o.ine], frac, modo));
     if (q) {
       let gm = null, vm = -1; for (const k in q) if (q[k] > vm) { vm = q[k]; gm = k; }
-      if (gm) primi[gm] = (primi[gm] || 0) + 1;
+      if (gm) { primi[gm] = (primi[gm] || 0) + 1; primo.set(o.ine, gm); }
       if (liv === 'com') conVoti++;
     }
   }
-  COM.col = col; COM.primi = primi; COM.conVoti = conVoti; COM.colChiave = chiave;
+  COM.col = col; COM.primi = primi; COM.primo = primo; COM.conVoti = conVoti; COM.colChiave = chiave;
 }
 
 /* ---------- il canvas dei comuni ----------
@@ -1803,7 +1815,7 @@ function disegnaComuni() {
   x.lineWidth = 0.6 / T.s; x.strokeStyle = 'rgba(19,12,14,.6)';
   for (const o of COM.lista) {
     const b = o.bb; if (b[2] < vx0 || b[0] > vx1 || b[3] < vy0 || b[1] > vy1) continue;
-    x.fillStyle = COM.col.get(o.ine) || COL_VUOTO; x.fill(o.P);
+    x.fillStyle = filtroPrimoAttivo() && COM.primo.get(o.ine) !== S.filtroPrimo ? COL_SPENTO : COM.col.get(o.ine) || COL_VUOTO; x.fill(o.P);
     if (bordo) x.stroke(o.P);
   }
   /* i confini delle province, più chiari quella ingrandita */
@@ -1937,7 +1949,7 @@ function renderMappa() {
     $('mapTitolo').textContent = 'La mappa dei comuni';
     aggiornaZoom(); ridisegna();
   } else {
-    document.querySelectorAll('#provMap path[data-c]').forEach(p => { p.style.fill = coloreCirc(p.dataset.c); p.classList.toggle('sel', p.dataset.c === S.sel); });
+    document.querySelectorAll('#provMap path[data-c]').forEach(p => { p.style.fill = filtroPrimoAttivo() && primoCirc(p.dataset.c) !== S.filtroPrimo ? COL_SPENTO : coloreCirc(p.dataset.c); p.classList.toggle('sel', p.dataset.c === S.sel); });
     const ps = S.sel && $('provMap').querySelector('path[data-c="' + S.sel + '"]');
     $('evSel').setAttribute('d', ps ? ps.getAttribute('d') : '');
     $('mapPill').textContent = D && D.conVoti ? D.conVoti + ' circoscrizioni su 52 con voti' : 'in attesa';
@@ -1959,9 +1971,14 @@ function renderLegenda() {
   if (m === 'primo') {
     let cnt = {};
     if (com) { coloriComuni(); cnt = COM.primi; }
-    else if (D) COD.forEach(c => { const q = quoteCirc(c); if (q) { const g = Object.entries(q).sort((a, b) => b[1] - a[1])[0][0]; cnt[g] = (cnt[g] || 0) + 1; } });
-    const o = Object.entries(cnt).sort((a, b) => b[1] - a[1]).slice(0, 10);
-    h = '<h4>Il primo partito' + (com ? ', comuni' : '') + '</h4><div class="lg">' + (o.length ? o.map(([g, n]) => '<div><i style="background:' + infoG(g).c + '"></i><span>' + esc(nomeBreve(infoG(g))) + '</span><b>' + nf(n) + '</b></div>').join('') : '<div><span class="muted">' + (com ? 'nessun comune ancora' : 'nessuna circoscrizione ancora') + '</span></div>') + '</div><p>Il colore è più pieno dove il distacco dal secondo è più largo, da 20 punti in su.</p>';
+    else if (D) COD.forEach(c => { const g = primoCirc(c); if (g) cnt[g] = (cnt[g] || 0) + 1; });
+    let o = Object.entries(cnt).sort((a, b) => b[1] - a[1]).slice(0, 10);
+    const f = S.filtroPrimo;
+    if (f && !o.some(([g]) => g === f)) o.push([f, cnt[f] || 0]);
+    const aree = com ? 'comuni' : 'province';
+    h = '<h4>Il primo partito' + (com ? ', comuni' : '') + (f ? '<button class="sm tutti" data-tutti="1">Mostra tutti</button>' : '') + '</h4><div class="lg filtrabile' + (f ? ' filtro' : '') + '">' +
+      (o.length ? o.map(([g, n]) => '<div role="button" tabindex="0" data-g="' + esc(g) + '" class="' + (g === f ? 'att' : '') + '" aria-pressed="' + (g === f) + '" title="' + (g === f ? 'Mostra tutti' : 'Solo i ' + aree + ' dove è primo ' + esc(nomeBreve(infoG(g)))) + '"><i style="background:' + infoG(g).c + '"></i><span>' + esc(nomeBreve(infoG(g))) + '</span><b>' + nf(n) + '</b></div>').join('') : '<div><span class="muted">' + (com ? 'nessun comune ancora' : 'nessuna circoscrizione ancora') + '</span></div>') +
+      '</div><p>' + (f ? 'Accesi solo i ' + aree + ' dove è primo ' + esc(nomeBreve(infoG(f))) + '. Tocca di nuovo il partito, o «Mostra tutti», per tornare alla mappa completa.' : 'Tocca un partito per vedere solo i ' + aree + ' dove è primo. Il colore è più pieno dove il distacco dal secondo è più largo, da 20 punti in su.') + '</p>';
   } else if (m === 'blocco') {
     h = '<h4>PP e Vox contro PSOE e alleati</h4><div class="ramp" style="background:linear-gradient(90deg,' + BLOCCHI.S.c + ',#3d2f31,' + BLOCCHI.D.c + ')"></div><div class="rampl"><span>PSOE e alleati +40</span><span>pari</span><span>PP e Vox +40</span></div><p>La differenza in punti fra le quote dei due blocchi.</p>';
   } else if (m === 'lista') {
@@ -2488,6 +2505,15 @@ function eventi() {
   $('seatLegend').onclick = e => { const c = e.target.closest('.seat-chip'); if (!c) return; filtroEmi = filtroEmi && filtroEmi.t === 'g' && filtroEmi.v === c.dataset.g ? null : { t: 'g', v: c.dataset.g }; applicaFiltro(); };
   $('blocchi').onclick = e => { const c = e.target.closest('.bloc'); if (!c) return; filtroEmi = filtroEmi && filtroEmi.t === 'b' && filtroEmi.v === c.dataset.b ? null : { t: 'b', v: c.dataset.b }; applicaFiltro(); };
   document.querySelectorAll('#mapMode button').forEach(b => b.onclick = () => { S.mapMode = b.dataset.mode; salva(); renderMappa(); });
+  /* la legenda del primo partito fa da filtro: un tocco accende solo le aree dove quel partito è primo */
+  const filtra = el => {
+    if (el.dataset.tutti) S.filtroPrimo = null;
+    else if (el.dataset.g) S.filtroPrimo = S.filtroPrimo === el.dataset.g ? null : el.dataset.g;
+    else return;
+    renderMappa();
+  };
+  $('mapLegend').addEventListener('click', e => { const el = e.target.closest('[data-g],[data-tutti]'); if (el) filtra(el); });
+  $('mapLegend').addEventListener('keydown', e => { if (e.key !== 'Enter' && e.key !== ' ') return; const el = e.target.closest('[data-g]'); if (el) { e.preventDefault(); filtra(el); } });
   $('mapLista').onchange = e => { S.mapLista = e.target.value; salva(); renderMappa(); };
   $('provMap').addEventListener('pointerover', e => { const p = e.target.closest('path[data-c]'); $('evHover').setAttribute('d', p && e.pointerType === 'mouse' ? p.getAttribute('d') : ''); });
   $('provMap').addEventListener('pointerleave', () => $('evHover').setAttribute('d', ''));

@@ -32,7 +32,7 @@ Dashboard per seguire in diretta lo spoglio delle elezioni generali spagnole di 
 - **I seggi in bilico:** in ogni circoscrizione l'ultimo seggio assegnato e quanti voti mancano al primo escluso per prenderlo.
 - **Simulatore di maggioranza**, con le coalizioni già pronte.
 - **La mappa delle province:** primo partito, blocchi, un partito, spostamento di PP e Vox rispetto al 2023, avanzamento dello scrutinio. Toccando una provincia: voti, seggi, ultimo seggio, confronto con il 2023.
-- **La mappa dei comuni:** gli 8.131 comuni, con i voti di stanotte man mano che arrivano (livello «Comuni») o quelli del 2023 («Comuni 2023»). Toccando un comune la mappa ingrandisce la sua provincia; la scheda mostra i voti e il confronto con il 2023 nello stesso comune. Si può cercare un comune per nome.
+- **La mappa dei comuni:** gli 8.131 comuni, con i voti di stanotte man mano che arrivano (livello «Comuni») o quelli del 2023 («Comuni 2023»). Toccando un comune la mappa ingrandisce la sua provincia; la scheda mostra i voti e il confronto con il 2023 nello stesso comune. Si può cercare un comune per nome. Nella legenda «Il primo partito» ogni partito è un filtro: un tocco lascia accese solo le province o i comuni dove è primo, un secondo tocco (o «Mostra tutti») torna alla mappa completa.
 - **Stato dello scrutinio** provincia per provincia.
 - **Card per X e Instagram** (modalità redazione): seggi, voto, mappa, seggi in bilico, exit poll.
 

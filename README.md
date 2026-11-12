@@ -278,7 +278,7 @@ La via più rapida è la stessa di Israele: gli screenshot dei grafici delle ret
 
 ### Modalità redazione
 
-La stessa chiave delle dashboard di Israele e Brasile: `?redazione=CHIAVE` una volta (il browser la ricorda, `?redazione=esci` la dimentica). Compaiono:
+Una chiave propria, scelta il 12 novembre 2026 (non più quella di Israele e Brasile): `?redazione=CHIAVE` una volta (il browser la ricorda, `?redazione=esci` la dimentica). Compaiono:
 - «Aggiorna ora» e «Metti in pausa» del feed;
 - **Importa file**: i JSON del Ministero scaricati a mano dal sito dei risultati (anche la Spagna e più province insieme), oppure il riassunto del proxy; il feed va in pausa;
 - **Inserimento manuale**: i seggi nazionali come li mostra il sito del Ministero, se il feed si ferma; valgono finché non li rimuovi;

@@ -3031,11 +3031,11 @@ async function avviaProva() {
 
 /* =====================================================================
    6 · REDAZIONE
-   La chiave è la stessa delle dashboard di Israele e Brasile: si apre una volta
+   La chiave (dal 12 novembre 2026 diversa da Israele e Brasile): si apre una volta
    ?redazione=CHIAVE e il browser la ricorda; ?redazione=esci la dimentica. Nel codice c'è solo
    l'impronta SHA-256. Quello che vedono i lettori lo decidono il feed e stime.json.
    ===================================================================== */
-const REDAZIONE_SHA = 'bfd11a016d34dd661e41de02b0d075d917f6a243704c2f26ace6e878c3ca38da';
+const REDAZIONE_SHA = '1e0d35a3ba477428561af8930003a31493c49a43abf7c56c85b69b73a85b6108';
 let REDAZIONE = false;
 async function verificaRedazione() {
   let k = PARAM.get('redazione');

@@ -361,6 +361,34 @@ table.conf th .corto{display:none}
 .bl.S:before{background:#e8384f}.bl.N:before{background:#2fb3a3}.bl.X:before{background:#a59a7a}.bl.D:before{background:#3a86d8}
 .rif{color:var(--t3);font-size:12px}
 
+/* ---------- la forchetta e i flussi ---------- */
+.trsvg{display:block;width:100%;height:auto;padding:8px 10px 0;box-sizing:border-box}
+.trleg{display:flex;flex-wrap:wrap;gap:6px 18px;padding:6px 18px 0;color:var(--t2);font-size:12px}
+.trleg i{display:inline-block;width:18px;vertical-align:middle;margin-right:7px;border-radius:2px}
+#trVista{flex-wrap:wrap}
+.flussi{padding:4px 18px 0}
+.flussi svg{display:block;width:100%;max-width:860px;height:auto;margin:0 auto;-webkit-tap-highlight-color:transparent}
+.flussi path{transition:fill-opacity .15s}
+.flussi svg.foc path{fill-opacity:.1}
+.flussi svg.foc path.on{fill-opacity:.78}
+.flussi svg:not(.foc) path:hover{fill-opacity:.72}
+.flussi .nodo{cursor:pointer}
+.flussi svg.foc .nodo:not(.on){opacity:.45}
+.flussi text{font:600 15px var(--sans);fill:var(--t1)}
+.flussi text.v,.flussi tspan.v{fill:var(--t2);font-weight:500}
+.flussitesto{max-width:860px;margin:14px auto 0;padding:0 18px;box-sizing:content-box}
+.flussitesto h4{margin:0 0 10px;font-size:13px;font-weight:600;color:var(--t2)}
+.fr{display:grid;grid-template-columns:200px 1fr;gap:4px 16px;align-items:center;padding:9px 0;border-top:1px solid var(--line)}
+.fr .fn{display:flex;align-items:center;gap:8px;font-weight:600;font-size:14px;color:var(--t1)}
+.fr .fn i{width:10px;height:10px;border-radius:2px;flex:0 0 10px}
+.fr .fn small{display:block;font-weight:500;font-size:12px;color:var(--t3)}
+.fr .fb{display:flex;height:22px;border-radius:3px;overflow:hidden;background:rgba(255,255,255,.05)}
+.fr .fb span{display:flex;align-items:center;justify-content:center;font:700 12px var(--sans);color:#fff;white-space:nowrap;overflow:hidden;text-shadow:0 1px 2px rgba(0,0,0,.45)}
+.fr .fd{grid-column:2;font-size:13px;color:var(--t2)}
+.fr .fd b{color:var(--t1);font-variant-numeric:tabular-nums}
+#flNota{max-width:860px;margin:6px auto 0;padding:10px 18px 16px;box-sizing:content-box}
+@media(max-width:560px){.fr{grid-template-columns:1fr}.fr .fd{grid-column:1}.flussitesto{padding:0 14px}#flNota{padding:10px 14px 14px}.flussi text{font-size:20px}.flussi{padding:4px 4px 0}.trleg{padding:6px 14px 0}.trsvg{padding:8px 4px 0}#flCard .cardhead>div:last-child,#trCard .cardhead>div:last-child{width:100%;justify-content:flex-start!important}}
+
 /* ---------- senato ---------- */
 .sen-somma{padding:4px 18px 0}
 .sen-barra{display:flex;height:12px;border-radius:3px;overflow:hidden;background:var(--s3);margin:2px 0 8px}
@@ -785,6 +813,18 @@ footer a{color:var(--t2)}
     <p class="methodnote" id="proiezNota"></p>
   </section>
 
+  <section class="card hidden" id="trCard" style="margin-bottom:14px">
+    <div class="cardhead"><div><h2>La forchetta che si stringe</h2></div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end">
+        <div class="mapfonte" id="trVista"><button data-k="D" aria-pressed="true">PP e Vox</button><button data-k="S" aria-pressed="false">PSOE e alleati</button><button data-k="PP" aria-pressed="false">PP</button><button data-k="PSOE" aria-pressed="false">PSOE</button><button data-k="VOX" aria-pressed="false">Vox</button><button data-k="FA" aria-pressed="false">Frente Amplio</button></div>
+        <span class="cmeta" id="trMeta">—</span>
+      </div>
+    </div>
+    <svg id="trSvg" class="trsvg" viewBox="0 0 700 320" role="img" aria-label="Seggi con i voti contati e proiezione al crescere dello scrutinio"></svg>
+    <div class="trleg"><span><i style="background:rgba(246,239,230,.22);height:10px"></i>forchetta, 8 simulazioni su 10</span><span><i style="background:#f6efe6;height:3px"></i>proiezione</span><span><i style="background:#f2c14e;height:3px"></i>seggi con i voti contati</span></div>
+    <p class="methodnote" id="trNota"></p>
+  </section>
+
   <section class="card hidden" id="sondCard" style="margin-bottom:14px">
     <div class="cardhead"><div><h2>Come potrebbe finire secondo i sondaggi</h2></div><span class="cmeta" id="sondMeta">—</span></div>
     <p class="subcopy" id="sondSub"></p>
@@ -865,6 +905,20 @@ footer a{color:var(--t2)}
     </div>
     <div id="bars" class="bars"></div>
     <p class="methodnote" id="barsNote">Percentuali sui voti validi scrutinati in tutta la Spagna; a destra i seggi e la differenza dal 2023. La soglia del 3% vale in ogni provincia, non a livello nazionale: un partito regionale entra con lo 0,5% nazionale, uno diffuso al 2% può restare senza seggi.</p>
+  </section>
+
+  <section class="card hidden" id="flCard" style="margin-bottom:14px">
+    <div class="cardhead"><div><h2>Da dove vengono i voti</h2></div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end">
+        <div class="mapfonte" id="flModo"><button data-m="dove" aria-pressed="true">Dove vanno</button><button data-m="da" aria-pressed="false">Da dove vengono</button></div>
+        <select id="flScope" aria-label="Dove si stimano i flussi"></select>
+        <span class="cmeta" id="flMeta">stima</span>
+      </div>
+    </div>
+    <p class="subcopy" id="flSub"></p>
+    <div class="flussi" id="flGraf"></div>
+    <div class="flussitesto" id="flTesto"></div>
+    <p class="methodnote" id="flNota"></p>
   </section>
 
   <section class="card" id="senCard" style="margin-bottom:14px">
@@ -1367,7 +1421,7 @@ function totBlocchi(f) {
 function render() {
   S.D = elabora(S.dati);
   renderKpi(); renderVerdetto(); renderTabella(); renderEmiciclo(); renderExit(); renderBilico();
-  renderProiezione(); renderSondaggi(); renderSimulatore(); renderBarre(); renderSenato(); renderMappa(); renderScrutinio();
+  renderProiezione(); registraTraccia(); renderTraccia(); renderFlussi(); renderSondaggi(); renderSimulatore(); renderBarre(); renderSenato(); renderMappa(); renderScrutinio();
   if (window.CARD) window.CARD.segnaSporco();
 }
 
@@ -1844,6 +1898,350 @@ function senatoProv(c) {
   const txt = Object.entries(n).sort((a, b) => b[1] - a[1]).map(([g, k]) => esc(nomeBreve(infoG(g))) + ' <b>' + k + '</b>').join(', ');
   return '<div class="cmp">Al Senato' + (col.length > 1 ? ' (' + col.length + ' collegi, uno per isola)' : '') + ': ' + (con ? txt + (fin && con === col.length ? '' : ', eletti o in testa') + '. ' : 'nessun voto contato. ') + 'Nel 2023: ' + riassuntoSeggi(g23) + '.</div>';
 }
+
+/* ---------- la forchetta che si stringe ----------
+   A ogni aggiornamento si segnano, al punto dello scrutinio, i seggi che darebbe il riparto sui
+   voti contati e, quando il riquadro della proiezione si vede, la proiezione con la forchetta
+   all'80%. Il grafico mostra la proiezione che arriva al risultato molto prima del conteggio.
+   La notte resta nel browser: chi ricarica la pagina ritrova il grafico. Nella prova generale
+   la storia segue il cursore: tornando indietro si cancellano i punti più avanti. */
+const TR = { p: [], vista: 'D', salva: null };
+const TR_VISTE = [
+  { k: 'D', n: 'PP e Vox', a: 'a PP e Vox', magg: true }, { k: 'S', n: 'PSOE e alleati', a: 'al PSOE e agli alleati', magg: true },
+  { k: 'PP', n: 'PP', a: 'al PP' }, { k: 'PSOE', n: 'PSOE', a: 'al PSOE' }, { k: 'VOX', n: 'Vox', a: 'a Vox' }, { k: 'FA', n: 'Frente Amplio', a: 'al Frente Amplio' }
+];
+const TR_CHIAVE = STORAGE + '-notte', TR_RAW = '#f2c14e', TR_PROJ = '#f6efe6';
+const trValori = seggi => { const t = totBlocchi({ seggi }); return { D: t.D, S: t.S, PP: seggi.PP || 0, PSOE: seggi.PSOE || 0, VOX: seggi.VOX || 0, FA: seggi.FA || 0 }; };
+const trPieno = () => TR.p.some(p => p.r || p.p);
+const trVista = k => TR_VISTE.find(v => v.k === k) || TR_VISTE[0];
+let TR_CACHE = { R: null, v: null };
+function trProiezione(R) {
+  if (TR_CACHE.R === R) return TR_CACHE.v;
+  const B = blocchiProiezione(R), p = trValori(R.seggi), a = {}, b = {};
+  for (const k in p) {
+    const it = k === 'D' ? B.intD : k === 'S' ? B.intS : (R.int[k] || [p[k], p[k]]);
+    a[k] = Math.min(it[0], p[k]); b[k] = Math.max(it[1], p[k]);
+  }
+  TR_CACHE = { R, v: { p, a, b } };
+  return TR_CACHE.v;
+}
+function registraTraccia() {
+  const D = S.D;
+  if (PROVA && (!D || !D.naz.validi)) { TR.p = []; return; }
+  if (!D || !D.naz.validi || !['feed', 'prova', 'file'].includes(S.fonteDati)) return;
+  /* il riparto sui voti contati ha senso quando tutte le circoscrizioni hanno voti: prima mancano seggi */
+  const tutti = Object.values(D.gs).reduce((a, b) => a + b, 0) >= 350;
+  const x = D.naz.frac, pt = { x, r: tutti ? trValori(D.gs) : null };
+  /* la proiezione si segna solo se è quella dei dati di adesso, non di un giro prima */
+  if (proiezioneValida() && PROIEZ.idR === PROIEZ.id && !PROIEZ.inCorso && !PROIEZ.ancora) Object.assign(pt, trProiezione(PROIEZ.R));
+  const T = TR.p;
+  while (T.length && T[T.length - 1].x > x + 1e-9) T.pop();
+  const u = T[T.length - 1];
+  if (u && Math.abs(u.x - x) < 1e-9) T[T.length - 1] = pt.p || !u.p ? pt : { ...u, r: pt.r };
+  else T.push(pt);
+  if (T.length > 800) T.splice(1, 1);
+  if (!PROVA && S.fonteDati === 'feed') {
+    clearTimeout(TR.salva);
+    TR.salva = setTimeout(() => { try { localStorage.setItem(TR_CHIAVE, JSON.stringify({ quando: Date.now(), p: TR.p })); } catch (_) { } }, 1500);
+  }
+}
+function caricaTraccia() {
+  if (PROVA) return;
+  try {
+    const n = JSON.parse(localStorage.getItem(TR_CHIAVE) || 'null');
+    if (n && Array.isArray(n.p) && Date.now() - (n.quando || 0) < 3 * 86400e3) TR.p = n.p.filter(p => p && isFinite(p.x));
+  } catch (_) { }
+}
+/* scale e dati del grafico, per la pagina (SVG) e per la card (canvas) */
+function geoTraccia(W, H, k, m) {
+  const pts = TR.p.filter(p => p.r), pp = TR.p.filter(p => p.p), V = trVista(k);
+  const rif = V.magg ? MAGG : (B23.gs[k] || 0);
+  let lo = rif, hi = rif;
+  pts.forEach(p => { lo = Math.min(lo, p.r[k]); hi = Math.max(hi, p.r[k]); });
+  pp.forEach(p => { lo = Math.min(lo, p.a[k]); hi = Math.max(hi, p.b[k]); });
+  const pad = Math.max(5, (hi - lo) * .08), sp = hi - lo + 2 * pad;
+  const passo = sp > 130 ? 40 : sp > 60 ? 20 : sp > 26 ? 10 : 5;
+  lo = Math.max(0, Math.floor((lo - pad) / passo) * passo); hi = Math.min(350, Math.ceil((hi + pad) / passo) * passo);
+  const X = x => m.l + x * (W - m.l - m.r), Y = v => m.t + (hi - v) / (hi - lo) * (H - m.t - m.b);
+  const u = TR.p[TR.p.length - 1], up = !!(u && u.p);
+  return { pts, pp, V, rif, lo, hi, passo, X, Y, u, up, m };
+}
+const trEtichetta = (u, k) => 'proiezione ' + u.p[k] + (u.a[k] === u.b[k] ? '' : ' (' + u.a[k] + '–' + u.b[k] + ')');
+function svgTraccia(W, H, k, fs) {
+  const G = geoTraccia(W, H, k, { l: 38, r: 14, t: 14, b: 30 }), { pts, pp, V, X, Y, u, up, m } = G;
+  const c = { t: '#8d7d73', g: 'rgba(255,255,255,.07)' };
+  let s = '';
+  for (let v = G.lo; v <= G.hi + 1e-9; v += G.passo)
+    s += '<line x1="' + m.l + '" x2="' + (W - m.r) + '" y1="' + Y(v) + '" y2="' + Y(v) + '" stroke="' + c.g + '"/><text x="' + (m.l - 7) + '" y="' + (Y(v) + 4) + '" fill="' + c.t + '" font-size="' + fs + '" text-anchor="end">' + v + '</text>';
+  for (let x = 0; x <= 1.0001; x += .2) s += '<text x="' + X(x) + '" y="' + (H - m.b + 17) + '" fill="' + c.t + '" font-size="' + fs + '" text-anchor="' + (x < .01 ? 'start' : x > .99 ? 'end' : 'middle') + '">' + nf(x * 100) + '%</text>';
+  s += '<text x="' + (W - m.r) + '" y="' + (H - 2) + '" fill="' + c.t + '" font-size="' + (fs - 1) + '" text-anchor="end">seggi elettorali scrutinati</text>';
+  const yr = Y(G.rif), col = V.magg ? BLOCCHI[k].c : infoG(k).c;
+  if (V.magg) s += '<rect x="' + m.l + '" y="' + m.t + '" width="' + (W - m.l - m.r) + '" height="' + Math.max(0, yr - m.t) + '" fill="' + col + '" opacity=".07"/>';
+  s += '<line x1="' + m.l + '" x2="' + (W - m.r) + '" y1="' + yr + '" y2="' + yr + '" stroke="#fff" stroke-dasharray="4 4" opacity=".5"/>';
+  s += '<text x="' + (m.l + 8) + '" y="' + (yr - 6) + '" fill="' + c.t + '" font-size="' + (fs - 1) + '" font-weight="600">' + (V.magg ? 'maggioranza assoluta, 176' : 'nel 2023: ' + G.rif) + '</text>';
+  const P = (arr, f) => arr.map(p => X(p.x).toFixed(1) + ',' + Y(f(p)).toFixed(1)).join(' ');
+  if (pp.length > 1) s += '<polygon points="' + P(pp, p => p.a[k]) + ' ' + P(pp.slice().reverse(), p => p.b[k]) + '" fill="' + TR_PROJ + '" opacity=".16"/>';
+  if (pts.length > 1) s += '<polyline fill="none" stroke="' + TR_RAW + '" stroke-width="2" stroke-linejoin="round" points="' + P(pts, p => p.r[k]) + '"/>';
+  if (pp.length > 1) s += '<polyline fill="none" stroke="' + TR_PROJ + '" stroke-width="2.6" stroke-linejoin="round" points="' + P(pp, p => p.p[k]) + '"/>';
+  const ux = X(u.x), dx = ux > W * .62 ? -9 : 9, an = dx < 0 ? 'end' : 'start';
+  if (up) s += '<line x1="' + ux + '" x2="' + ux + '" y1="' + Y(u.b[k]) + '" y2="' + Y(u.a[k]) + '" stroke="' + TR_PROJ + '" stroke-width="5" opacity=".3"/>';
+  const sopra = up && u.r ? u.p[k] >= u.r[k] : false;
+  if (u.r) s += '<circle cx="' + ux + '" cy="' + Y(u.r[k]) + '" r="4" fill="' + TR_RAW + '"/>' + '<text x="' + (ux + dx) + '" y="' + (Y(u.r[k]) + (sopra ? 16 : -8)) + '" fill="' + TR_RAW + '" font-size="' + fs + '" font-weight="600" stroke="#130c0e" stroke-width="4" paint-order="stroke" text-anchor="' + an + '">voti contati ' + u.r[k] + '</text>';
+  if (up) {
+    s += '<circle cx="' + ux + '" cy="' + Y(u.p[k]) + '" r="5" fill="' + TR_PROJ + '" stroke="#130c0e" stroke-width="1.5"/>';
+    s += '<text x="' + (ux + dx) + '" y="' + (Y(u.p[k]) + (sopra ? -9 : 17)) + '" fill="' + TR_PROJ + '" font-size="' + (fs + 1) + '" font-weight="600" stroke="#130c0e" stroke-width="4" paint-order="stroke" text-anchor="' + an + '">' + trEtichetta(u, k) + '</text>';
+  }
+  return s;
+}
+function renderTraccia() {
+  const card = $('trCard'); if (!card) return;
+  const pieno = trPieno();
+  card.classList.toggle('hidden', !pieno);
+  if (!pieno) return;
+  document.querySelectorAll('#trVista button').forEach(b => b.setAttribute('aria-pressed', b.dataset.k === TR.vista ? 'true' : 'false'));
+  const el = $('trSvg'), stretto = el.clientWidth && el.clientWidth < 560, W = stretto ? 400 : 700, H = stretto ? 300 : 320;
+  el.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+  el.innerHTML = svgTraccia(W, H, TR.vista, stretto ? 12 : 11);
+  const u = TR.p[TR.p.length - 1], V = trVista(TR.vista);
+  $('trMeta').textContent = 'scrutinio ' + pctScr(u.x);
+  $('trNota').textContent = 'Sull’asse orizzontale i seggi elettorali scrutinati, su quello verticale i seggi di ' + V.n + '. La linea gialla è il riparto D’Hondt sui voti contati fino a quel momento; quella chiara è la proiezione dello spoglio, con la fascia della forchetta che comprende 8 simulazioni su 10. La proiezione compare dal 5% dello scrutinio, quando sono arrivati i dati dei comuni, e si ferma a spoglio quasi concluso. All’inizio si contano soprattutto i comuni piccoli, che non votano come le città: il conteggio si muove molto, la proiezione molto meno. La pagina tiene la storia della notte: chi la ricarica ritrova il grafico.';
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('#trVista button'); if (!b) return;
+  TR.vista = b.dataset.k; renderTraccia(); if (window.CARD) window.CARD.segnaSporco();
+});
+let TR_STRETTO = null;
+window.addEventListener('resize', () => {
+  const t = ($('trSvg') && $('trSvg').clientWidth || 900) < 560;
+  if (t !== TR_STRETTO) { TR_STRETTO = t; renderTraccia(); }
+  const f = ($('flGraf') && $('flGraf').clientWidth || 900) < 560;
+  if (f !== FL_STRETTO) { FL_STRETTO = f; renderFlussi(); }
+});
+
+/* ---------- i flussi elettorali ----------
+   Nessuno sa come ha votato il singolo elettore: i flussi si stimano con la regressione
+   ecologica, guardando come cambia il voto di oggi insieme a quello del 2023 nei comuni già
+   contati del tutto. Per ogni comune, la quota degli elettori che nel 2023 ha votato ciascun
+   partito o non ha votato (x) e la stessa cosa oggi (y); si cercano le probabilità di passaggio
+   (β, ogni riga somma a 1, nessuna negativa) che meglio spiegano y = x·β, pesando i comuni per
+   numero di elettori.
+   - Si stima a parte in ogni comunità autonoma (Ceuta e Melilla con l'Andalusia): la Catalogna
+     non vota come la Castiglia, e una stima unica darebbe flussi falsi. Il totale è la somma.
+   - Entrano solo i comuni contati del tutto: un comune a metà non si confronta con tutto lo
+     stesso comune del 2023.
+   - Il voto dall'estero non ha comune e resta fuori.
+   - Si mostrano dall'80% dello scrutinio, quando i comuni contati del tutto hanno almeno il
+     60% degli elettori del 2023: prima arrivano quasi solo i comuni piccoli, e la stima
+     descriverebbe la Spagna dei paesi, non quella delle città. ?flussi=1 li accende prima.
+   - Nella prova generale, che rifà il 2023, il confronto è con novembre 2019. */
+const FL_DA = 0.80, FL_COP = 0.60, FL_FORZA = PARAM.get('flussi') === '1';
+const FL_ANNI = PROVA ? ['2019', '2023'] : ['2023', '2026'];
+const FL_REGIONALI = new Set(['ERC', 'JUNTS', 'BILDU', 'PNV', 'BNG', 'CC', 'CUP', 'NC', 'UPN', 'TE', 'UPL', 'SY', 'ASG', 'AHI', 'FV', 'AA']);
+const FL_ORD = { '2019': ['PP', 'PSOE', 'VOX', 'UP', 'CS', 'NAZ', 'ALT', 'NV'], '2023': ['PP', 'PSOE', 'VOX', 'SUM', 'NAZ', 'ALT', 'NV'], '2026': ['PP', 'PSOE', 'VOX', 'FA', 'POD', 'SALF', 'NAZ', 'ALT', 'NV'] };
+const FL_NOMI = {
+  PP: ['Partito popolare', 'PP'], PSOE: ['Partito socialista', 'PSOE'], VOX: ['Vox', 'Vox'], UP: ['Unidas Podemos e Más País', 'Unidas Podemos'],
+  CS: ['Ciudadanos', 'Ciudadanos'], SUM: ['Sumar', 'Sumar'], FA: ['Frente Amplio', 'Frente Amplio'], POD: ['Podemos', 'Podemos'], SALF: ['Se acabó la fiesta', 'SALF'],
+  NAZ: ['Partiti regionali e nazionalisti', 'Regionali'], ALT: ['Altre liste, bianche e nulle', 'Altri'], NV: ['Non votanti', 'Non votanti']
+};
+const FL_COL = { PP: GMAP.PP.c, PSOE: GMAP.PSOE.c, VOX: GMAP.VOX.c, UP: GMAP.PODEMOS.c, CS: '#f07b2a', SUM: GMAP.FA.c, FA: GMAP.FA.c, POD: GMAP.PODEMOS.c, SALF: GMAP.SALF.c, NAZ: BLOCCHI.N.c, ALT: '#8f8578', NV: '#5e5253' };
+/* come si legge nelle frasi: dove vanno («… Vox») e da dove vengono («… da Vox») */
+const FL_A = { PP: 'PP', PSOE: 'PSOE', VOX: 'Vox', SUM: 'Sumar', FA: 'Frente Amplio', POD: 'Podemos', SALF: 'Se acabó la fiesta', NAZ: 'partiti regionali', ALT: 'altre liste o scheda bianca', NV: 'non votano' };
+const FL_STESSO = { PP: 'di nuovo il PP', PSOE: 'di nuovo il PSOE', VOX: 'di nuovo Vox', NAZ: 'di nuovo i partiti regionali', ALT: 'di nuovo altre liste o scheda bianca', NV: 'non votano neanche stavolta' };
+const FL_DA_DOVE = { PP: 'dal PP', PSOE: 'dal PSOE', VOX: 'da Vox', UP: 'da Unidas Podemos o Más País', CS: 'da Ciudadanos', SUM: 'da Sumar', NAZ: 'dai partiti regionali', ALT: 'da altre liste o scheda bianca', NV: 'non avevano votato' };
+function flCat(g, anno) {
+  if (g === 'PP' || g === 'PSOE' || g === 'VOX') return g;
+  if (FL_REGIONALI.has(g)) return 'NAZ';
+  if (anno === '2019') return g === 'FA' || g === 'PODEMOS' ? 'UP' : g === 'L:CS' ? 'CS' : 'ALT';
+  if (anno === '2023') return g === 'FA' || g === 'PODEMOS' ? 'SUM' : 'ALT';
+  return g === 'FA' ? 'FA' : g === 'PODEMOS' ? 'POD' : g === 'SALF' ? 'SALF' : 'ALT';
+}
+const flNodo = k => ({ k, n: FL_NOMI[k][0], s: FL_NOMI[k][1], c: FL_COL[k] });
+const flRegione = prov => prov === '51' || prov === '52' ? CIRC['04'][3] : (CIRC[prov] || [])[3];
+const FL = { d19: null, carica: null, cache: { k: null, v: null }, scope: 'tot', modo: 'dove' };
+function flBase() {
+  if (!PROVA) return COM.d23 ? { m: COM.d23.m, gv: ine => COM.g23[ine] || gruppiFlat(COM.d23.m[ine][6], COM.d23.partiti) } : null;
+  if (!FL.d19) {
+    if (!FL.carica) FL.carica = fetch('strumenti/backtest/comuni201911.json').then(r => r.json()).then(d => { FL.d19 = d; renderFlussi(); if (window.CARD) window.CARD.segnaSporco(); }).catch(() => { });
+    return null;
+  }
+  return { m: FL.d19.m, gv: ine => gruppiFlat(FL.d19.m[ine][6], FL.d19.partiti) };
+}
+/* le quote sugli elettori: i partiti, poi altre liste con bianche e nulle, poi chi non ha votato */
+function flQuote(gv, bianche, nulle, censo, anno, ord) {
+  const v = {}; ord.forEach(k => v[k] = 0);
+  let tot = bianche + nulle; v.ALT += tot;
+  for (const g in gv) { v[flCat(g, anno)] += gv[g]; tot += gv[g]; }
+  const el = Math.max(censo, tot); v.NV = el - tot;
+  return ord.map(k => v[k] / el);
+}
+/* minimi quadrati con i vincoli: FISTA, proiettando ogni riga sul simplesso. Bastano le somme
+   A = Σ w·x·xᵀ e C = Σ w·x·yᵀ, così ogni passo costa poco anche con ottomila comuni. */
+function flBeta(A, C, O0, O1) {
+  const K = O0.length, M = O1.length, Af = new Float64Array(K * K), Cf = new Float64Array(K * M);
+  let L = 0;
+  for (let j = 0; j < K; j++) { L += A[j][j]; for (let i = 0; i < K; i++) Af[j * K + i] = A[j][i]; for (let k = 0; k < M; k++) Cf[j * M + k] = C[j][k]; }
+  const passo = 1 / (2 * L || 1);
+  let B = new Float64Array(K * M), Bn = new Float64Array(K * M), Yk = new Float64Array(K * M);
+  O0.forEach((a, j) => O1.forEach((b, k) => { B[j * M + k] = O1.includes(a) ? (a === b ? .8 : .2 / (M - 1)) : 1 / M; }));
+  Yk.set(B);
+  const u = new Float64Array(M), g = new Float64Array(M);
+  /* proiezione di una riga sul simplesso (somma 1, niente negativi) */
+  const simplesso = (dst, off) => {
+    for (let k = 0; k < M; k++) { const v = g[k]; let i = k; while (i > 0 && u[i - 1] < v) { u[i] = u[i - 1]; i--; } u[i] = v; }
+    let c = 0, tt = 0;
+    for (let i = 0; i < M; i++) { const v = u[i]; c += v; const x = (c - 1) / (i + 1); if (v - x > 0) tt = x; }
+    for (let k = 0; k < M; k++) dst[off + k] = Math.max(0, g[k] - tt);
+  };
+  let t = 1;
+  for (let it = 0; it < 1500; it++) {
+    for (let j = 0; j < K; j++) {
+      for (let k = 0; k < M; k++) { let s = -Cf[j * M + k]; for (let i = 0; i < K; i++) s += Af[j * K + i] * Yk[i * M + k]; g[k] = Yk[j * M + k] - passo * 2 * s; }
+      simplesso(Bn, j * M);
+    }
+    const tn = (1 + Math.sqrt(1 + 4 * t * t)) / 2, f = (t - 1) / tn;
+    let d = 0;
+    for (let q = 0; q < K * M; q++) { const dv = Bn[q] - B[q]; if (dv > d) d = dv; else if (-dv > d) d = -dv; Yk[q] = Bn[q] + f * dv; }
+    const tmp = B; B = Bn; Bn = tmp; t = tn;
+    if (it > 200 && d < 1e-7) { FL.giri = it; break; }
+  }
+  return O0.map((_, j) => Array.from(B.subarray(j * M, j * M + M)));
+}
+function flStima() {
+  if (!FL_FORZA && !(S.D && S.D.naz.frac >= FL_DA)) return null;
+  const B = flBase(); if (!B || COM.stato !== 'ok') return null;
+  const key = COM.versione + '|' + Object.keys(COM.live).length;
+  if (FL.cache.k === key) return FL.cache.v;
+  const [a0, a1] = FL_ANNI, O0 = FL_ORD[a0], O1 = FL_ORD[a1], K = O0.length, M = O1.length;
+  const reg = {}, nuova = () => ({ A: O0.map(() => new Array(K).fill(0)), C: O0.map(() => new Array(M).fill(0)), X: new Array(K).fill(0), n: 0, el: 0, elTot: 0 });
+  let elTot = 0;
+  for (const ine in B.m) { const r = flRegione(ine.slice(0, 2)); if (!r) continue; (reg[r] = reg[r] || nuova()).elTot += B.m[ine][2] || 0; elTot += B.m[ine][2] || 0; }
+  for (const lp of Object.values(COM.live)) for (const ine in lp.m) {
+    const x = lp.m[ine]; if (!(x[1] > 0 && x[7] >= x[1] && x[2] > 0 && x[5] > 0)) continue;
+    const b = B.m[ine], r = reg[flRegione(ine.slice(0, 2))]; if (!b || !b[2] || !r) continue;
+    const xs = flQuote(B.gv(ine), b[3], b[4], b[2], a0, O0), ys = flQuote(gruppiFlat(x[6], lp.partiti), x[3], x[4], x[2], a1, O1), w = b[2];
+    for (let j = 0; j < K; j++) {
+      if (!xs[j]) continue;
+      const wx = w * xs[j]; r.X[j] += wx;
+      for (let i = 0; i < K; i++) r.A[j][i] += wx * xs[i];
+      for (let k = 0; k < M; k++) r.C[j][k] += wx * ys[k];
+    }
+    r.n++; r.el += w;
+  }
+  const F = O0.map(() => new Array(M).fill(0)), per = {};
+  let n = 0, el = 0;
+  for (const [nome, r] of Object.entries(reg)) {
+    if (r.n < 3) continue;
+    const beta = flBeta(r.A, r.C, O0, O1), Fr = O0.map((_, j) => O1.map((_, k) => r.X[j] * beta[j][k]));
+    Fr.forEach((row, j) => row.forEach((v, k) => F[j][k] += v));
+    per[nome] = { F: Fr, n: r.n, cop: r.elTot ? r.el / r.elTot : 0 };
+    n += r.n; el += r.el;
+  }
+  const v = n ? { F, per, n, cop: elTot ? el / elTot : 0, sx: O0.map(flNodo), dx: O1.map(flNodo), a0, a1 } : null;
+  FL.cache = { k: key, v };
+  return v;
+}
+/* il passaggio più grande fra due partiti diversi, per titoli e post (non conta chi resta,
+   né Sumar che diventa Frente Amplio) */
+const FL_DI = { PP: 'del PP', PSOE: 'del PSOE', VOX: 'di Vox', UP: 'di Unidas Podemos', CS: 'di Ciudadanos', SUM: 'di Sumar', NAZ: 'dei partiti regionali' };
+const FL_AL = { PP: 'al PP', PSOE: 'al PSOE', VOX: 'a Vox', SUM: 'a Sumar', FA: 'al Frente Amplio', POD: 'a Podemos', SALF: 'a Se acabó la fiesta', NAZ: 'ai partiti regionali' };
+const FL_EREDI = { SUM: 'FA', UP: 'SUM' };
+function flPassaggio(E) {
+  if (!E) return null;
+  let best = null;
+  E.sx.forEach((a, j) => E.dx.forEach((b, k) => {
+    if (!FL_DI[a.k] || !FL_AL[b.k] || a.k === b.k || FL_EREDI[a.k] === b.k) return;
+    const v = E.F[j][k], t = E.F[j].reduce((x, y) => x + y, 0) || 1;
+    if (!best || v > best.v) best = { v, j: a.k, k: b.k, n: Math.round(v / t * 100) };
+  }));
+  return best && best.n >= 1 ? best : null;
+}
+const flussiPronti = (E, D) => !!E && (FL_FORZA || (!!D && D.naz.frac >= FL_DA && E.cop >= FL_COP));
+/* La geometria del diagramma: nodi a sinistra (prima) e a destra (oggi), nastri fra loro, in
+   un riquadro largo W e alto H. I nastri sotto lo 0,3% degli elettori non si disegnano. */
+function geomFlussi(fl, H, colX) {
+  const F = fl.F, SX = fl.sx, DX = fl.dx, tot = F.flat().reduce((a, b) => a + b, 0) || 1;
+  const nmax = Math.max(SX.length, DX.length), gap = Math.min(H * .03, H * .22 / (nmax - 1)), sc = (H - gap * (nmax - 1)) / tot;
+  const sin = SX.map((_, j) => F[j].reduce((a, b) => a + b, 0)), des = DX.map((_, k) => F.reduce((a, r) => a + r[k], 0));
+  const nodi = (vals, D, x) => { let y = 0; return vals.map((v, i) => { const n = { k: D[i].k, d: D[i], x, y, h: v * sc, v, q: v / tot }; y += v * sc + gap; return n; }); };
+  const L = nodi(sin, SX, colX[0]), R = nodi(des, DX, colX[1]);
+  const offL = L.map(n => n.y), offR = R.map(n => n.y), nastri = [];
+  SX.forEach((a, j) => DX.forEach((b, k) => {
+    const v = F[j][k], h = v * sc;
+    if (v / tot >= .003) nastri.push({ ij: j, ik: k, cj: a.c, nj: a.n, nk: b.n, y0: offL[j], y1: offR[k], h, q: v / tot, qj: v / (sin[j] || 1), qk: v / (des[k] || 1) });
+    offL[j] += h; offR[k] += h;
+  }));
+  return { L, R, nastri, tot };
+}
+/* le righe sotto il diagramma: per ogni partito di allora dove sono andati cento suoi elettori,
+   oppure per ogni partito di oggi da dove vengono */
+function righeFl(fl) {
+  const F = fl.F, tot = F.flat().reduce((a, b) => a + b, 0) || 1, dove = FL.modo === 'dove';
+  const voci = dove
+    ? fl.sx.map((c, j) => { const t = F[j].reduce((a, b) => a + b, 0); return { c, t, q: fl.dx.map((d, k) => ({ d, q: F[j][k] / (t || 1) })) }; })
+    : fl.dx.map((c, k) => { const t = F.reduce((a, r) => a + r[k], 0); return { c, t, q: fl.sx.map((d, j) => ({ d, q: F[j][k] / (t || 1) })) }; });
+  const h = dove ? 'Cento elettori di ciascun partito del ' + fl.a0 + ': come hanno votato nel ' + fl.a1 : 'Cento elettori di ciascun partito del ' + fl.a1 + ': come avevano votato nel ' + fl.a0;
+  return '<h4>' + h + '</h4>' + voci.filter(o => o.c.k !== 'ALT' && o.t / tot >= .008).map(o => {
+    const L = o.q.filter(x => x.q >= .005).sort((a, b) => (b.d.k === o.c.k) - (a.d.k === o.c.k) || b.q - a.q);
+    const barra = L.map(x => '<span style="width:' + (x.q * 100).toFixed(2) + '%;background:' + x.d.c + '" title="' + esc(x.d.n + ': ' + nf(x.q * 100) + ' su 100') + '">' + (x.q >= .08 ? nf(x.q * 100) : '') + '</span>').join('');
+    const testo = L.filter(x => x.q >= .03).map(x => '<b>' + nf(x.q * 100) + '</b> ' + (dove ? (x.d.k === o.c.k ? FL_STESSO[x.d.k] : FL_A[x.d.k]) : FL_DA_DOVE[x.d.k])).join(' · ');
+    return '<div class="fr"><div class="fn"><i style="background:' + o.c.c + '"></i><div>' + esc(o.c.n) + '<small>' + nf(o.t / tot * 100, 1).replace(/^0,0$/, '0') + '% degli elettori</small></div></div><div class="fb">' + barra + '</div><div class="fd">' + testo + '</div></div>';
+  }).join('');
+}
+let FL_STRETTO = null;
+function renderFlussi() {
+  const card = $('flCard'); if (!card) return;
+  const E = flStima(), ok = flussiPronti(E, S.D);
+  card.classList.toggle('hidden', !ok);
+  if (!ok) return;
+  /* le comunità con abbastanza comuni contati per una stima propria */
+  const regs = Object.entries(E.per).filter(([, r]) => r.n >= 15 && r.cop >= .5).map(([n]) => n).sort((a, b) => a.localeCompare(b, 'it'));
+  if (FL.scope !== 'tot' && !regs.includes(FL.scope)) FL.scope = 'tot';
+  const sel = $('flScope');
+  sel.innerHTML = '<option value="tot">Tutta la Spagna</option>' + regs.map(r => '<option value="' + esc(r) + '"' + (r === FL.scope ? ' selected' : '') + '>' + esc(r) + '</option>').join('');
+  document.querySelectorAll('#flModo button').forEach(b => b.setAttribute('aria-pressed', b.dataset.m === FL.modo ? 'true' : 'false'));
+  const R = FL.scope === 'tot' ? null : E.per[FL.scope], fl = { ...E, F: R ? R.F : E.F };
+  const mob = ($('flGraf').clientWidth || 900) < 560;
+  const W = mob ? 540 : 900, H = mob ? 620 : 430, nw = mob ? 14 : 16, LB = mob ? 170 : 220, g = geomFlussi(fl, H, [LB, W - LB - nw]);
+  const fs = mob ? 20 : 15, nome = d => mob ? d.s : d.n;
+  const nastro = n => { const x0 = LB + nw, x1 = W - LB - nw, m = (x0 + x1) / 2; return '<path data-j="' + n.ij + '" data-k="' + n.ik + '" d="M' + x0 + ',' + n.y0.toFixed(1) + 'C' + m + ',' + n.y0.toFixed(1) + ' ' + m + ',' + n.y1.toFixed(1) + ' ' + x1 + ',' + n.y1.toFixed(1) + 'L' + x1 + ',' + (n.y1 + n.h).toFixed(1) + 'C' + m + ',' + (n.y1 + n.h).toFixed(1) + ' ' + m + ',' + (n.y0 + n.h).toFixed(1) + ' ' + x0 + ',' + (n.y0 + n.h).toFixed(1) + 'Z" fill="' + n.cj + '" fill-opacity=".42"><title>' + esc(n.nj + ' → ' + n.nk + ': ' + nf(n.q * 100, 1) + '% degli elettori; ' + nf(n.qj * 100) + ' su 100 di chi votava ' + n.nj + ', ' + nf(n.qk * 100) + ' su 100 di chi vota ' + n.nk) + '</title></path>'; };
+  const nodo = (n, sx) => {
+    const tx = sx ? n.x - 8 : n.x + nw + 8, an = sx ? 'end' : 'start', i = (sx ? g.L : g.R).indexOf(n);
+    let t = '<g class="nodo" data-lato="' + (sx ? 'j' : 'k') + '" data-i="' + i + '"><title>' + esc(n.d.n + ', ' + (sx ? fl.a0 : fl.a1) + ': ' + nf(n.q * 100, 1) + '% degli elettori') + '</title><rect x="' + n.x + '" y="' + n.y.toFixed(1) + '" width="' + nw + '" height="' + Math.max(1, n.h).toFixed(1) + '" fill="' + n.d.c + '" rx="2"></rect><rect x="' + (n.x - 6) + '" y="' + (n.y - 2).toFixed(1) + '" width="' + (nw + 12) + '" height="' + (Math.max(1, n.h) + 4).toFixed(1) + '" fill="transparent"></rect>';
+    if (n.q < .004) return t + '</g>';
+    if (n.h < fs * 2.6) t += '<text class="lab" x="' + tx + '" y="' + (n.y + n.h / 2 + fs * .35).toFixed(1) + '" text-anchor="' + an + '">' + esc(nome(n.d)) + ' <tspan class="v">' + nf(n.q * 100, 1) + '%</tspan></text>';
+    else t += '<text class="lab" x="' + tx + '" y="' + (n.y + n.h / 2 - fs * .25).toFixed(1) + '" text-anchor="' + an + '">' + esc(nome(n.d)) + '</text><text class="v lab" x="' + tx + '" y="' + (n.y + n.h / 2 + fs * 1.1).toFixed(1) + '" text-anchor="' + an + '">' + nf(n.q * 100, 1) + '%</text>';
+    return t + '</g>';
+  };
+  $('flGraf').innerHTML = '<svg viewBox="0 -40 ' + W + ' ' + (H + 46) + '" role="img" aria-label="Flussi di voto dal ' + fl.a0 + ' al ' + fl.a1 + '">' +
+    '<text x="' + (LB + nw / 2) + '" y="-18" text-anchor="middle" class="v">' + fl.a0 + '</text><text x="' + (W - LB - nw / 2) + '" y="-18" text-anchor="middle" class="v">' + fl.a1 + '</text>' +
+    g.nastri.map(nastro).join('') + g.L.map(n => nodo(n, true)).join('') + g.R.map(n => nodo(n, false)).join('') + '</svg>';
+  /* passando su un partito restano accesi i suoi nastri; toccandolo si fissa, un altro tocco lo libera */
+  const svg = $('flGraf').querySelector('svg');
+  const accendi = gn => {
+    svg.classList.toggle('foc', !!gn);
+    svg.querySelectorAll('.nodo').forEach(x => x.classList.toggle('on', x === gn));
+    svg.querySelectorAll('path').forEach(p => p.classList.toggle('on', !!gn && p.dataset[gn.dataset.lato] === gn.dataset.i));
+  };
+  let fisso = null;
+  svg.addEventListener('pointerover', e => { const gn = e.target.closest('.nodo'); if (gn && !fisso && e.pointerType === 'mouse') accendi(gn); });
+  svg.addEventListener('pointerout', e => { const gn = e.target.closest('.nodo'); if (gn && !fisso && !(e.relatedTarget && gn.contains(e.relatedTarget))) accendi(null); });
+  svg.addEventListener('click', e => { const gn = e.target.closest('.nodo'); fisso = gn && gn !== fisso ? gn : null; accendi(fisso || (gn && e.pointerType === 'mouse' ? gn : null)); });
+  $('flGraf').querySelectorAll('text.lab').forEach(t => {
+    let f = parseFloat(getComputedStyle(t).fontSize) || fs;
+    for (let i = 0; i < 14; i++) { const b = t.getBBox(); if (!b.width || (b.x >= 1 && b.x + b.width <= W - 1)) break; f *= .93; t.style.fontSize = f.toFixed(1) + 'px'; }
+  });
+  $('flTesto').innerHTML = righeFl(fl);
+  $('flMeta').textContent = 'stima su ' + nf(R ? R.n : E.n) + ' comuni';
+  $('flSub').textContent = 'Come si sono spostati gli elettori ' + (PROVA ? 'fra novembre 2019 e luglio 2023' : 'fra il 2023 e oggi') + (R ? ', in ' + FL.scope : '') + ': a sinistra come avevano votato allora, a destra come hanno votato ' + (PROVA ? 'nel 2023' : 'oggi') + '. Passate su un partito, o toccatelo, per vedere solo i suoi flussi. Sono stime, non conteggi: nessuno sa come ha votato il singolo elettore.';
+  $('flNota').textContent = 'Come si stima: con la regressione ecologica sui ' + nf(E.n) + ' comuni già contati del tutto, che nel ' + fl.a0 + ' avevano il ' + pct(E.cop, 0) + ' degli elettori. Si confronta ogni comune con se stesso e si stima a parte in ogni comunità autonoma, perché la Catalogna o i Paesi Baschi non votano come il resto del paese; il totale è la somma. Le percentuali sono sugli elettori di questi comuni. Il voto dall’estero non ha comune e resta fuori; i nuovi elettori finiscono soprattutto fra i non votanti di allora. I flussi grandi sono affidabili, quelli di pochi punti molto meno: il metodo vede poco chi passa fra due partiti che crescono e calano negli stessi comuni. ' +
+    (PROVA ? 'Unidas Podemos e Más País sono sommati, come nel 2023 in Sumar. ' : 'Il Frente Amplio è il termine di confronto di Sumar, che nel 2023 comprendeva anche Podemos. ') +
+    'Fra i partiti regionali ERC, Junts, Bildu, PNV, BNG, Coalizione canaria e le altre liste di una sola comunità. Si mostrano dall’80% dello scrutinio, quando i comuni contati del tutto hanno almeno il 60% degli elettori: prima arrivano soprattutto i comuni piccoli.';
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('#flModo button'); if (!b) return;
+  FL.modo = b.dataset.m; renderFlussi();
+});
+document.addEventListener('change', e => { if (e.target.id === 'flScope') { FL.scope = e.target.value; renderFlussi(); } });
 
 /* ---------- mappa ---------- */
 const COL_VUOTO = '#2d2224';
@@ -2343,7 +2741,7 @@ async function aggiornaComuni() {
    - il controllo sull'ordine di arrivo (vedi proxy/lib/lavoratore.js): se con i comuni contati
      stanotte il modello, rifatto dal 2019 al 2023, sbaglia più del doppio di quanto sbagliava in
      media nel backtest allo stesso punto, il riquadro avverte e la proiezione non va nei titoli. */
-const PROIEZ = { w: null, id: 0, R: null, controllo: null, inCorso: false, ancora: false, errore: '' };
+const PROIEZ = { w: null, id: 0, idR: -1, R: null, controllo: null, inCorso: false, ancora: false, errore: '' };
 const PROIEZ_RIQUADRO = 0.05, PROIEZ_TITOLI = 0.10;
 /* l'errore medio del backtest (il peggiore dei due scenari con i comuni piccoli per primi), per
    punto dello spoglio: seggi spostati e scarto su PP+Vox */
@@ -2389,7 +2787,7 @@ function lavoratore() {
     PROIEZ.w.onmessage = e => {
       PROIEZ.inCorso = false;
       if (e.data.errore) PROIEZ.errore = e.data.errore;
-      else if (e.data.R && e.data.id === PROIEZ.id) { PROIEZ.R = e.data.R; PROIEZ.controllo = e.data.controllo; PROIEZ.errore = ''; render(); }
+      else if (e.data.R && e.data.id === PROIEZ.id) { PROIEZ.R = e.data.R; PROIEZ.idR = e.data.id; PROIEZ.controllo = e.data.controllo; PROIEZ.errore = ''; render(); }
       if (PROIEZ.ancora) { PROIEZ.ancora = false; chiediProiezione(); }
     };
     PROIEZ.w.onerror = e => { PROIEZ.inCorso = false; PROIEZ.errore = e.message || 'errore del modello'; };
@@ -2780,7 +3178,7 @@ function eventi() {
   };
   if (PROVA) {
     $('provaRange').oninput = () => provaApplica();
-    $('provaNuova').onclick = () => { PROVA_ST.seme = Math.floor(Math.random() * 1e6); PROVA_ST.ordine = null; provaApplica(); };
+    $('provaNuova').onclick = () => { TR.p = []; PROVA_ST.seme = Math.floor(Math.random() * 1e6); PROVA_ST.ordine = null; provaApplica(); };
     $('provaPlay').onclick = () => {
       if (PROVA_ST.play) { clearInterval(PROVA_ST.play); PROVA_ST.play = null; $('provaPlay').textContent = 'Avvia lo scorrimento'; return; }
       if (Number($('provaRange').value) >= 100) $('provaRange').value = 0;
@@ -2795,7 +3193,7 @@ function eventi() {
 async function avvio() {
   REDAZIONE = await verificaRedazione();
   document.body.classList.toggle('redazione', REDAZIONE);
-  costruisciManuale(); eventi(); eventiSocial();
+  costruisciManuale(); eventi(); eventiSocial(); caricaTraccia();
   $('footProxy').textContent = 'Proxy: ' + (() => { try { return new URL(PROXY).host; } catch (_) { return PROXY; } })();
   render();
   caricaSenato().then(() => { renderSenato(); renderDettaglio(); });
@@ -2974,12 +3372,71 @@ window.CARD = (function () {
     ex.forEach((e, j) => { const t = totBlocchi(e).D; T(x, String(t), x0 + cw * j + cw / 2, yb, { font: F(800, fz * 1.15, 'serif'), align: 'center', color: t >= MAGG ? C.green : C.t1 }); });
   }
 
+  /* ---------- 6 · la forchetta che si stringe (segue la vista scelta nella pagina) ---------- */
+  function card6(x, s) {
+    const k = TR.vista, V = trVista(k), ig = formato === 'ig';
+    const z = cornice(x, { badge: 'LA PROIEZIONE', kicker: s.ambito, title: titolo('c6', s), sub: (s.conVoti ? s.scr + ' · ' : '') + 'i seggi di ' + V.n + ' durante lo spoglio' + (V.magg ? ' · maggioranza a 176' : ''), fonte: fonteMin(s) + ' · proiezione della redazione',
+      nota: 'In giallo i seggi con i voti contati fino a quel momento; in chiaro la proiezione dello spoglio, con la forchetta che comprende 8 simulazioni su 10.' });
+    if (!trPieno()) return attesa(x, z, 'In attesa dei voti contati in tutte le province');
+    const fz = ig ? 21 : 19, Wd = z.Wd, G = geoTraccia(Wd, z.y1, k, { l: z.M + 58, r: z.M, t: z.y0 + 6, b: 46 }), { pts, pp, X, Y, u, up, m } = G;
+    const lineaH = (y, col, dash, w) => { x.beginPath(); x.moveTo(m.l, y); x.lineTo(Wd - m.r, y); x.strokeStyle = col; x.lineWidth = w || 1; x.setLineDash(dash || []); x.stroke(); x.setLineDash([]); };
+    for (let v = G.lo; v <= G.hi + 1e-9; v += G.passo) { lineaH(Y(v), C.track); T(x, String(v), m.l - 12, Y(v) + 7, { font: F(500, fz), color: C.t3, align: 'right' }); }
+    for (let f = 0; f <= 1.0001; f += .2) T(x, nf(f * 100) + '%', X(f), z.y1 - 12, { font: F(500, fz), color: C.t3, align: f < .01 ? 'left' : f > .99 ? 'right' : 'center' });
+    const yr = Y(G.rif);
+    if (V.magg) { x.globalAlpha = .08; x.fillStyle = BLOCCHI[k].c; x.fillRect(m.l, m.t, Wd - m.l - m.r, Math.max(0, yr - m.t)); x.globalAlpha = 1; }
+    lineaH(yr, 'rgba(255,255,255,.5)', [8, 8], 1.5);
+    T(x, V.magg ? 'maggioranza assoluta, 176' : 'nel 2023: ' + G.rif, m.l + 14, yr - 10, { font: F(600, fz - 2), color: C.t2 });
+    const linea = (arr, f) => arr.forEach((p, i) => i ? x.lineTo(X(p.x), Y(f(p))) : x.moveTo(X(p.x), Y(f(p))));
+    if (pp.length > 1) { x.beginPath(); linea(pp, p => p.a[k]); pp.slice().reverse().forEach(p => x.lineTo(X(p.x), Y(p.b[k]))); x.closePath(); x.globalAlpha = .16; x.fillStyle = TR_PROJ; x.fill(); x.globalAlpha = 1; }
+    x.lineJoin = 'round';
+    if (pts.length > 1) { x.beginPath(); linea(pts, p => p.r[k]); x.strokeStyle = TR_RAW; x.lineWidth = 3.5; x.stroke(); }
+    if (pp.length > 1) { x.beginPath(); linea(pp, p => p.p[k]); x.strokeStyle = TR_PROJ; x.lineWidth = 4.5; x.stroke(); }
+    const ux = X(u.x), dx = ux > Wd * .62 ? -16 : 16, al = dx < 0 ? 'right' : 'left', sopra = up && !!u.r && u.p[k] >= u.r[k];
+    const punto = (cy, r, c) => { x.beginPath(); x.arc(ux, cy, r, 0, 7); x.fillStyle = c; x.fill(); };
+    if (up) { x.globalAlpha = .3; x.fillStyle = TR_PROJ; x.fillRect(ux - 4, Y(u.b[k]), 8, Y(u.a[k]) - Y(u.b[k])); x.globalAlpha = 1; }
+    if (u.r) { punto(Y(u.r[k]), 7, TR_RAW); T(x, 'voti contati ' + u.r[k], ux + dx, Y(u.r[k]) + (sopra ? 30 : -14), { font: F(700, fz), color: TR_RAW, align: al }); }
+    if (up) { punto(Y(u.p[k]), 9, C.bg); punto(Y(u.p[k]), 7, TR_PROJ); T(x, trEtichetta(u, k), ux + dx, Y(u.p[k]) + (sopra ? -16 : 34), { font: F(700, fz + 4), color: TR_PROJ, align: al }); }
+  }
+  /* ---------- 7 · i flussi elettorali ---------- */
+  function card7(x, s) {
+    const E = flStima(), ok = flussiPronti(E, s.D), ig = formato === 'ig';
+    const z = cornice(x, { badge: 'I FLUSSI', kicker: s.ambito, title: titolo('c7', s), sub: ok ? 'Come hanno votato nel ' + E.a1 + ' gli elettori del ' + E.a0 + ' · stima su ' + nf(E.n) + ' comuni' : '', fonte: fonteMin(s) + ' · stima della redazione',
+      nota: 'Regressione ecologica sui comuni contati del tutto, a parte in ogni comunità autonoma. Sono stime, non conteggi: i flussi di pochi punti sono incerti.' });
+    if (!ok) return attesa(x, z, 'I flussi si stimano dall’80% dello scrutinio');
+    const LB = ig ? 210 : 330, nw = 18, y0 = z.y0 + 34, H = z.y1 - y0, g = geomFlussi(E, H, [z.M + LB, z.Wd - z.M - LB - nw]);
+    T(x, E.a0, z.M + LB + nw / 2, z.y0 + 8, { font: F(700, 20), color: C.t2, align: 'center' });
+    T(x, E.a1, z.Wd - z.M - LB - nw / 2, z.y0 + 8, { font: F(700, 20), color: C.t2, align: 'center' });
+    const x0 = z.M + LB + nw, x1 = z.Wd - z.M - LB - nw, mx = (x0 + x1) / 2;
+    g.nastri.forEach(n => {
+      x.beginPath(); x.moveTo(x0, y0 + n.y0); x.bezierCurveTo(mx, y0 + n.y0, mx, y0 + n.y1, x1, y0 + n.y1); x.lineTo(x1, y0 + n.y1 + n.h);
+      x.bezierCurveTo(mx, y0 + n.y1 + n.h, mx, y0 + n.y0 + n.h, x0, y0 + n.y0 + n.h); x.closePath();
+      x.globalAlpha = .45; x.fillStyle = n.cj; x.fill(); x.globalAlpha = 1;
+    });
+    const fz = ig ? 21 : 21;
+    [[g.L, true], [g.R, false]].forEach(([N, sx]) => N.forEach(n => {
+      fillRR(x, n.x, y0 + n.y, nw, Math.max(2, n.h), 3, n.d.c);
+      if (n.q < .004) return;
+      const tx = sx ? n.x - 12 : n.x + nw + 12, al = sx ? 'right' : 'left', cy = y0 + n.y + n.h / 2, q = nf(n.q * 100, 1) + '%';
+      const nome = cut(x, ig ? n.d.s : n.d.n, LB - 24, F(700, fz));
+      if (n.h < fz * 2.4) {
+        const w = W(x, nome + '  ', F(700, fz)), wq = W(x, q, F(500, fz - 2));
+        T(x, nome, sx ? tx - wq - W(x, '  ', F(700, fz)) : tx, cy + fz * .35, { font: F(700, fz), align: al });
+        T(x, q, sx ? tx : tx + w, cy + fz * .35, { font: F(500, fz - 2), color: C.t2, align: al });
+      } else {
+        T(x, nome, tx, cy - 3, { font: F(700, fz), align: al });
+        T(x, q, tx, cy + fz + 1, { font: F(500, fz - 2), color: C.t2, align: al });
+      }
+    }));
+  }
+
   const CARDS = [
     { id: 'c1', nome: 'Card 1 — I 350 seggi', file: 'spagna_1_seggi.png', fn: card1, ok: () => true },
     { id: 'c2', nome: 'Card 2 — Il voto', file: 'spagna_2_voto.png', fn: card2, ok: s => s.conVoti },
     { id: 'c3', nome: 'Card 3 — La mappa', file: 'spagna_3_mappa.png', fn: card3, ok: s => s.conVoti },
     { id: 'c4', nome: 'Card 4 — I seggi in bilico', file: 'spagna_4_bilico.png', fn: card4, ok: s => s.bil.length > 0 },
-    { id: 'c5', nome: 'Card 5 — Gli exit poll', file: 'spagna_5_exit_poll.png', fn: card5, ok: s => s.ex.length > 0 }
+    { id: 'c5', nome: 'Card 5 — Gli exit poll', file: 'spagna_5_exit_poll.png', fn: card5, ok: s => s.ex.length > 0 },
+    { id: 'c6', nome: 'Card 6 — La forchetta che si stringe', file: 'spagna_6_forchetta.png', fn: card6, ok: () => trPieno() },
+    { id: 'c7', nome: 'Card 7 — I flussi elettorali', file: 'spagna_7_flussi.png', fn: card7, ok: s => flussiPronti(flStima(), s.D) }
   ];
 
   /* ---------- titoli e testi ---------- */
@@ -2989,15 +3446,19 @@ window.CARD = (function () {
     if (id === 'c3') return 'Chi vince dove: il primo partito provincia per provincia';
     if (id === 'c4') { const n = s.bil.filter(b => b.manca < 1000).length; return n ? n + (n === 1 ? ' seggio si decide' : ' seggi si decidono') + ' per meno di mille voti' : 'L’ultimo seggio, provincia per provincia'; }
     if (id === 'c5') { if (!s.ex.length) return 'Gli exit poll'; const v = s.ex.map(e => totBlocchi(e).D), a = Math.min(...v), b = Math.max(...v); return 'Gli exit poll: PP e Vox ' + (a === b ? 'a ' + a : 'fra ' + a + ' e ' + b) + ' seggi'; }
+    if (id === 'c6') { const u = TR.p[TR.p.length - 1], k = TR.vista, V = trVista(k); if (!u) return 'Lo spoglio, aggiornamento dopo aggiornamento'; return u.p ? V.n + ': la proiezione dà ' + u.p[k] + ' seggi' + (u.a[k] !== u.b[k] ? ', fra ' + u.a[k] + ' e ' + u.b[k] : '') : (u.r ? V.n + ' a ' + u.r[k] + ' seggi con i voti contati' : 'Lo spoglio, aggiornamento dopo aggiornamento'); }
+    if (id === 'c7') { const t = flPassaggio(flStima()); return t ? 'Il passaggio più grande: ' + t.n + ' elettori ' + FL_DI[t.j] + ' su 100 vanno ' + FL_AL[t.k] : 'Da dove vengono i voti'; }
     return '';
   }
   function autoPost(id, s) {
-    const u = ' ' + URL_PAGINA, tag = ' #29N';
+    const u = ' ' + URL_PAGINA, u_ = u, tag = ' #29N';
     if (id === 'c1') return '🇪🇸 Spagna, ' + (s.f.tipo === 'scrutinio' ? s.scr.toLowerCase() : nomeF(s.f)) + ': PP ' + (s.f.seggi.PP || 0) + ', PSOE ' + (s.f.seggi.PSOE || 0) + ', Vox ' + (s.f.seggi.VOX || 0) + ', Frente Amplio ' + (s.f.seggi.FA || 0) + '. PP e Vox a ' + s.t.D + ' seggi, la maggioranza è a 176.' + tag + u;
     if (id === 'c2') return '🇪🇸 Il voto in Spagna, ' + (s.conVoti ? s.scr.toLowerCase() : '') + '. Tutti i risultati, provincia per provincia:' + tag + u;
     if (id === 'c3') return '🗺️ Spagna, chi vince dove: il primo partito nelle 52 circoscrizioni.' + tag + u;
     if (id === 'c4') { const b = s.bil[0]; return '⚖️ I seggi in bilico' + (b ? ': a ' + b.n + ' a ' + nomeBreve(infoG(b.b.g)) + ' mancano ' + nf(b.manca) + ' voti per strappare l’ultimo seggio a ' + nomeBreve(infoG(b.a.g)) : '') + '.' + tag + u; }
     if (id === 'c5') return '📊 Spagna, gli exit poll: ' + s.ex.map(e => e.s + ' PP+Vox ' + totBlocchi(e).D).join(', ') + '. Maggioranza a 176.' + tag + u;
+    if (id === 'c6') { const u = TR.p[TR.p.length - 1], k = TR.vista, V = trVista(k); if (!u) return ''; return '📈 Spagna, ' + s.scr.toLowerCase() + ': ' + (u.p ? 'la proiezione dà ' + V.a + ' ' + u.p[k] + ' seggi (forchetta ' + u.a[k] + '–' + u.b[k] + ')' : u.r ? V.n + ' a ' + u.r[k] + ' seggi con i voti contati' : 'lo spoglio è appena cominciato') + (V.magg ? '. La maggioranza è a 176.' : '.') + tag + u_; }
+    if (id === 'c7') { const E = flStima(), t = flPassaggio(E); return '🔀 Spagna, i flussi elettorali dal ' + (E ? E.a0 : '2023') + ': ' + (t ? t.n + ' elettori ' + FL_DI[t.j] + ' su 100 vanno ' + FL_AL[t.k] + '. ' : '') + 'Stima della redazione sui comuni già contati.' + tag + u_; }
     return '';
   }
   const titolo = (id, s) => toccati.has('t' + id) ? g('t' + id).value : autoTitolo(id, s);

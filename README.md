@@ -28,6 +28,8 @@ Dashboard per seguire in diretta lo spoglio delle elezioni generali spagnole di 
 - **Scrutinio, affluenza, primo partito** e la fonte dell'emiciclo.
 - **Chi ha la maggioranza:** PP e Vox contro la soglia di 176, con il PSOE e i suoi alleati e i nazionalisti di centro.
 - **Come finirà lo spoglio:** la proiezione del risultato finale dai comuni già contati, con le forchette e la probabilità della maggioranza (vedi «La proiezione dello spoglio»).
+- **La forchetta che si stringe:** il grafico della notte, come quello del Brasile. Sull'asse orizzontale i seggi elettorali scrutinati; la linea gialla è il riparto sui voti contati, quella chiara la proiezione con la forchetta all'80%. Si sceglie fra PP e Vox, PSOE e alleati, PP, PSOE, Vox e Frente Amplio (vedi «La forchetta che si stringe»).
+- **Da dove vengono i voti:** i flussi elettorali dal 2023, dall'80% dello scrutinio (vedi «I flussi elettorali»).
 - **Voto nazionale:** voti, percentuali, differenza dal 2023, seggi sullo scrutinio, seggi 2023 e una colonna per ogni exit poll.
 - **I 350 seggi:** emiciclo con la fonte a scelta (Congresso 2023, exit poll, scrutinio, seggi manuali) e i blocchi secondo ogni fonte.
 - **I seggi in bilico:** in ogni circoscrizione l'ultimo seggio assegnato e quanti voti mancano al primo escluso per prenderlo.
@@ -36,7 +38,7 @@ Dashboard per seguire in diretta lo spoglio delle elezioni generali spagnole di 
 - **La mappa delle province:** primo partito, blocchi, un partito, spostamento di PP e Vox rispetto al 2023, avanzamento dello scrutinio. Toccando una provincia: voti, seggi, ultimo seggio, confronto con il 2023.
 - **La mappa dei comuni:** gli 8.131 comuni, con i voti di stanotte man mano che arrivano (livello «Comuni») o quelli del 2023 («Comuni 2023»). Toccando un comune la mappa ingrandisce la sua provincia; la scheda mostra i voti e il confronto con il 2023 nello stesso comune. Si può cercare un comune per nome. Nella legenda «Il primo partito» ogni partito è un filtro: un tocco lascia accese solo le province o i comuni dove è primo, un secondo tocco (o «Mostra tutti») torna alla mappa completa.
 - **Stato dello scrutinio** provincia per provincia.
-- **Card per X e Instagram** (modalità redazione): seggi, voto, mappa, seggi in bilico, exit poll.
+- **Card per X e Instagram** (modalità redazione): seggi, voto, mappa, seggi in bilico, exit poll, la forchetta che si stringe, i flussi elettorali.
 
 I seggi si ricalcolano dalla pagina: soglia del 3% dei voti validi (schede bianche comprese) in ogni circoscrizione, poi D'Hondt; a parità di quoziente vince la lista con più voti. I seggi per circoscrizione sono quelli del Real Decreto 806/2026 (BOE del 6 ottobre): rispetto al 2023 Madrid passa da 37 a 38, Cadice da 9 a 8.
 
@@ -149,6 +151,27 @@ La proiezione batte sempre il riparto sui voti contati, e di molto all'inizio. L
 | Risultato, seggi | 137 | 121 | 33 | 31 | 171 |
 
 La proiezione avrebbe dato a PP e Vox la maggioranza in 56 simulazioni su 100; finirono a 171, dentro la forchetta, come 10 partiti su 11 (fuori UPN, per come Navarra Suma del 2019 è stata attribuita). L'errore viene soprattutto dai sondaggi, che sottostimavano il PSOE di 3,4 punti: date alla stessa proiezione le percentuali vere del 2023, i seggi spostati scendono da 19 a 6 (PP 134, PSOE 124, Vox 31, Sumar 30). La traduzione da voti a seggi regge; l'incertezza vera è quella dei sondaggi, e per questo la forchetta tiene conto di un errore comune fra destra e sinistra.
+
+## La forchetta che si stringe
+
+A ogni aggiornamento la pagina segna, al punto dello scrutinio, due cose: i seggi che darebbe il riparto D'Hondt sui voti contati (linea gialla, solo quando tutte le 52 circoscrizioni hanno voti, altrimenti mancano seggi) e, quando il riquadro della proiezione si vede, la proiezione con la forchetta all'80% (linea chiara e fascia). La linea della maggioranza assoluta (176) compare nelle viste dei blocchi; in quelle dei partiti c'è il risultato del 2023. La proiezione si segna solo se è stata calcolata sui dati di quel momento, non su quelli del giro prima.
+
+La storia resta nel browser di chi tiene aperta la pagina (`localStorage`, per tre giorni): chi la ricarica ritrova il grafico. Chi apre la pagina a metà notte vede il grafico solo da quel momento: la storia non sta sul server. Nella prova generale il grafico segue il cursore; tornando indietro si cancellano i punti più avanti, e «Nuova simulazione» lo azzera.
+
+La card 6 disegna lo stesso grafico, con la vista scelta nella pagina.
+
+## I flussi elettorali
+
+Come nella dashboard di Israele: nessuno sa come ha votato il singolo elettore, e i flussi si stimano con la **regressione ecologica**. Per ogni comune già contato del tutto si prendono le quote degli elettori che nel 2023 hanno votato ciascun partito o non hanno votato, e le stesse quote di oggi; si cercano le probabilità di passaggio (ogni riga somma a 1, nessuna negativa) che spiegano meglio il voto di oggi, pesando i comuni per numero di elettori. Il calcolo è nella pagina (`flStima`, minimi quadrati vincolati con FISTA).
+
+- **A parte in ogni comunità autonoma** (Ceuta e Melilla con l'Andalusia): la Catalogna o i Paesi Baschi non votano come il resto del paese, e una stima unica darebbe flussi falsi. Il totale è la somma. Il menu del riquadro mostra le comunità con almeno 15 comuni contati e metà degli elettori coperti; le stime per comunità sono più fragili di quella nazionale.
+- **I gruppi:** PP, PSOE, Vox, Sumar (2023) e Frente Amplio, Podemos, Se acabó la fiesta (2026), i partiti regionali e nazionalisti insieme (ERC, Junts, Bildu, PNV, BNG, CC, CUP, UPN, Front Valencià, Adelante Andalucía e le liste di una sola provincia), le altre liste con le schede bianche e nulle, i non votanti. Sono in `FL_ORD` e `flCat`.
+- **Restano fuori** il voto dall'estero, che non ha comune, e i comuni contati a metà. I nuovi elettori finiscono soprattutto fra i non votanti del 2023.
+- **Quando si vedono:** dall'80% dello scrutinio e solo se i comuni contati del tutto hanno almeno il 60% degli elettori del 2023 (`FL_DA`, `FL_COP`). Prima arrivano soprattutto i comuni piccoli, e la stima descriverebbe la Spagna dei paesi più che quella delle città. `?flussi=1` li accende prima, per le prove.
+
+**La prova sul 2019.** Nella prova generale i flussi vanno da novembre 2019 al 2023. All'80% dello scrutinio simulato i comuni contati del tutto avevano il 72% degli elettori, e ogni flusso era entro 3 punti da quello calcolato a spoglio finito; già al 60% (49% degli elettori) la differenza era la stessa. I risultati sono plausibili e in linea con i sondaggi post-voto di allora: 70 elettori di Ciudadanos su 100 al PP, 28 di Vox su 100 tornati al PP, 20 di Unidas Podemos su 100 al PSOE. La soglia dell'80% è quindi prudente: lascia margine per un ordine di arrivo diverso da quello simulato. La stima vede bene i flussi grandi e male quelli di pochi punti, soprattutto fra due partiti che crescono e calano negli stessi comuni.
+
+La card 7 disegna il diagramma nazionale; il titolo automatico riporta il passaggio più grande fra due partiti diversi.
 
 ## Da dove arrivano i dati
 
@@ -270,7 +293,7 @@ La stessa chiave delle dashboard di Israele e Brasile: `?redazione=CHIAVE` una v
 
 - **Pulsanti per i lettori:** X, Threads, Facebook, LinkedIn, Telegram, WhatsApp e il link. Il testo segue i dati: prima del voto presenta la pagina, poi riporta i seggi di PP e Vox e del PSOE con gli alleati secondo la fonte dell'emiciclo. Icone da [Bootstrap Icons](https://icons.getbootstrap.com) (MIT).
 - **Anteprima del link:** `condivisione.jpg`, 1200×630, con l'emiciclo del Congresso uscente.
-- **Card per X e Instagram:** cinque card (seggi, voto, mappa, seggi in bilico, exit poll) in 16:9 o 4:5, con titolo e testo del post che si rigenerano da soli finché non li modifichi. Scarica PNG, Condividi (menu del sistema con immagine e testo), Pubblica su X (l'immagine si allega a mano).
+- **Card per X e Instagram:** sette card (seggi, voto, mappa, seggi in bilico, exit poll, la forchetta che si stringe, i flussi elettorali) in 16:9 o 4:5, con titolo e testo del post che si rigenerano da soli finché non li modifichi. Scarica PNG, Condividi (menu del sistema con immagine e testo), Pubblica su X (l'immagine si allega a mano).
 
 ## Fonti e licenze
 

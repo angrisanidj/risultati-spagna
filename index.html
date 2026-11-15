@@ -2004,7 +2004,7 @@ function renderTraccia() {
   el.innerHTML = svgTraccia(W, H, TR.vista, stretto ? 12 : 11);
   const u = TR.p[TR.p.length - 1], V = trVista(TR.vista);
   $('trMeta').textContent = 'scrutinio ' + pctScr(u.x);
-  $('trNota').textContent = 'Sull’asse orizzontale i seggi elettorali scrutinati, su quello verticale i seggi di ' + V.n + '. La linea gialla è il riparto D’Hondt sui voti contati fino a quel momento; quella chiara è la proiezione dello spoglio, con la fascia della forchetta che comprende 8 simulazioni su 10. La proiezione compare dal 5% dello scrutinio, quando sono arrivati i dati dei comuni, e si ferma a spoglio quasi concluso. All’inizio si contano soprattutto i comuni piccoli, che non votano come le città: il conteggio si muove molto, la proiezione molto meno. La pagina tiene la storia della notte: chi la ricarica ritrova il grafico.';
+  $('trNota').textContent = 'Sull’asse orizzontale i seggi elettorali scrutinati, su quello verticale i seggi di ' + V.n + '. La linea gialla è il riparto D’Hondt sui voti contati fino a quel momento; quella chiara è la proiezione dello spoglio, con la fascia della forchetta che comprende 8 simulazioni su 10. La proiezione compare dal 10% dello scrutinio, quando sono arrivati i dati dei comuni, e si ferma a spoglio quasi concluso. All’inizio si contano soprattutto i comuni piccoli, che non votano come le città: il conteggio si muove molto, la proiezione molto meno. La pagina tiene la storia della notte: chi la ricarica ritrova il grafico.';
 }
 document.addEventListener('click', e => {
   const b = e.target.closest('#trVista button'); if (!b) return;
@@ -2036,7 +2036,7 @@ window.addEventListener('resize', () => {
    - Nella prova generale, che rifà il 2023, il confronto è con novembre 2019. */
 const FL_DA = 0.80, FL_COP = 0.60, FL_FORZA = PARAM.get('flussi') === '1';
 const FL_ANNI = PROVA ? ['2019', '2023'] : ['2023', '2026'];
-const FL_REGIONALI = new Set(['ERC', 'JUNTS', 'BILDU', 'PNV', 'BNG', 'CC', 'CUP', 'NC', 'UPN', 'TE', 'UPL', 'SY', 'ASG', 'AHI', 'FV', 'AA']);
+const FL_REGIONALI = new Set(['ERC', 'JUNTS', 'BILDU', 'PNV', 'BNG', 'CC', 'CUP', 'NC', 'TE', 'UPL', 'SY', 'ASG', 'AHI', 'FV', 'AA']);
 const FL_ORD = { '2019': ['PP', 'PSOE', 'VOX', 'UP', 'CS', 'NAZ', 'ALT', 'NV'], '2023': ['PP', 'PSOE', 'VOX', 'SUM', 'NAZ', 'ALT', 'NV'], '2026': ['PP', 'PSOE', 'VOX', 'FA', 'POD', 'SALF', 'NAZ', 'ALT', 'NV'] };
 const FL_NOMI = {
   PP: ['Partito popolare', 'PP'], PSOE: ['Partito socialista', 'PSOE'], VOX: ['Vox', 'Vox'], UP: ['Unidas Podemos e Más País', 'Unidas Podemos'],
@@ -2049,7 +2049,9 @@ const FL_A = { PP: 'PP', PSOE: 'PSOE', VOX: 'Vox', SUM: 'Sumar', FA: 'Frente Amp
 const FL_STESSO = { PP: 'di nuovo il PP', PSOE: 'di nuovo il PSOE', VOX: 'di nuovo Vox', NAZ: 'di nuovo i partiti regionali', ALT: 'di nuovo altre liste o scheda bianca', NV: 'non votano neanche stavolta' };
 const FL_DA_DOVE = { PP: 'dal PP', PSOE: 'dal PSOE', VOX: 'da Vox', UP: 'da Unidas Podemos o Más País', CS: 'da Ciudadanos', SUM: 'da Sumar', NAZ: 'dai partiti regionali', ALT: 'da altre liste o scheda bianca', NV: 'non avevano votato' };
 function flCat(g, anno) {
-  if (g === 'PP' || g === 'PSOE' || g === 'VOX') return g;
+  /* UPN con il PP: nel 2026 corrono insieme in Navarra (UPN-PP) */
+  if (g === 'PP' || g === 'UPN') return 'PP';
+  if (g === 'PSOE' || g === 'VOX') return g;
   if (FL_REGIONALI.has(g)) return 'NAZ';
   if (anno === '2019') return g === 'FA' || g === 'PODEMOS' ? 'UP' : g === 'L:CS' ? 'CS' : 'ALT';
   if (anno === '2023') return g === 'FA' || g === 'PODEMOS' ? 'SUM' : 'ALT';
@@ -2235,7 +2237,7 @@ function renderFlussi() {
   $('flSub').textContent = 'Come si sono spostati gli elettori ' + (PROVA ? 'fra novembre 2019 e luglio 2023' : 'fra il 2023 e oggi') + (R ? ', in ' + FL.scope : '') + ': a sinistra come avevano votato allora, a destra come hanno votato ' + (PROVA ? 'nel 2023' : 'oggi') + '. Passate su un partito, o toccatelo, per vedere solo i suoi flussi. Sono stime, non conteggi: nessuno sa come ha votato il singolo elettore.';
   $('flNota').textContent = 'Come si stima: con la regressione ecologica sui ' + nf(E.n) + ' comuni già contati del tutto, che nel ' + fl.a0 + ' avevano il ' + pct(E.cop, 0) + ' degli elettori. Si confronta ogni comune con se stesso e si stima a parte in ogni comunità autonoma, perché la Catalogna o i Paesi Baschi non votano come il resto del paese; il totale è la somma. Le percentuali sono sugli elettori di questi comuni. Il voto dall’estero non ha comune e resta fuori; i nuovi elettori finiscono soprattutto fra i non votanti di allora. I flussi grandi sono affidabili, quelli di pochi punti molto meno: il metodo vede poco chi passa fra due partiti che crescono e calano negli stessi comuni. ' +
     (PROVA ? 'Unidas Podemos e Más País sono sommati, come nel 2023 in Sumar. ' : 'Il Frente Amplio è il termine di confronto di Sumar, che nel 2023 comprendeva anche Podemos. ') +
-    'Fra i partiti regionali ERC, Junts, Bildu, PNV, BNG, Coalizione canaria e le altre liste di una sola comunità. Si mostrano dall’80% dello scrutinio, quando i comuni contati del tutto hanno almeno il 60% degli elettori: prima arrivano soprattutto i comuni piccoli.';
+    'UPN, che in Navarra corre con il PP, è contata con il PP. Fra i partiti regionali ERC, Junts, Bildu, PNV, BNG, Coalizione canaria e le altre liste di una sola comunità. Si mostrano dall’80% dello scrutinio, quando i comuni contati del tutto hanno almeno il 60% degli elettori: prima arrivano soprattutto i comuni piccoli.';
 }
 document.addEventListener('click', e => {
   const b = e.target.closest('#flModo button'); if (!b) return;
@@ -2736,13 +2738,14 @@ async function aggiornaComuni() {
    - solo con i dati dei comuni: in ogni provincia dove il Ministero ha contato qualcosa, i comuni
      ricevuti devono coprire almeno l'85% dei seggi elettorali che il Ministero dà per scrutinati
      (altrimenti mancano province, o i comuni sono rimasti indietro);
-   - il riquadro dal 5% dei seggi elettorali scrutinati, l'emiciclo e il titolo dal 10%: sotto
-     il 5% il backtest dà errori di una ventina di seggi e una forchetta troppo stretta;
+   - dal 10% dei seggi elettorali scrutinati, il riquadro come l'emiciclo e il titolo: al 5% il
+     backtest su aprile 2019 (da giugno 2016) sbagliava PP e Vox di 8 seggi, perché si contano
+     quasi solo paesi e lo spostamento delle città non si vede ancora; dal 10% di 3,5;
    - il controllo sull'ordine di arrivo (vedi proxy/lib/lavoratore.js): se con i comuni contati
      stanotte il modello, rifatto dal 2019 al 2023, sbaglia più del doppio di quanto sbagliava in
      media nel backtest allo stesso punto, il riquadro avverte e la proiezione non va nei titoli. */
 const PROIEZ = { w: null, id: 0, idR: -1, R: null, controllo: null, inCorso: false, ancora: false, errore: '' };
-const PROIEZ_RIQUADRO = 0.05, PROIEZ_TITOLI = 0.10;
+const PROIEZ_RIQUADRO = 0.10, PROIEZ_TITOLI = 0.10;
 /* l'errore medio del backtest (il peggiore dei due scenari con i comuni piccoli per primi), per
    punto dello spoglio: seggi spostati e scarto su PP+Vox */
 const BACKTEST = [[0.02, 21.8, 5.5], [0.05, 17.2, 2.8], [0.1, 11.5, 2.1], [0.2, 5.4, 2.6], [0.3, 3.1, 1.6], [0.4, 2.8, 1.4], [0.5, 2.3, 1.0], [0.6, 1.8, 0.7], [0.7, 1.2, 0.6], [0.8, 0.7, 0.5], [0.9, 0.4, 0.2]];
@@ -2814,7 +2817,7 @@ function blocchiProiezione(R) {
   const pr = a => a.filter(x => x >= MAGG).length / a.length;
   return { intD: [q(t.D, 0.1), q(t.D, 0.9)], intS: [q(t.S, 0.1), q(t.S, 0.9)], pD: pr(t.D), pS: pr(t.S), pSN: pr(t.SN) };
 }
-/* il riquadro: dal 5%, con i comuni completi; nei titoli: dal 10%, se il controllo è superato */
+/* il riquadro: dal 10%, con i comuni completi; nei titoli: dal 10%, se il controllo è superato */
 const proiezioneValida = () => !!(PROIEZ.R && PROIEZ.R.frac >= PROIEZ_RIQUADRO && PROIEZ.R.frac < 0.999 && coperturaComuni().ok);
 const proiezioneNeiTitoli = () => { if (!proiezioneValida() || PROIEZ.R.frac < PROIEZ_TITOLI) return false; const c = esitoControllo(); return !!(c && c.ok); };
 function renderProiezione() {
@@ -2823,7 +2826,7 @@ function renderProiezione() {
   const cop = PROIEZ.R ? coperturaComuni() : null;
   $('proiezStato').textContent = !PROIEZ.R ? (PROIEZ.errore ? 'Proiezione: ' + PROIEZ.errore : '') :
     !cop.ok ? 'Proiezione nascosta: i comuni ricevuti non coprono lo scrutinio in ' + cop.mancano.length + (cop.mancano.length === 1 ? ' provincia (' : ' province (') + cop.mancano.slice(0, 6).map(c => CIRC[c][0]).join(', ') + (cop.mancano.length > 6 ? '…' : '') + ').' :
-    R.frac < PROIEZ_RIQUADRO ? 'Proiezione pronta, si mostra dal 5% dei seggi elettorali scrutinati (ora ' + pctScr(R.frac) + ').' : '';
+    R.frac < PROIEZ_RIQUADRO ? 'Proiezione pronta, si mostra dal 10% dei seggi elettorali scrutinati (ora ' + pctScr(R.frac) + ').' : '';
   card.classList.toggle('hidden', !proiezioneValida());
   if (!proiezioneValida()) return;
   const t = totBlocchi({ seggi: R.seggi }), B = blocchiProiezione(R), C = esitoControllo();
@@ -2847,7 +2850,7 @@ function renderProiezione() {
       '<td class="m-off mute">' + (D ? D.gs[g] || 0 : '—') + '</td><td>' + pct(qv) + '</td><td class="m-off mute">' + (qc != null ? pct(qc) : '—') + '</td></tr>';
   });
   $('proiezTable').innerHTML = h + '</tbody>';
-  $('proiezNota').textContent = (PROVA ? 'Nella prova generale la proiezione parte da novembre 2019, come nel backtest: indovinare il 2023 dal 2023 sarebbe troppo facile. ' : '') + 'Il modello è della redazione. Provato rifacendo lo spoglio di aprile 2019, novembre 2019 e 2023 in 30 notti simulate ciascuno, con i comuni piccoli contati per primi: con il 10% dei seggi elettorali scrutinati il riparto sui voti contati sbagliava in media di 19-39 seggi, la proiezione di 7-12; con il 30%, 8-16 contro 3-4; sulla somma di PP e Vox, con il 10%, 4-13 seggi contro 2-4. Nelle elezioni con grandi spostamenti fra città e campagna, come nel 2019, i primissimi minuti sono i più incerti. Si mostra dal 5% dello scrutinio, solo quando sono arrivati i dati dei comuni. Non conta il voto dall’estero, che arriva giorni dopo.';
+  $('proiezNota').textContent = (PROVA ? 'Nella prova generale la proiezione parte da novembre 2019, come nel backtest: indovinare il 2023 dal 2023 sarebbe troppo facile. ' : '') + 'Il modello è della redazione. Provato rifacendo lo spoglio di aprile 2019, novembre 2019 e 2023 in 30 notti simulate ciascuno, con i comuni piccoli contati per primi: con il 10% dei seggi elettorali scrutinati il riparto sui voti contati sbagliava in media di 19-39 seggi, la proiezione di 7-12; con il 30%, 8-16 contro 3-4; sulla somma di PP e Vox, con il 10%, 4-13 seggi contro 2-4. Nelle elezioni con grandi spostamenti fra città e campagna, come nel 2019, i primissimi minuti sono i più incerti. Si mostra dal 10% dello scrutinio, solo quando sono arrivati i dati dei comuni. Non conta il voto dall’estero, che arriva giorni dopo.';
 }
 
 /* ---------- scrutinio ---------- */

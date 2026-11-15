@@ -99,7 +99,7 @@ Durante lo spoglio il riquadro **Come finirà lo spoglio** stima il risultato fi
 
 **Quando si vede** (le soglie vengono dal backtest qui sotto, e sono sulla quota di seggi elettorali scrutinati che pubblica il Ministero):
 - **sotto il 5%, mai:** l'errore è di una ventina di seggi e la forchetta all'80% contiene il risultato vero solo 3 volte su 4;
-- **dal 5%, il riquadro:** la forchetta è calibrata e su PP+Vox l'errore medio è di 1-3 seggi;
+- **dal 5%, il riquadro:** la forchetta è quasi calibrata (contiene il risultato 3 volte su 4) e su PP+Vox l'errore medio è di 1-3 seggi, ma sale a 8 in un'elezione di grandi spostamenti fra città e campagna come aprile 2019 (vedi il backtest);
 - **dal 10%, anche l'emiciclo e il titolo principale,** se il controllo sull'ordine di arrivo è superato: prima la divisione fra i singoli partiti sbaglia ancora di 12-17 seggi; dal 97% tornano i voti contati;
 - **solo con i dati dei comuni:** in ogni provincia dove il Ministero ha contato qualcosa, i comuni ricevuti devono coprire almeno l'85% dei seggi elettorali che il Ministero dà per scrutinati. Se mancano province o i comuni restano indietro, la proiezione non si vede; in modalità redazione il riquadro dello scrutinio dice perché.
 
@@ -120,7 +120,7 @@ Il voto dall'estero (CERA) non entra: si conta giorni dopo. La proiezione stima 
 
 ### Il backtest dello spoglio
 
-`node strumenti/backtest/backtest.mjs 30` rifà lo spoglio di due elezioni vere partendo da quella precedente, con i dati ufficiali per comune (`strumenti/fonti/`, i 2019 dal repository JaimeObregon/infoelectoral che conserva i file del Ministero): aprile 2019 → novembre 2019 e novembre 2019 → luglio 2023. Per ognuna 30 notti simulate, con l'ordine di arrivo della prova generale (prima i comuni piccoli, ogni provincia con il suo ritmo); per il 2023 anche 30 notti con un ordine del tutto casuale. A ogni punto si confronta con il risultato finale del conteggio. «Seggi spostati» è la metà della somma degli scarti fra partiti; la forchetta è quella all'80%. I risultati completi sono in `strumenti/backtest/risultati.txt`.
+`node strumenti/backtest/backtest.mjs 30` rifà lo spoglio di tre elezioni vere partendo da quella precedente, con i dati ufficiali per comune (`strumenti/fonti/`, il 2016 e i 2019 dal repository JaimeObregon/infoelectoral che conserva i file del Ministero): giugno 2016 → aprile 2019, aprile 2019 → novembre 2019 e novembre 2019 → luglio 2023. `SCENARI=…` (nomi separati da virgola, come in `risultati.json`) ne rifà solo alcuni; `DETTAGLIO=1` stampa lo scarto per partito al 5% e al 10%. Per ognuna 30 notti simulate, con l'ordine di arrivo della prova generale (prima i comuni piccoli, ogni provincia con il suo ritmo); per aprile 2019 e per il 2023 anche 30 notti con un ordine del tutto casuale. A ogni punto si confronta con il risultato finale del conteggio. «Seggi spostati» è la metà della somma degli scarti fra partiti; la forchetta è quella all'80%. I risultati completi sono in `strumenti/backtest/risultati.txt`.
 
 | Spoglio | Apr→nov 2019: grezzo | modello | forchetta 80% | Nov 2019→2023: grezzo | modello | forchetta 80% |
 |---|---|---|---|---|---|---|
@@ -135,6 +135,20 @@ Il voto dall'estero (CERA) non entra: si conta giorni dopo. La proiezione stima 
 Seggi spostati in media su 30 notti; «forchetta» è la quota di partiti il cui risultato vero cade nella forchetta all'80%. Sulla somma di PP e Vox, con il 5% contato, il riparto grezzo sbagliava in media di 27-39 seggi, la proiezione di 1-3; con il 10%, 4-7 contro 2.
 
 Con un ordine di arrivo del tutto casuale (2023, 30 notti) la proiezione fa anche meglio: 11,2 seggi spostati con il 2% contro 87,6 del riparto grezzo, 3,7 con il 10% contro 11,3, forchetta all'80% fra il 77% e il 100%.
+
+**Un'elezione molto diversa dalla precedente: giugno 2016 → aprile 2019** (backtest aggiunto il 15 novembre 2026). In tre anni Vox passò dallo 0,2% al 10%, il PP perse metà dei voti, il PSOE ne guadagnò un terzo; nel 2016 Convergència (CDC) è collegata a Junts.
+
+| Spoglio | Seggi spostati: grezzo | modello | PP+Vox: grezzo | modello | forchetta 80% | Ordine casuale: modello | PP+Vox |
+|---|---|---|---|---|---|---|---|
+| 2% | 91,9 | 24,3 | 29,3 | 12,0 | 68% | 15,9 | 5,8 |
+| 5% | 58,2 | 18,3 | 7,2 | 7,9 | 76% | 10,0 | 4,4 |
+| 10% | 39,0 | 10,5 | 13,1 | 3,5 | 86% | 6,4 | 2,4 |
+| 20% | 23,9 | 5,0 | 9,8 | 1,6 | 93% | 4,8 | 1,7 |
+| 30% | 15,5 | 4,2 | 5,4 | 1,1 | 93% | 4,4 | 1,8 |
+| 50% | 8,4 | 3,0 | 2,6 | 0,8 | 98% | 3,2 | 1,3 |
+| 80% | 2,9 | 1,2 | 0,8 | 0,4 | 99% | 0,9 | 0,3 |
+
+Anche qui la proiezione batte il riparto grezzo a ogni punto sul totale dei seggi. Il punto debole è il 5% con i comuni piccoli per primi: su PP e Vox la proiezione sbaglia in media di 8 seggi, come il riparto grezzo, contro 1-3 negli altri due backtest. Non è Vox, che la proiezione segue bene pur partendo quasi da zero (+1 seggio): è il PP, sovrastimato di 8 seggi, con il PSOE sottostimato di 6. Nel 2019 il PP crollò soprattutto nelle città, e al 5% si sono contati quasi solo paesi: lo spostamento delle città non si vede ancora. Dal 10% l'errore su PP e Vox scende a 3,5 seggi, dal 20% sotto 2. Per questo il riquadro della proiezione si mostra dal 5% ma il titolo e l'emiciclo la usano solo dal 10%: in una notte di grandi spostamenti fra città e campagna, i numeri del primo quarto d'ora vanno presi con la loro forchetta.
 
 La proiezione batte sempre il riparto sui voti contati, e di molto all'inizio. La forchetta all'80% contiene il risultato vero circa 3 volte su 4 nei primissimi minuti e quasi sempre dopo il 20%: all'inizio è un po' stretta, dopo è prudente. Il backtest non può provare un ordine di arrivo molto diverso da quelli simulati, né un'elezione molto diversa dalla precedente: in quei casi l'errore iniziale sarà più alto.
 

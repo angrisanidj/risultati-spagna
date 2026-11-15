@@ -1,3 +1,31 @@
+Giugno 2016 → aprile 2019 · prima i comuni piccoli · 30 notti
+contato  seggi spostati: grezzo  modello (peggiore)   PP+Vox, scarto medio: grezzo  modello   forchetta 80%
+    2%             91.9     24.3       (30)                     29.3     12.0           68%
+    5%             58.2     18.3       (24)                      7.2      7.9           76%
+   10%             39.0     10.5       (16)                     13.1      3.5           86%
+   20%             23.9      5.0        (8)                      9.8      1.6           93%
+   30%             15.5      4.2        (6)                      5.4      1.1           93%
+   40%             10.9      3.6        (6)                      3.6      1.1           95%
+   50%              8.4      3.0        (5)                      2.6      0.8           98%
+   60%              5.6      2.5        (5)                      1.0      0.6           98%
+   70%              4.1      1.7        (5)                      0.9      0.6          100%
+   80%              2.9      1.2        (4)                      0.8      0.4           99%
+   90%              1.8      0.6        (2)                      0.4      0.2           99%
+
+Giugno 2016 → aprile 2019 · ordine casuale · 30 notti
+contato  seggi spostati: grezzo  modello (peggiore)   PP+Vox, scarto medio: grezzo  modello   forchetta 80%
+    2%             87.7     15.9       (26)                     38.3      5.8           72%
+    5%             40.8     10.0       (16)                     13.8      4.4           80%
+   10%             11.9      6.4       (13)                      3.6      2.4           91%
+   20%              7.5      4.8        (7)                      2.8      1.7           93%
+   30%              6.2      4.4        (6)                      2.3      1.8           93%
+   40%              5.4      3.9        (6)                      1.9      2.0           94%
+   50%              5.3      3.2        (6)                      2.0      1.3           96%
+   60%              4.1      2.4        (5)                      1.6      0.8           98%
+   70%              3.9      1.6        (4)                      1.5      0.6           99%
+   80%              2.9      0.9        (3)                      0.9      0.3          100%
+   90%              1.3      0.2        (1)                      0.4      0.1          100%
+
 
 Aprile 2019 → novembre 2019 · prima i comuni piccoli · 30 notti
 contato  seggi spostati: grezzo  modello (peggiore)   PP+Vox, scarto medio: grezzo  modello   forchetta 80%

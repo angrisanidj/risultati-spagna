@@ -37,9 +37,12 @@ function gruppoDi(sigla, naz, nome) {
   }
   return 'L:' + String(sigla || naz || '?').toUpperCase();
 }
+/* le liste di elezioni passate che la pagina non conosce più: Convergència (CDC) nel 2016 è
+   l'area che dal 2017 si presenta come Junts */
+const ALIAS = { CDC: 'JUNTS' };
 function carica(f) {
   const d = JSON.parse(fs.readFileSync(f, 'utf8')), memo = {};
-  const g = cod => memo[cod] || (memo[cod] = gruppoDi(d.partiti[cod][0], '', d.partiti[cod][1]));
+  const g = cod => memo[cod] || (memo[cod] = ALIAS[d.partiti[cod][0]] || gruppoDi(d.partiti[cod][0], '', d.partiti[cod][1]));
   const m = {};
   for (const [ine, x] of Object.entries(d.m)) {
     const v = {}; for (let i = 0; i < x[6].length; i += 2) { const k = g(x[6][i]); v[k] = (v[k] || 0) + x[6][i + 1]; }
@@ -95,7 +98,7 @@ const destra = s => Object.entries(s).reduce((a, [g, n]) => a + (famiglia(g) ===
 
 const PUNTI = [0.02, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9];
 function prova(nome, B, T, casuale, par) {
-  const vero = riparto(T, T.m), righe = PUNTI.map(() => ({ n: 0, frac: 0, grezzo: 0, modello: 0, dGrezzo: 0, dModello: 0, cop: 0, copN: 0, maxModello: 0 }));
+  const vero = riparto(T, T.m), righe = PUNTI.map(() => ({ n: 0, frac: 0, grezzo: 0, modello: 0, dGrezzo: 0, dModello: 0, cop: 0, copN: 0, maxModello: 0, perG: {} }));
   for (let s = 1; s <= NOTTI; s++) {
     const piano = notte(T, s, casuale);
     /* il punto dello spoglio: si cerca l'istante in cui è contata la parte voluta dei seggi elettorali */
@@ -110,6 +113,7 @@ function prova(nome, B, T, casuale, par) {
       const sp = spostati(R.seggi, vero);
       r.grezzo += spostati(grezzo, vero); r.modello += sp; r.maxModello = Math.max(r.maxModello, sp);
       r.dGrezzo += Math.abs(destra(grezzo) - destra(vero)); r.dModello += Math.abs(destra(R.seggi) - destra(vero));
+      for (const g of new Set([...Object.keys(vero), ...Object.keys(R.seggi)])) r.perG[g] = (r.perG[g] || 0) + (R.seggi[g] || 0) - (vero[g] || 0);
       for (const g of new Set([...Object.keys(vero), ...Object.keys(R.seggi)])) {
         const v = vero[g] || 0, [a, b] = R.int[g] || [0, 0];
         if (v === 0 && b === 0) continue;
@@ -121,17 +125,29 @@ function prova(nome, B, T, casuale, par) {
   console.log('contato  seggi spostati: grezzo  modello (peggiore)   PP+Vox, scarto medio: grezzo  modello   forchetta 80%');
   const out = righe.map((r, j) => ({ punto: PUNTI[j], frac: r.frac / r.n, grezzo: r.grezzo / r.n, modello: r.modello / r.n, peggiore: r.maxModello, destraGrezzo: r.dGrezzo / r.n, destraModello: r.dModello / r.n, copertura: r.cop / r.copN }));
   out.forEach(o => console.log(`${(o.frac * 100).toFixed(0).padStart(5)}%   ${o.grezzo.toFixed(1).padStart(14)} ${o.modello.toFixed(1).padStart(8)} ${('(' + o.peggiore + ')').padStart(10)}   ${o.destraGrezzo.toFixed(1).padStart(22)} ${o.destraModello.toFixed(1).padStart(8)}   ${(o.copertura * 100).toFixed(0).padStart(10)}%`));
+  /* DETTAGLIO=1: lo scarto medio con segno per partito (modello meno vero), al 5% e al 10% */
+  if (process.env.DETTAGLIO) [1, 2].forEach(j => console.log('  scarto per partito al ' + PUNTI[j] * 100 + '%: ' + Object.entries(righe[j].perG).map(([g, s]) => [g, s / righe[j].n]).filter(([, s]) => Math.abs(s) >= 0.5).sort((a, b) => Math.abs(b[1]) - Math.abs(a[1])).map(([g, s]) => g + ' ' + (s > 0 ? '+' : '') + s.toFixed(1)).join(', ')));
   return out;
 }
 
+const C16 = carica(path.join(QUI, 'comuni201606.json'));
 const C19a = carica(path.join(QUI, 'comuni201904.json'));
 const C19n = carica(path.join(QUI, 'comuni201911.json'));
 const C23 = carica(path.join(RADICE, 'dati', 'comuni2023.json'));
 const par = process.env.PAR ? JSON.parse(process.env.PAR) : {};
+/* SCENARI=… sceglie quali rifare (separati da virgola); senza, tutti */
+const SCENARI = process.env.SCENARI ? process.env.SCENARI.split(',') : null;
+const fai = (k, ...a) => !SCENARI || SCENARI.includes(k) ? prova(...a) : undefined;
 const risultati = {
   quando: new Date().toISOString(), notti: NOTTI, par,
-  'apr2019→nov2019': prova('Aprile 2019 → novembre 2019', C19a, C19n, false, par),
-  'nov2019→lug2023': prova('Novembre 2019 → luglio 2023', C19n, C23, false, par),
-  'nov2019→lug2023 casuale': prova('Novembre 2019 → luglio 2023', C19n, C23, true, par)
+  'giu2016→apr2019': fai('giu2016→apr2019', 'Giugno 2016 → aprile 2019', C16, C19a, false, par),
+  'giu2016→apr2019 casuale': fai('giu2016→apr2019 casuale', 'Giugno 2016 → aprile 2019', C16, C19a, true, par),
+  'apr2019→nov2019': fai('apr2019→nov2019', 'Aprile 2019 → novembre 2019', C19a, C19n, false, par),
+  'nov2019→lug2023': fai('nov2019→lug2023', 'Novembre 2019 → luglio 2023', C19n, C23, false, par),
+  'nov2019→lug2023 casuale': fai('nov2019→lug2023 casuale', 'Novembre 2019 → luglio 2023', C19n, C23, true, par)
 };
-fs.writeFileSync(path.join(QUI, 'risultati.json'), JSON.stringify(risultati, null, 1));
+/* con SCENARI si aggiornano solo quelli rifatti: gli altri restano come erano */
+const FILE = path.join(QUI, 'risultati.json');
+const prima = SCENARI && fs.existsSync(FILE) ? JSON.parse(fs.readFileSync(FILE, 'utf8')) : {};
+for (const k in risultati) if (risultati[k] === undefined) { if (prima[k]) risultati[k] = prima[k]; else delete risultati[k]; }
+fs.writeFileSync(FILE, JSON.stringify(risultati, null, 1));

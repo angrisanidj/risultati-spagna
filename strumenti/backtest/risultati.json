@@ -1,7 +1,231 @@
 {
- "quando": "2026-11-11T10:48:44.025Z",
+ "quando": "2026-11-15T09:43:53.299Z",
  "notti": 30,
  "par": {},
+ "giu2016→apr2019": [
+  {
+   "punto": 0.02,
+   "frac": 0.020466078529920606,
+   "grezzo": 91.93333333333334,
+   "modello": 24.3,
+   "peggiore": 30,
+   "destraGrezzo": 29.3,
+   "destraModello": 11.966666666666667,
+   "copertura": 0.6827586206896552
+  },
+  {
+   "punto": 0.05,
+   "frac": 0.05089101681767471,
+   "grezzo": 58.2,
+   "modello": 18.3,
+   "peggiore": 24,
+   "destraGrezzo": 7.166666666666667,
+   "destraModello": 7.9,
+   "copertura": 0.7628635346756152
+  },
+  {
+   "punto": 0.1,
+   "frac": 0.10122190709350519,
+   "grezzo": 39,
+   "modello": 10.5,
+   "peggiore": 16,
+   "destraGrezzo": 13.133333333333333,
+   "destraModello": 3.533333333333333,
+   "copertura": 0.8555555555555555
+  },
+  {
+   "punto": 0.2,
+   "frac": 0.20100455872016507,
+   "grezzo": 23.9,
+   "modello": 5,
+   "peggiore": 8,
+   "destraGrezzo": 9.833333333333334,
+   "destraModello": 1.6,
+   "copertura": 0.9267734553775744
+  },
+  {
+   "punto": 0.3,
+   "frac": 0.3005893475887552,
+   "grezzo": 15.5,
+   "modello": 4.233333333333333,
+   "peggiore": 6,
+   "destraGrezzo": 5.4,
+   "destraModello": 1.1333333333333333,
+   "copertura": 0.9255813953488372
+  },
+  {
+   "punto": 0.4,
+   "frac": 0.40045161874454205,
+   "grezzo": 10.933333333333334,
+   "modello": 3.6,
+   "peggiore": 6,
+   "destraGrezzo": 3.566666666666667,
+   "destraModello": 1.0666666666666667,
+   "copertura": 0.9505882352941176
+  },
+  {
+   "punto": 0.5,
+   "frac": 0.5004777732750545,
+   "grezzo": 8.4,
+   "modello": 3,
+   "peggiore": 5,
+   "destraGrezzo": 2.566666666666667,
+   "destraModello": 0.8333333333333334,
+   "copertura": 0.9788235294117648
+  },
+  {
+   "punto": 0.6,
+   "frac": 0.6008789359070889,
+   "grezzo": 5.6,
+   "modello": 2.533333333333333,
+   "peggiore": 5,
+   "destraGrezzo": 1,
+   "destraModello": 0.6,
+   "copertura": 0.983451536643026
+  },
+  {
+   "punto": 0.7,
+   "frac": 0.7014773543280212,
+   "grezzo": 4.066666666666666,
+   "modello": 1.7333333333333334,
+   "peggiore": 5,
+   "destraGrezzo": 0.9333333333333333,
+   "destraModello": 0.6,
+   "copertura": 0.9952718676122931
+  },
+  {
+   "punto": 0.8,
+   "frac": 0.8019324368279622,
+   "grezzo": 2.9,
+   "modello": 1.1666666666666667,
+   "peggiore": 4,
+   "destraGrezzo": 0.8,
+   "destraModello": 0.4,
+   "copertura": 0.9928909952606635
+  },
+  {
+   "punto": 0.9,
+   "frac": 0.9020609624043646,
+   "grezzo": 1.7666666666666666,
+   "modello": 0.5666666666666667,
+   "peggiore": 2,
+   "destraGrezzo": 0.36666666666666664,
+   "destraModello": 0.16666666666666666,
+   "copertura": 0.9904761904761905
+  }
+ ],
+ "giu2016→apr2019 casuale": [
+  {
+   "punto": 0.02,
+   "frac": 0.020118419707284344,
+   "grezzo": 87.66666666666667,
+   "modello": 15.933333333333334,
+   "peggiore": 26,
+   "destraGrezzo": 38.333333333333336,
+   "destraModello": 5.8,
+   "copertura": 0.7230046948356808
+  },
+  {
+   "punto": 0.05,
+   "frac": 0.05014724875039345,
+   "grezzo": 40.75,
+   "modello": 10,
+   "peggiore": 16,
+   "destraGrezzo": 13.766666666666667,
+   "destraModello": 4.4,
+   "copertura": 0.8037383177570093
+  },
+  {
+   "punto": 0.1,
+   "frac": 0.10008860738586536,
+   "grezzo": 11.866666666666667,
+   "modello": 6.4,
+   "peggiore": 13,
+   "destraGrezzo": 3.6333333333333333,
+   "destraModello": 2.3666666666666667,
+   "copertura": 0.9144893111638955
+  },
+  {
+   "punto": 0.2,
+   "frac": 0.2000003452659946,
+   "grezzo": 7.466666666666667,
+   "modello": 4.8,
+   "peggiore": 7,
+   "destraGrezzo": 2.8333333333333335,
+   "destraModello": 1.7333333333333334,
+   "copertura": 0.9270588235294117
+  },
+  {
+   "punto": 0.3,
+   "frac": 0.3001714636303717,
+   "grezzo": 6.2,
+   "modello": 4.4,
+   "peggiore": 6,
+   "destraGrezzo": 2.2666666666666666,
+   "destraModello": 1.8333333333333333,
+   "copertura": 0.9290780141843972
+  },
+  {
+   "punto": 0.4,
+   "frac": 0.40047268812328424,
+   "grezzo": 5.366666666666666,
+   "modello": 3.933333333333333,
+   "peggiore": 6,
+   "destraGrezzo": 1.9333333333333333,
+   "destraModello": 2,
+   "copertura": 0.9432624113475178
+  },
+  {
+   "punto": 0.5,
+   "frac": 0.5008928661850977,
+   "grezzo": 5.266666666666667,
+   "modello": 3.2,
+   "peggiore": 6,
+   "destraGrezzo": 1.9666666666666666,
+   "destraModello": 1.3,
+   "copertura": 0.957345971563981
+  },
+  {
+   "punto": 0.6,
+   "frac": 0.6012904019724981,
+   "grezzo": 4.066666666666666,
+   "modello": 2.433333333333333,
+   "peggiore": 5,
+   "destraGrezzo": 1.5666666666666667,
+   "destraModello": 0.8,
+   "copertura": 0.983451536643026
+  },
+  {
+   "punto": 0.7,
+   "frac": 0.7017301741239403,
+   "grezzo": 3.933333333333333,
+   "modello": 1.6,
+   "peggiore": 4,
+   "destraGrezzo": 1.5333333333333334,
+   "destraModello": 0.6333333333333333,
+   "copertura": 0.9928909952606635
+  },
+  {
+   "punto": 0.8,
+   "frac": 0.802156832147809,
+   "grezzo": 2.933333333333333,
+   "modello": 0.8666666666666667,
+   "peggiore": 3,
+   "destraGrezzo": 0.8666666666666667,
+   "destraModello": 0.3333333333333333,
+   "copertura": 1
+  },
+  {
+   "punto": 0.9,
+   "frac": 0.9021458554298033,
+   "grezzo": 1.3333333333333333,
+   "modello": 0.23333333333333334,
+   "peggiore": 1,
+   "destraGrezzo": 0.4,
+   "destraModello": 0.1,
+   "copertura": 0.9952380952380953
+  }
+ ],
  "apr2019→nov2019": [
   {
    "punto": 0.02,

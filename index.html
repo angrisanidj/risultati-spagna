@@ -150,6 +150,8 @@ select{background:var(--s2);color:var(--t1);border:1px solid var(--line-2);borde
 .verdetto .vpt{font-size:14px;color:var(--t2);line-height:1.5}
 .verdetto .vpt b{color:var(--t1);font-weight:600}
 .verdetto .vpsvg{display:block;width:100%;height:auto;margin-top:4px}
+.verdetto .vpsvg .vl{font:600 12px var(--sans)}
+.verdetto .vpsvg .vt{font:500 11.5px var(--sans);fill:var(--t3);font-variant-numeric:tabular-nums}
 .verdetto .vpl{display:flex;flex-wrap:wrap;gap:4px 16px;color:var(--t3);font-size:12px}
 .verdetto .vpl i{display:inline-block;width:16px;height:8px;border-radius:2px;margin-right:6px;vertical-align:0}
 .verdetto .vpl i.f95{background:rgba(246,239,230,.18)}.verdetto .vpl i.f80{background:rgba(246,239,230,.4)}
@@ -378,7 +380,21 @@ table.conf th .corto{display:none}
 .rif{color:var(--t3);font-size:12px}
 
 /* ---------- la forchetta e i flussi ---------- */
-.trsvg{display:block;width:100%;height:auto;padding:8px 10px 0;box-sizing:border-box}
+.trsvg{display:block;width:100%;height:auto;padding:8px 18px 0;box-sizing:border-box}
+.trsvg text{font-family:var(--sans)}
+.trnum{padding:2px 14px 0;font-size:13px;color:var(--t2)}.trnum:empty{display:none}.trnum b{color:var(--t1);font-weight:600}.trnum .g{color:var(--amber);font-weight:600}
+.trsvg .ax{font-size:12px;fill:var(--t3);font-variant-numeric:tabular-nums}
+.trsvg .ax2{font-size:11.5px;fill:var(--t3)}
+.trsvg .gr{stroke:var(--line)}
+.trsvg .rifl{stroke:var(--t2);stroke-dasharray:4 4;opacity:.6}
+.trsvg .rif{font-size:12px;font-weight:500;fill:var(--t2)}
+.trsvg .f95{fill:var(--t1);opacity:.09}.trsvg .f80{fill:var(--t1);opacity:.17}
+.trsvg .lraw{fill:none;stroke:var(--amber);stroke-width:2;stroke-linejoin:round}
+.trsvg .lproj{fill:none;stroke:var(--t1);stroke-width:2.5;stroke-linejoin:round}
+.trsvg .fine{stroke:var(--t1);stroke-width:5;opacity:.25}
+.trsvg .praw{fill:var(--amber)}.trsvg .pproj{fill:var(--t1);stroke:var(--bg);stroke-width:1.5}
+.trsvg .traw,.trsvg .tproj{font-weight:600;stroke:var(--s1);stroke-width:4px;paint-order:stroke;font-variant-numeric:tabular-nums}
+.trsvg .traw{font-size:12.5px;fill:var(--amber)}.trsvg .tproj{font-size:13px;fill:var(--t1)}
 .trleg{display:flex;flex-wrap:wrap;gap:6px 18px;padding:6px 18px 0;color:var(--t2);font-size:12px}
 .trleg i{display:inline-block;width:18px;vertical-align:middle;margin-right:7px;border-radius:2px}
 #trVista{flex-wrap:wrap}
@@ -403,7 +419,7 @@ table.conf th .corto{display:none}
 .fr .fd{grid-column:2;font-size:13px;color:var(--t2)}
 .fr .fd b{color:var(--t1);font-variant-numeric:tabular-nums}
 #flNota{max-width:860px;margin:6px auto 0;padding:10px 18px 16px;box-sizing:content-box}
-@media(max-width:560px){.fr{grid-template-columns:1fr}.fr .fd{grid-column:1}.flussitesto{padding:0 14px}#flNota{padding:10px 14px 14px}.flussi text{font-size:20px}.flussi{padding:4px 4px 0}.trleg{padding:6px 14px 0}.trsvg{padding:8px 4px 0}#flCard .cardhead>div:last-child,#trCard .cardhead>div:last-child{width:100%;justify-content:flex-start!important}}
+@media(max-width:560px){.fr{grid-template-columns:1fr}.fr .fd{grid-column:1}.flussitesto{padding:0 14px}#flNota{padding:10px 14px 14px}.flussi text{font-size:20px}.flussi{padding:4px 4px 0}.trleg{padding:6px 14px 0}.trsvg{padding:8px 14px 0}#flCard .cardhead>div:last-child,#trCard .cardhead>div:last-child{width:100%;justify-content:flex-start!important}}
 
 /* ---------- senato ---------- */
 .sen-somma{padding:4px 18px 0}
@@ -837,7 +853,8 @@ footer a{color:var(--t2)}
       </div>
     </div>
     <svg id="trSvg" class="trsvg" viewBox="0 0 700 320" role="img" aria-label="Seggi con i voti contati e proiezione al crescere dello scrutinio"></svg>
-    <div class="trleg"><span><i style="background:rgba(246,239,230,.22);height:10px"></i>forchetta, 8 simulazioni su 10</span><span><i style="background:#f6efe6;height:3px"></i>proiezione</span><span><i style="background:#f2c14e;height:3px"></i>seggi con i voti contati</span></div>
+    <div class="trnum" id="trNum"></div>
+    <div class="trleg"><span><i style="background:rgba(246,239,230,.12);height:10px"></i>forchetta al 95%</span><span><i style="background:rgba(246,239,230,.28);height:10px"></i>all’80%</span><span><i style="background:#f6efe6;height:3px"></i>proiezione</span><span><i style="background:#f2c14e;height:3px"></i>seggi con i voti contati</span></div>
     <p class="methodnote" id="trNota"></p>
   </section>
 
@@ -1494,16 +1511,17 @@ function lineaProiezione() {
   const vals = [MAGG]; righe.forEach(r => { vals.push(r.i95[0], r.i95[1], r.v); if (r.cont != null) vals.push(r.cont); if (r.conN != null) vals.push(r.conN); });
   let lo = Math.min(...vals), hi = Math.max(...vals);
   const extra = Math.max(6, Math.ceil((40 - (hi - lo)) / 2)); lo = Math.floor((lo - extra) / 5) * 5; hi = Math.ceil((hi + extra) / 5) * 5;
-  VP_STRETTO = ($('verdetto').clientWidth || 800) < 520;
-  const W = VP_STRETTO ? 380 : 640, x0 = 12, x1 = W - 12, X = v => x0 + (v - lo) / (hi - lo) * (x1 - x0), y = 26, h = 24, xm = X(MAGG - 0.5);
+  const W = Math.max(300, Math.min(760, ($('verdetto').clientWidth || 800) - 40));
+  VP_STRETTO = W < 480;
+  const x0 = 12, x1 = W - 12, X = v => x0 + (v - lo) / (hi - lo) * (x1 - x0), y = 26, h = 24, xm = X(MAGG - 0.5);
   const passo = hi - lo > 100 ? 20 : hi - lo > 45 ? 10 : 5;
   const asse = r => {
     let s = '<rect x="' + x0 + '" y="' + y + '" width="' + (xm - x0) + '" height="' + h + '" fill="#3a2b2e" rx="4"/>' +
       '<rect x="' + xm + '" y="' + y + '" width="' + (x1 - xm) + '" height="' + h + '" fill="' + mix('#22171a', BLOCCHI[r.k].c, 0.45) + '" rx="4"/>';
-    s += '<text x="' + (x0 + 2) + '" y="17" fill="#bfb0a5" font-size="' + (VP_STRETTO ? 14 : 12) + '" font-weight="600">← senza maggioranza</text>';
-    s += '<text x="' + (x1 - 2) + '" y="17" fill="' + mix('#f6efe6', BLOCCHI[r.k].c, 0.5) + '" font-size="' + (VP_STRETTO ? 14 : 12) + '" font-weight="600" text-anchor="end">maggioranza ' + (VP_STRETTO ? '' : esc(r.n) + ' ') + '→</text>';
+    s += '<text x="' + (x0 + 2) + '" y="17" class="vl" fill="#bfb0a5">← senza maggioranza</text>';
+    s += '<text x="' + (x1 - 2) + '" y="17" fill="' + mix('#f6efe6', BLOCCHI[r.k].c, 0.5) + '" class="vl" text-anchor="end">maggioranza ' + (VP_STRETTO ? '' : esc(r.n) + ' ') + '→</text>';
     for (let v = Math.ceil(lo / passo) * passo; v <= hi; v += passo)
-      s += '<line x1="' + X(v) + '" x2="' + X(v) + '" y1="' + (y + h) + '" y2="' + (y + h + 5) + '" stroke="#6f6266"/><text x="' + X(v) + '" y="' + (y + h + 18) + '" fill="#8d7d73" font-size="' + (VP_STRETTO ? 13 : 11) + '" text-anchor="middle">' + v + '</text>';
+      s += '<line x1="' + X(v) + '" x2="' + X(v) + '" y1="' + (y + h) + '" y2="' + (y + h + 5) + '" stroke="#6f6266"/><text x="' + X(v) + '" y="' + (y + h + 18) + '" class="vt" text-anchor="middle">' + v + '</text>';
     s += '<rect x="' + X(r.i95[0] - 0.5) + '" y="' + (y + 3) + '" width="' + Math.max(2, X(r.i95[1] + 0.5) - X(r.i95[0] - 0.5)) + '" height="' + (h - 6) + '" fill="#f6efe6" opacity=".18" rx="2"/>';
     s += '<rect x="' + X(r.i80[0] - 0.5) + '" y="' + (y + 3) + '" width="' + Math.max(2, X(r.i80[1] + 0.5) - X(r.i80[0] - 0.5)) + '" height="' + (h - 6) + '" fill="#f6efe6" opacity=".4" rx="2"/>';
     s += '<line x1="' + xm + '" x2="' + xm + '" y1="' + (y - 5) + '" y2="' + (y + h + 4) + '" stroke="#fff" stroke-dasharray="3 3" opacity=".7"/>';
@@ -1520,7 +1538,7 @@ function lineaProiezione() {
     (conCont ? '<span><i class="ct"></i>seggi con i voti contati</span>' : '') + (t.N ? '<span><i class="nz"></i>PSOE e alleati con Junts, PNV e CC</span>' : '') + '</div>' +
     (ko ? '<div class="vps vko">Il controllo sull’ordine di arrivo non è superato: la proiezione va letta con cautela.</div>' : '') + '</div>';
 }
-window.addEventListener('resize', () => { if (VP_STRETTO == null) return; const s = ($('verdetto').clientWidth || 800) < 520; if (s !== VP_STRETTO) renderVerdetto(); });
+
 
 function renderVerdetto() {
   const f = fonteAttiva(), t = totBlocchi(f), box = $('verdetto');
@@ -1988,11 +2006,15 @@ let TR_CACHE = { R: null, v: null };
 function trProiezione(R) {
   if (TR_CACHE.R === R) return TR_CACHE.v;
   const B = blocchiProiezione(R), p = trValori(R.seggi), a = {}, b = {};
+  const a95 = {}, b95 = {}, q = (arr, f) => arr[Math.min(arr.length - 1, Math.floor(f * arr.length))];
   for (const k in p) {
     const it = k === 'D' ? B.intD : k === 'S' ? B.intS : (R.int[k] || [p[k], p[k]]);
     a[k] = Math.min(it[0], p[k]); b[k] = Math.max(it[1], p[k]);
+    let i95 = k === 'D' ? B.intD95 : k === 'S' ? B.intS95 : null;
+    if (!i95) { const s = R.campioni.map(c => c[k] || 0).sort((x, y) => x - y); i95 = [q(s, 0.025), q(s, 0.975)]; }
+    a95[k] = Math.min(i95[0], a[k]); b95[k] = Math.max(i95[1], b[k]);
   }
-  TR_CACHE = { R, v: { p, a, b } };
+  TR_CACHE = { R, v: { p, a, b, a95, b95 } };
   return TR_CACHE.v;
 }
 function registraTraccia() {
@@ -2022,13 +2044,58 @@ function caricaTraccia() {
     if (n && Array.isArray(n.p) && Date.now() - (n.quando || 0) < 3 * 86400e3) TR.p = n.p.filter(p => p && isFinite(p.x));
   } catch (_) { }
 }
+/* Nella prova generale il grafico si ricostruisce da solo fino al punto del cursore, come in
+   Brasile: chi salta al 60% vede tutta la notte fin lì, come chi l'avesse seguita dall'inizio.
+   Un passo ogni 2 punti del cursore, con un secondo lavoratore (200 simulazioni per passo),
+   così la proiezione del momento non aspetta. Se il cursore torna indietro o cambia la
+   simulazione, la ricostruzione in corso si ferma e riparte. */
+const TR_RIC = { gen: 0, w: null, attese: {}, id: 0 };
+function trLavoratore() {
+  if (TR_RIC.w || !PROIEZ.base19) return TR_RIC.w;
+  TR_RIC.w = new Worker('proxy/lib/lavoratore.js', { type: 'module' });
+  TR_RIC.w.postMessage({ tipo: 'base', base: PROIEZ.base19 });
+  TR_RIC.w.onmessage = e => { const f = TR_RIC.attese[e.data.id]; if (f) { delete TR_RIC.attese[e.data.id]; f(e.data); } };
+  return TR_RIC.w;
+}
+const liveModello = lv => {
+  const live = {};
+  for (const lp of Object.values(lv)) for (const [ine, x] of Object.entries(lp.m)) if (x[7] > 0 && x[5] > 0) live[ine] = { v: gruppiFlat(x[6], lp.partiti), validi: x[5], mesas: x[1], esc: x[7] };
+  return live;
+};
+function trInserisci(pt) {
+  const T = TR.p, i = T.findIndex(q => q.x >= pt.x - 1e-9);
+  if (i < 0) T.push(pt);
+  else if (Math.abs(T[i].x - pt.x) < 1e-9) { if (!T[i].p || pt.p) T[i] = pt; }
+  else T.splice(i, 0, pt);
+}
+async function trRicostruisci(fino) {
+  const gen = ++TR_RIC.gen, w = trLavoratore();
+  if (!w) { setTimeout(() => { if (gen === TR_RIC.gen) trRicostruisci(fino); }, 1500); return; }   /* la base del 2019 non è ancora arrivata */
+  const seggi = Object.fromEntries(COD.map(c => [c, seggiCirc(c)]));
+  for (let v = 2; v < fino; v += 2) {
+    if (gen !== TR_RIC.gen) return;
+    const { R, live } = provaRiassunto(v / 100), D = elabora(R);
+    if (!D || !D.naz.validi) continue;
+    const x = D.naz.frac;
+    if (TR.p.some(q => Math.abs(q.x - x) < 1e-9 && (q.p || x < PROIEZ_RIQUADRO))) continue;   /* già fatto */
+    const pt = { x, r: sum(D.gs) >= 350 ? trValori(D.gs) : null }, lm = liveModello(live);
+    if (x >= PROIEZ_RIQUADRO && Object.keys(lm).length) {
+      const id = ++TR_RIC.id;
+      const ris = await new Promise(res => { TR_RIC.attese[id] = res; w.postMessage({ tipo: 'proietta', id, live: lm, seggi, par: { nSim: 200 } }); });
+      if (gen !== TR_RIC.gen) return;
+      if (ris.R && ris.R.frac >= PROIEZ_RIQUADRO && ris.R.frac < 0.999) Object.assign(pt, trProiezione(ris.R));
+    }
+    if (!pt.r && !pt.p) continue;
+    trInserisci(pt); renderTraccia(); if (window.CARD) window.CARD.segnaSporco();
+  }
+}
 /* scale e dati del grafico, per la pagina (SVG) e per la card (canvas) */
 function geoTraccia(W, H, k, m) {
   const pts = TR.p.filter(p => p.r), pp = TR.p.filter(p => p.p), V = trVista(k);
   const rif = V.magg ? MAGG : (B23.gs[k] || 0);
   let lo = rif, hi = rif;
   pts.forEach(p => { lo = Math.min(lo, p.r[k]); hi = Math.max(hi, p.r[k]); });
-  pp.forEach(p => { lo = Math.min(lo, p.a[k]); hi = Math.max(hi, p.b[k]); });
+  pp.forEach(p => { lo = Math.min(lo, (p.a95 || p.a)[k]); hi = Math.max(hi, (p.b95 || p.b)[k]); });
   const pad = Math.max(5, (hi - lo) * .08), sp = hi - lo + 2 * pad;
   const passo = sp > 130 ? 40 : sp > 60 ? 20 : sp > 26 ? 10 : 5;
   lo = Math.max(0, Math.floor((lo - pad) / passo) * passo); hi = Math.min(350, Math.ceil((hi + pad) / passo) * passo);
@@ -2037,30 +2104,29 @@ function geoTraccia(W, H, k, m) {
   return { pts, pp, V, rif, lo, hi, passo, X, Y, u, up, m };
 }
 const trEtichetta = (u, k) => 'proiezione ' + u.p[k] + (u.a[k] === u.b[k] ? '' : ' (' + u.a[k] + '–' + u.b[k] + ')');
-function svgTraccia(W, H, k, fs) {
-  const G = geoTraccia(W, H, k, { l: 38, r: 14, t: 14, b: 30 }), { pts, pp, V, X, Y, u, up, m } = G;
-  const c = { t: '#8d7d73', g: 'rgba(255,255,255,.07)' };
+function svgTraccia(W, H, k) {
+  const G = geoTraccia(W, H, k, { l: 36, r: 6, t: 12, b: 38 }), { pts, pp, V, X, Y, u, up, m } = G;
   let s = '';
   for (let v = G.lo; v <= G.hi + 1e-9; v += G.passo)
-    s += '<line x1="' + m.l + '" x2="' + (W - m.r) + '" y1="' + Y(v) + '" y2="' + Y(v) + '" stroke="' + c.g + '"/><text x="' + (m.l - 7) + '" y="' + (Y(v) + 4) + '" fill="' + c.t + '" font-size="' + fs + '" text-anchor="end">' + v + '</text>';
-  for (let x = 0; x <= 1.0001; x += .2) s += '<text x="' + X(x) + '" y="' + (H - m.b + 17) + '" fill="' + c.t + '" font-size="' + fs + '" text-anchor="' + (x < .01 ? 'start' : x > .99 ? 'end' : 'middle') + '">' + nf(x * 100) + '%</text>';
-  s += '<text x="' + (W - m.r) + '" y="' + (H - 2) + '" fill="' + c.t + '" font-size="' + (fs - 1) + '" text-anchor="end">seggi elettorali scrutinati</text>';
+    s += '<line class="gr" x1="' + m.l + '" x2="' + (W - m.r) + '" y1="' + Y(v) + '" y2="' + Y(v) + '"/><text class="ax" x="' + (m.l - 8) + '" y="' + (Y(v) + 4) + '" text-anchor="end">' + v + '</text>';
+  const passoX = W < 480 ? .25 : .2;
+  for (let x = 0; x <= 1.0001; x += passoX) s += '<text class="ax" x="' + X(x) + '" y="' + (H - m.b + 18) + '" text-anchor="' + (x < .01 ? 'start' : x > .99 ? 'end' : 'middle') + '">' + nf(x * 100) + '%</text>';
+  s += '<text class="ax2" x="' + (W - m.r) + '" y="' + (H - 3) + '" text-anchor="end">seggi elettorali scrutinati</text>';
   const yr = Y(G.rif), col = V.magg ? BLOCCHI[k].c : infoG(k).c;
   if (V.magg) s += '<rect x="' + m.l + '" y="' + m.t + '" width="' + (W - m.l - m.r) + '" height="' + Math.max(0, yr - m.t) + '" fill="' + col + '" opacity=".07"/>';
-  s += '<line x1="' + m.l + '" x2="' + (W - m.r) + '" y1="' + yr + '" y2="' + yr + '" stroke="#fff" stroke-dasharray="4 4" opacity=".5"/>';
-  s += '<text x="' + (m.l + 8) + '" y="' + (yr - 6) + '" fill="' + c.t + '" font-size="' + (fs - 1) + '" font-weight="600">' + (V.magg ? 'maggioranza assoluta, 176' : 'nel 2023: ' + G.rif) + '</text>';
+  s += '<line class="rifl" x1="' + m.l + '" x2="' + (W - m.r) + '" y1="' + yr + '" y2="' + yr + '"/>';
+  s += '<text class="rif" x="' + (m.l + 8) + '" y="' + (yr - 7) + '">' + (V.magg ? 'maggioranza assoluta, 176' : 'nel 2023: ' + G.rif) + '</text>';
   const P = (arr, f) => arr.map(p => X(p.x).toFixed(1) + ',' + Y(f(p)).toFixed(1)).join(' ');
-  if (pp.length > 1) s += '<polygon points="' + P(pp, p => p.a[k]) + ' ' + P(pp.slice().reverse(), p => p.b[k]) + '" fill="' + TR_PROJ + '" opacity=".16"/>';
-  if (pts.length > 1) s += '<polyline fill="none" stroke="' + TR_RAW + '" stroke-width="2" stroke-linejoin="round" points="' + P(pts, p => p.r[k]) + '"/>';
-  if (pp.length > 1) s += '<polyline fill="none" stroke="' + TR_PROJ + '" stroke-width="2.6" stroke-linejoin="round" points="' + P(pp, p => p.p[k]) + '"/>';
-  const ux = X(u.x), dx = ux > W * .62 ? -9 : 9, an = dx < 0 ? 'end' : 'start';
-  if (up) s += '<line x1="' + ux + '" x2="' + ux + '" y1="' + Y(u.b[k]) + '" y2="' + Y(u.a[k]) + '" stroke="' + TR_PROJ + '" stroke-width="5" opacity=".3"/>';
+  if (pp.length > 1) s += '<polygon class="f95" points="' + P(pp, p => (p.a95 || p.a)[k]) + ' ' + P(pp.slice().reverse(), p => (p.b95 || p.b)[k]) + '"/>' +
+    '<polygon class="f80" points="' + P(pp, p => p.a[k]) + ' ' + P(pp.slice().reverse(), p => p.b[k]) + '"/>';
+  if (pts.length > 1) s += '<polyline class="lraw" points="' + P(pts, p => p.r[k]) + '"/>';
+  if (pp.length > 1) s += '<polyline class="lproj" points="' + P(pp, p => p.p[k]) + '"/>';
+  const ux = X(u.x), dx = ux > W * .6 ? -10 : 10, an = dx < 0 ? 'end' : 'start';
+  if (up) s += '<line class="fine" x1="' + ux + '" x2="' + ux + '" y1="' + Y(u.b[k]) + '" y2="' + Y(u.a[k]) + '"/>';
   const sopra = up && u.r ? u.p[k] >= u.r[k] : false;
-  if (u.r) s += '<circle cx="' + ux + '" cy="' + Y(u.r[k]) + '" r="4" fill="' + TR_RAW + '"/>' + '<text x="' + (ux + dx) + '" y="' + (Y(u.r[k]) + (sopra ? 16 : -8)) + '" fill="' + TR_RAW + '" font-size="' + fs + '" font-weight="600" stroke="#130c0e" stroke-width="4" paint-order="stroke" text-anchor="' + an + '">voti contati ' + u.r[k] + '</text>';
-  if (up) {
-    s += '<circle cx="' + ux + '" cy="' + Y(u.p[k]) + '" r="5" fill="' + TR_PROJ + '" stroke="#130c0e" stroke-width="1.5"/>';
-    s += '<text x="' + (ux + dx) + '" y="' + (Y(u.p[k]) + (sopra ? -9 : 17)) + '" fill="' + TR_PROJ + '" font-size="' + (fs + 1) + '" font-weight="600" stroke="#130c0e" stroke-width="4" paint-order="stroke" text-anchor="' + an + '">' + trEtichetta(u, k) + '</text>';
-  }
+  const etich = W >= 480;   /* sul telefono i numeri stanno in un rigo sotto il grafico */
+  if (u.r) s += '<circle class="praw" cx="' + ux + '" cy="' + Y(u.r[k]) + '" r="4"/>' + (!etich ? '' : '<text class="traw" x="' + (ux + dx) + '" y="' + (Y(u.r[k]) + (sopra ? 18 : -9)) + '" text-anchor="' + an + '">voti contati ' + u.r[k] + '</text>');
+  if (up) s += '<circle class="pproj" cx="' + ux + '" cy="' + Y(u.p[k]) + '" r="5"/>' + (!etich ? '' : '<text class="tproj" x="' + (ux + dx) + '" y="' + (Y(u.p[k]) + (sopra ? -10 : 19)) + '" text-anchor="' + an + '">' + trEtichetta(u, k) + '</text>');
   return s;
 }
 function renderTraccia() {
@@ -2069,21 +2135,25 @@ function renderTraccia() {
   card.classList.toggle('hidden', !pieno);
   if (!pieno) return;
   document.querySelectorAll('#trVista button').forEach(b => b.setAttribute('aria-pressed', b.dataset.k === TR.vista ? 'true' : 'false'));
-  const el = $('trSvg'), stretto = el.clientWidth && el.clientWidth < 560, W = stretto ? 400 : 700, H = stretto ? 300 : 320;
+  /* alla larghezza vera dello schermo: così le scritte hanno le stesse misure del resto della pagina */
+  const el = $('trSvg'), cs = getComputedStyle(el), W = Math.max(300, Math.round((el.clientWidth || 700) - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight))), H = W < 520 ? 280 : 320;
   el.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
-  el.innerHTML = svgTraccia(W, H, TR.vista, stretto ? 12 : 11);
+  el.innerHTML = svgTraccia(W, H, TR.vista);
+  TR_LARGO = W;
+  const uu = TR.p[TR.p.length - 1], kk = TR.vista;
+  $('trNum').innerHTML = W >= 480 ? '' : (uu.p ? '<b>' + esc(trEtichetta(uu, kk)) + '</b>' : '') + (uu.p && uu.r ? ' · ' : '') + (uu.r ? '<span class="g">voti contati ' + uu.r[kk] + '</span>' : '');
   const u = TR.p[TR.p.length - 1], V = trVista(TR.vista);
   $('trMeta').textContent = 'scrutinio ' + pctScr(u.x);
-  $('trNota').textContent = 'Sull’asse orizzontale i seggi elettorali scrutinati, su quello verticale i seggi di ' + V.n + '. La linea gialla è il riparto D’Hondt sui voti contati fino a quel momento; quella chiara è la proiezione dello spoglio, con la fascia della forchetta che comprende 8 simulazioni su 10. La proiezione compare dal 10% dello scrutinio, quando sono arrivati i dati dei comuni, e si ferma a spoglio quasi concluso. All’inizio si contano soprattutto i comuni piccoli, che non votano come le città: il conteggio si muove molto, la proiezione molto meno. La pagina tiene la storia della notte: chi la ricarica ritrova il grafico.';
+  $('trNota').textContent = 'Sull’asse orizzontale i seggi elettorali scrutinati, su quello verticale i seggi di ' + V.n + '. La linea gialla è il riparto D’Hondt sui voti contati fino a quel momento; quella chiara è la proiezione dello spoglio, con le fasce della forchetta che comprendono 95 e 80 simulazioni su 100. La proiezione compare dal 10% dello scrutinio, quando sono arrivati i dati dei comuni, e si ferma a spoglio quasi concluso. All’inizio si contano soprattutto i comuni piccoli, che non votano come le città: il conteggio si muove molto, la proiezione molto meno. La pagina tiene la storia della notte: chi la ricarica ritrova il grafico.';
 }
 document.addEventListener('click', e => {
   const b = e.target.closest('#trVista button'); if (!b) return;
   TR.vista = b.dataset.k; renderTraccia(); if (window.CARD) window.CARD.segnaSporco();
 });
-let TR_STRETTO = null;
+let TR_LARGO = null, TR_RAF = 0;
 window.addEventListener('resize', () => {
-  const t = ($('trSvg') && $('trSvg').clientWidth || 900) < 560;
-  if (t !== TR_STRETTO) { TR_STRETTO = t; renderTraccia(); }
+  cancelAnimationFrame(TR_RAF);
+  TR_RAF = requestAnimationFrame(() => { if (TR_LARGO != null && $('trSvg') && $('trSvg').clientWidth) renderTraccia(); if (VP_STRETTO != null) renderVerdetto(); });
   const f = ($('flGraf') && $('flGraf').clientWidth || 900) < 560;
   if (f !== FL_STRETTO) { FL_STRETTO = f; renderFlussi(); }
 });
@@ -2852,7 +2922,7 @@ function lavoratore() {
     const v23 = daFile(COM.d23, COM.g23), seggi23 = Object.fromEntries(COD.map(c => [c, CIRC[c][2]]));
     if (!PROVA) PROIEZ.w.postMessage({ tipo: 'base', base: v23 });
     fetch('strumenti/backtest/comuni201911.json').then(r => r.json()).then(d => {
-      const base19 = daFile(d);
+      const base19 = daFile(d); PROIEZ.base19 = base19;
       if (PROVA) PROIEZ.w.postMessage({ tipo: 'base', base: base19 });
       PROIEZ.w.postMessage({ tipo: 'controllo', base19, v23, seggi23 });
       chiediProiezione(true);
@@ -3089,6 +3159,7 @@ function provaApplica() {
   if (SEN.stato === 'ok') SEN.live = provaSenato(R);
   chiediProiezione();
   applica(R, 'prova', new Date(R.quando));
+  if (!PROVA_ST.play) trRicostruisci(Math.round(f * 100));
   setFeed('Prova generale · 2023, avanzamento simulato ' + Math.round(f * 100) + '%', 'paused');
 }
 async function avviaProva() {
@@ -3449,7 +3520,7 @@ window.CARD = (function () {
   function card6(x, s) {
     const k = TR.vista, V = trVista(k), ig = formato === 'ig';
     const z = cornice(x, { badge: 'LA PROIEZIONE', kicker: s.ambito, title: titolo('c6', s), sub: (s.conVoti ? s.scr + ' · ' : '') + 'i seggi di ' + V.n + ' durante lo spoglio' + (V.magg ? ' · maggioranza a 176' : ''), fonte: fonteMin(s) + ' · proiezione della redazione',
-      nota: 'In giallo i seggi con i voti contati fino a quel momento; in chiaro la proiezione dello spoglio, con la forchetta che comprende 8 simulazioni su 10.' });
+      nota: 'In giallo i seggi con i voti contati fino a quel momento; in chiaro la proiezione dello spoglio, con le forchette che comprendono 95 e 80 simulazioni su 100.' });
     if (!trPieno()) return attesa(x, z, 'In attesa dei voti contati in tutte le province');
     const fz = ig ? 21 : 19, Wd = z.Wd, G = geoTraccia(Wd, z.y1, k, { l: z.M + 58, r: z.M, t: z.y0 + 6, b: 46 }), { pts, pp, X, Y, u, up, m } = G;
     const lineaH = (y, col, dash, w) => { x.beginPath(); x.moveTo(m.l, y); x.lineTo(Wd - m.r, y); x.strokeStyle = col; x.lineWidth = w || 1; x.setLineDash(dash || []); x.stroke(); x.setLineDash([]); };
@@ -3460,7 +3531,8 @@ window.CARD = (function () {
     lineaH(yr, 'rgba(255,255,255,.5)', [8, 8], 1.5);
     T(x, V.magg ? 'maggioranza assoluta, 176' : 'nel 2023: ' + G.rif, m.l + 14, yr - 10, { font: F(600, fz - 2), color: C.t2 });
     const linea = (arr, f) => arr.forEach((p, i) => i ? x.lineTo(X(p.x), Y(f(p))) : x.moveTo(X(p.x), Y(f(p))));
-    if (pp.length > 1) { x.beginPath(); linea(pp, p => p.a[k]); pp.slice().reverse().forEach(p => x.lineTo(X(p.x), Y(p.b[k]))); x.closePath(); x.globalAlpha = .16; x.fillStyle = TR_PROJ; x.fill(); x.globalAlpha = 1; }
+    const fascia = (lo_, hi_, al) => { x.beginPath(); linea(pp, lo_); pp.slice().reverse().forEach(p => x.lineTo(X(p.x), Y(hi_(p)))); x.closePath(); x.globalAlpha = al; x.fillStyle = TR_PROJ; x.fill(); x.globalAlpha = 1; };
+    if (pp.length > 1) { fascia(p => (p.a95 || p.a)[k], p => (p.b95 || p.b)[k], .1); fascia(p => p.a[k], p => p.b[k], .18); }
     x.lineJoin = 'round';
     if (pts.length > 1) { x.beginPath(); linea(pts, p => p.r[k]); x.strokeStyle = TR_RAW; x.lineWidth = 3.5; x.stroke(); }
     if (pp.length > 1) { x.beginPath(); linea(pp, p => p.p[k]); x.strokeStyle = TR_PROJ; x.lineWidth = 4.5; x.stroke(); }

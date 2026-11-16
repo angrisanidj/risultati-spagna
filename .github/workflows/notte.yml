@@ -1,0 +1,52 @@
+# La storia del grafico «La forchetta che si stringe», per chi apre la pagina a metà notte.
+#
+# Domenica 29 novembre alle 19:17 italiane (18:17 UTC) un browser senza schermo apre la pagina
+# e la tiene aperta fino a fine spoglio (al massimo 5 ore e 40 minuti): ogni minuto pubblica la
+# storia nel ramo «notte» (dati/live/traccia.json), che le pagine dei lettori rileggono. Vedi
+# strumenti/registra-notte.mjs.
+#
+# Gli orari di GitHub possono slittare di qualche minuto: c'è un secondo orario alle 19:47, che
+# aspetta in coda se il primo è partito e, se il primo non è partito, lo sostituisce. Se nessuno
+# dei due parte, si lancia a mano: Actions → Storia della notte → Run workflow, modo «notte».
+#
+# Il modo «prova» rifà la prova generale del 2023 al 100% e scrive nel ramo «notte-prova»: la
+# pagina lo legge con ?storia=notte-prova&feed=1.
+name: Storia della notte
+on:
+  schedule:
+    - cron: '17 18 29 11 *'
+    - cron: '47 18 29 11 *'
+  workflow_dispatch:
+    inputs:
+      modo:
+        description: 'notte (lo spoglio vero) o prova (la prova generale del 2023, nel ramo notte-prova)'
+        type: choice
+        options: [prova, notte]
+        default: prova
+permissions:
+  contents: write
+concurrency:
+  group: notte
+  cancel-in-progress: false
+jobs:
+  registra:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Chromium con Playwright
+        run: |
+          npm i --no-save playwright@1.48.2
+          npx playwright install --with-deps chromium
+      - name: Registra
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.modo }}" = "prova" ]; then
+            node strumenti/registra-notte.mjs --prova --ramo=notte-prova --minuti=20
+          else
+            node strumenti/registra-notte.mjs --minuti=340
+          fi

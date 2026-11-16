@@ -2027,7 +2027,8 @@ function registraTraccia() {
   /* la proiezione si segna solo se è quella dei dati di adesso, non di un giro prima */
   if (proiezioneValida() && PROIEZ.idR === PROIEZ.id && !PROIEZ.inCorso && !PROIEZ.ancora) Object.assign(pt, trProiezione(PROIEZ.R));
   const T = TR.p;
-  while (T.length && T[T.length - 1].x > x + 1e-9) T.pop();
+  if (PROVA) while (T.length && T[T.length - 1].x > x + 1e-9) T.pop();
+  else if (T.length && T[T.length - 1].x > x + 1e-9) return;   /* un dato più vecchio di quello già segnato */
   const u = T[T.length - 1];
   if (u && Math.abs(u.x - x) < 1e-9) T[T.length - 1] = pt.p || !u.p ? pt : { ...u, r: pt.r };
   else T.push(pt);
@@ -2037,8 +2038,35 @@ function registraTraccia() {
     TR.salva = setTimeout(() => { try { localStorage.setItem(TR_CHIAVE, JSON.stringify({ quando: Date.now(), p: TR.p })); } catch (_) { } }, 1500);
   }
 }
+/* La storia pubblicata. Chi apre la pagina a metà notte non ha la storia nel browser: la
+   pubblica, minuto per minuto, un browser senza schermo che tiene aperta la pagina su GitHub
+   (strumenti/registra-notte.mjs, workflow «Storia della notte»), nel ramo «notte» del
+   repository. La pagina la rilegge ogni due minuti: fino all'ultimo punto pubblicato vale
+   quella, dopo i punti visti da questo browser. Così due calcoli diversi non si alternano sulla
+   stessa linea. ?registra=1 è la pagina del registratore, che non la legge; ?storia=ramo legge
+   un altro ramo (per le prove: notte-prova). */
+const REGISTRA = PARAM.get('registra') === '1', STORIA = PARAM.get('storia') || 'notte';
+const TR_REMOTO = 'https://raw.githubusercontent.com/angrisanidj/risultati-spagna/' + encodeURIComponent(STORIA) + '/dati/live/traccia.json';
+let TR_SERVER = [];
+function trUnisci() {
+  if (!TR_SERVER.length) return;
+  const m = TR_SERVER[TR_SERVER.length - 1].x;
+  TR.p = TR_SERVER.concat(TR.p.filter(q => q.x > m + 1e-9));
+}
+async function caricaStoria() {
+  if (PROVA || REGISTRA) return;
+  if (!FORZA_FEED && !PARAM.has('storia') && Date.now() < ATTIVA_FEED) return;
+  try {
+    const r = await fetch(TR_REMOTO + '?t=' + Math.floor(Date.now() / 60000), { cache: 'no-store' });
+    if (!r.ok) return;
+    const j = await r.json();
+    if (!j || !Array.isArray(j.p) || !(Date.now() - Date.parse(j.quando) < 3 * 86400e3)) return;
+    TR_SERVER = j.p.filter(q => q && isFinite(q.x)).sort((a, b) => a.x - b.x);
+    trUnisci(); renderTraccia(); if (window.CARD) window.CARD.segnaSporco();
+  } catch (_) { }
+}
 function caricaTraccia() {
-  if (PROVA) return;
+  if (PROVA || REGISTRA) return;
   try {
     const n = JSON.parse(localStorage.getItem(TR_CHIAVE) || 'null');
     if (n && Array.isArray(n.p) && Date.now() - (n.quando || 0) < 3 * 86400e3) TR.p = n.p.filter(p => p && isFinite(p.x));
@@ -3337,7 +3365,7 @@ function eventi() {
 async function avvio() {
   REDAZIONE = await verificaRedazione();
   document.body.classList.toggle('redazione', REDAZIONE);
-  costruisciManuale(); eventi(); eventiSocial(); caricaTraccia();
+  costruisciManuale(); eventi(); eventiSocial(); caricaTraccia(); caricaStoria(); setInterval(caricaStoria, 120000);
   $('footProxy').textContent = 'Proxy: ' + (() => { try { return new URL(PROXY).host; } catch (_) { return PROXY; } })();
   render();
   caricaSenato().then(() => { renderSenato(); renderDettaglio(); });

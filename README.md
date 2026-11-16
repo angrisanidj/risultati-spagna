@@ -26,7 +26,7 @@ Dashboard per seguire in diretta lo spoglio delle elezioni generali spagnole di 
 ## Cosa mostra
 
 - **Scrutinio, affluenza, primo partito** e la fonte dell'emiciclo.
-- **Chi ha la maggioranza:** PP e Vox contro la soglia di 176, con il PSOE e i suoi alleati e i nazionalisti di centro.
+- **Chi ha la maggioranza:** PP e Vox contro la soglia di 176, con il PSOE e i suoi alleati e i nazionalisti di centro. Dal 10% dello scrutinio, sotto la barra, **le linee della proiezione** come nella dashboard del Brasile: una per PP e Vox e una per PSOE e alleati, sulla stessa scala, divise dai 176 seggi in «senza maggioranza» e «maggioranza», con la proiezione (linea bianca), la forchetta all’80% e al 95%, i seggi dei voti contati (triangolo giallo) e, sulla linea del PSOE, un cerchio per la somma con i nazionalisti di centro (Junts, PNV, CC). Prima del 10% un rigo dice quando parte.
 - **Come finirà lo spoglio:** la proiezione del risultato finale dai comuni già contati, con le forchette e la probabilità della maggioranza (vedi «La proiezione dello spoglio»).
 - **La forchetta che si stringe:** il grafico della notte, come quello del Brasile. Sull'asse orizzontale i seggi elettorali scrutinati; la linea gialla è il riparto sui voti contati, quella chiara la proiezione con la forchetta all'80%. Si sceglie fra PP e Vox, PSOE e alleati, PP, PSOE, Vox e Frente Amplio (vedi «La forchetta che si stringe»).
 - **Da dove vengono i voti:** i flussi elettorali dal 2023, dall'80% dello scrutinio (vedi «I flussi elettorali»).

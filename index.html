@@ -145,6 +145,22 @@ select{background:var(--s2);color:var(--t1);border:1px solid var(--line-2);borde
 .verdetto h2{font-size:clamp(20px,2.6vw,27px);line-height:1.22;margin:6px 0 8px;max-width:62ch}
 .verdetto .vd{color:var(--t2);font-size:14px;line-height:1.55;max-width:90ch}
 .verdetto .vd b{color:var(--t1);font-weight:600}
+.verdetto .vproj{margin-top:16px;padding-top:12px;border-top:1px solid var(--line);max-width:760px}
+.verdetto .vproj h4{margin:0 0 4px;font-size:13px;font-weight:600;color:var(--t2)}
+.verdetto .vpt{font-size:14px;color:var(--t2);line-height:1.5}
+.verdetto .vpt b{color:var(--t1);font-weight:600}
+.verdetto .vpsvg{display:block;width:100%;height:auto;margin-top:4px}
+.verdetto .vpl{display:flex;flex-wrap:wrap;gap:4px 16px;color:var(--t3);font-size:12px}
+.verdetto .vpl i{display:inline-block;width:16px;height:8px;border-radius:2px;margin-right:6px;vertical-align:0}
+.verdetto .vpl i.f95{background:rgba(246,239,230,.18)}.verdetto .vpl i.f80{background:rgba(246,239,230,.4)}
+.verdetto .vpl i.pr{width:3px;height:12px;background:#fff;vertical-align:-2px}
+.verdetto .vpl i.nz{width:9px;height:9px;border-radius:50%;background:none;border:2px solid #2fb3a3;box-sizing:border-box;vertical-align:-1px}
+.verdetto .vpr+.vpr{margin-top:6px}
+.verdetto .vpd{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:7px;vertical-align:0}
+.verdetto .vpn{color:var(--t3)}
+.verdetto .vpl i.ct{width:0;height:0;border-radius:0;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:8px solid #f2c14e}
+.verdetto .vps{margin-top:6px;font-size:13px;color:var(--t2)}
+.verdetto .vko{color:var(--amber)}
 .verdetto .vcav{display:inline-block;margin-top:10px;color:var(--amber);font-size:12.5px;font-weight:500}
 .verdetto .vcav:before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--amber);margin-right:7px;vertical-align:1px}
 .magg{margin:18px 0 4px}
@@ -1452,6 +1468,60 @@ function barraMaggioranza(t) {
     '<i class="magg-61" style="left:' + (MAGG / SEGGI * 100) + '%"></i></div>' +
     '<div class="magg-lab"><span class="n"><b>' + t.S + '</b>PSOE e alleati</span><span class="m61" style="left:' + (MAGG / SEGGI * 100) + '%">176</span><span class="n" style="text-align:right"><b>' + t.D + '</b>PP e Vox</span></div></div>';
 }
+/* Le linee della proiezione, come nella dashboard del Brasile. Con tanti partiti le domande
+   della notte sono due: PP e Vox arrivano a 176? E il PSOE con i suoi alleati? Una linea per
+   blocco, sulla stessa scala: a sinistra della linea tratteggiata dei 176 seggi niente
+   maggioranza, a destra la maggioranza; la forchetta all'80% e al 95% delle simulazioni, la
+   proiezione (linea bianca) e i seggi dei voti contati (segno giallo). Sulla linea del PSOE un
+   cerchio segna dove arriva con i nazionalisti di centro (Junts, PNV, CC), come nel 2023. Si
+   vedono dal 10% dello scrutinio, con il riquadro della proiezione; prima un rigo dice quando
+   partono. */
+let VP_STRETTO = null;
+function lineaProiezione() {
+  const D = S.D; if (!D || !D.naz.validi || S.manuale) return '';
+  const tit = '<h4>Proiezione del risultato finale</h4>';
+  if (!proiezioneValida()) {
+    if (D.naz.frac >= 0.999) return '';
+    return '<div class="vproj">' + tit + '<div class="vpt">' + (D.naz.frac < PROIEZ_RIQUADRO ? 'Parte dal 10% dello scrutinio (ora ' + pctScr(D.naz.frac) + '): prima è troppo incerta.' : 'In attesa dei dati dei comuni.') + '</div></div>';
+  }
+  const R = PROIEZ.R, B = blocchiProiezione(R), t = totBlocchi({ seggi: R.seggi }), C = esitoControllo();
+  const tc = sum(D.gs) >= 350 ? totBlocchi({ seggi: D.gs }) : null;
+  const righe = [
+    { k: 'D', n: 'PP e Vox', v: t.D, i80: B.intD, i95: B.intD95, cont: tc && tc.D, p: B.pD },
+    { k: 'S', n: 'PSOE e alleati', v: t.S, i80: B.intS, i95: B.intS95, cont: tc && tc.S, p: B.pS, conN: t.N ? t.S + t.N : null, pN: B.pSN }
+  ];
+  /* la scala comune: tutte le forchette, i 176 e i segni, con un po' di margine */
+  const vals = [MAGG]; righe.forEach(r => { vals.push(r.i95[0], r.i95[1], r.v); if (r.cont != null) vals.push(r.cont); if (r.conN != null) vals.push(r.conN); });
+  let lo = Math.min(...vals), hi = Math.max(...vals);
+  const extra = Math.max(6, Math.ceil((40 - (hi - lo)) / 2)); lo = Math.floor((lo - extra) / 5) * 5; hi = Math.ceil((hi + extra) / 5) * 5;
+  VP_STRETTO = ($('verdetto').clientWidth || 800) < 520;
+  const W = VP_STRETTO ? 380 : 640, x0 = 12, x1 = W - 12, X = v => x0 + (v - lo) / (hi - lo) * (x1 - x0), y = 26, h = 24, xm = X(MAGG - 0.5);
+  const passo = hi - lo > 100 ? 20 : hi - lo > 45 ? 10 : 5;
+  const asse = r => {
+    let s = '<rect x="' + x0 + '" y="' + y + '" width="' + (xm - x0) + '" height="' + h + '" fill="#3a2b2e" rx="4"/>' +
+      '<rect x="' + xm + '" y="' + y + '" width="' + (x1 - xm) + '" height="' + h + '" fill="' + mix('#22171a', BLOCCHI[r.k].c, 0.45) + '" rx="4"/>';
+    s += '<text x="' + (x0 + 2) + '" y="17" fill="#bfb0a5" font-size="' + (VP_STRETTO ? 14 : 12) + '" font-weight="600">← senza maggioranza</text>';
+    s += '<text x="' + (x1 - 2) + '" y="17" fill="' + mix('#f6efe6', BLOCCHI[r.k].c, 0.5) + '" font-size="' + (VP_STRETTO ? 14 : 12) + '" font-weight="600" text-anchor="end">maggioranza ' + (VP_STRETTO ? '' : esc(r.n) + ' ') + '→</text>';
+    for (let v = Math.ceil(lo / passo) * passo; v <= hi; v += passo)
+      s += '<line x1="' + X(v) + '" x2="' + X(v) + '" y1="' + (y + h) + '" y2="' + (y + h + 5) + '" stroke="#6f6266"/><text x="' + X(v) + '" y="' + (y + h + 18) + '" fill="#8d7d73" font-size="' + (VP_STRETTO ? 13 : 11) + '" text-anchor="middle">' + v + '</text>';
+    s += '<rect x="' + X(r.i95[0] - 0.5) + '" y="' + (y + 3) + '" width="' + Math.max(2, X(r.i95[1] + 0.5) - X(r.i95[0] - 0.5)) + '" height="' + (h - 6) + '" fill="#f6efe6" opacity=".18" rx="2"/>';
+    s += '<rect x="' + X(r.i80[0] - 0.5) + '" y="' + (y + 3) + '" width="' + Math.max(2, X(r.i80[1] + 0.5) - X(r.i80[0] - 0.5)) + '" height="' + (h - 6) + '" fill="#f6efe6" opacity=".4" rx="2"/>';
+    s += '<line x1="' + xm + '" x2="' + xm + '" y1="' + (y - 5) + '" y2="' + (y + h + 4) + '" stroke="#fff" stroke-dasharray="3 3" opacity=".7"/>';
+    if (r.conN != null) s += '<circle cx="' + X(r.conN) + '" cy="' + (y + h / 2) + '" r="5.5" fill="none" stroke="' + BLOCCHI.N.c + '" stroke-width="2.2"><title>Con i nazionalisti di centro: ' + r.conN + ' seggi</title></circle>';
+    if (r.cont != null) s += '<path d="M' + X(r.cont) + ',' + (y + h + 1) + 'l-5,8h10z" fill="#f2c14e"><title>Seggi con i voti contati: ' + r.cont + '</title></path>';
+    s += '<line x1="' + X(r.v) + '" x2="' + X(r.v) + '" y1="' + (y - 3) + '" y2="' + (y + h + 3) + '" stroke="#fff" stroke-width="3"><title>Proiezione: ' + r.v + ' seggi</title></line>';
+    return '<svg class="vpsvg" viewBox="0 0 ' + W + ' 70" role="img" aria-label="Proiezione dei seggi di ' + esc(r.n) + ' con la forchetta">' + s + '</svg>';
+  };
+  const testo = r => '<div class="vpt"><i class="vpd" style="background:' + BLOCCHI[r.k].c + '"></i>' + esc(r.n) + ' <b>' + r.v + '</b> seggi · forchetta all’80%: <b>' + r.i80[0] + '–' + r.i80[1] + '</b> · maggioranza in <b>' + probIT(r.p) + '</b> simulazioni' +
+    (r.conN != null ? '<span class="vpn"> · con i nazionalisti di centro <b>' + r.conN + '</b>, maggioranza in <b>' + probIT(r.pN) + '</b></span>' : '') + '</div>';
+  const ko = C && !C.ok, conCont = righe.some(r => r.cont != null);
+  return '<div class="vproj">' + tit + righe.map(r => '<div class="vpr">' + testo(r) + asse(r) + '</div>').join('') +
+    '<div class="vpl"><span><i class="f95"></i>forchetta al 95%</span><span><i class="f80"></i>all’80%</span><span><i class="pr"></i>proiezione</span>' +
+    (conCont ? '<span><i class="ct"></i>seggi con i voti contati</span>' : '') + (t.N ? '<span><i class="nz"></i>PSOE e alleati con Junts, PNV e CC</span>' : '') + '</div>' +
+    (ko ? '<div class="vps vko">Il controllo sull’ordine di arrivo non è superato: la proiezione va letta con cautela.</div>' : '') + '</div>';
+}
+window.addEventListener('resize', () => { if (VP_STRETTO == null) return; const s = ($('verdetto').clientWidth || 800) < 520; if (s !== VP_STRETTO) renderVerdetto(); });
+
 function renderVerdetto() {
   const f = fonteAttiva(), t = totBlocchi(f), box = $('verdetto');
   if (f.tipo === 'base') {
@@ -1471,7 +1541,7 @@ function renderVerdetto() {
   else if (f.tipo === 'manuale') cav = 'Seggi inseriti a mano dalla redazione';
   else if (f.tipo === 'stima') cav = 'Proiezione dalla media dei sondaggi: una stima prima del voto, non voti contati';
   else if (f.tipo === 'proiez') { const B = blocchiProiezione(PROIEZ.R); cav = 'Proiezione dello spoglio dai comuni contati ' + alPct(f.frac) + ': PP e Vox fra ' + B.intD[0] + ' e ' + B.intD[1] + ' seggi, maggioranza in ' + probIT(B.pD) + ' simulazioni'; }
-  box.innerHTML = '<div class="vw">Chi ha la maggioranza, a 176 seggi · ' + esc(nomeFonte(f, true)) + '</div><h2>' + esc(titolo) + '</h2><div class="vd">' + det + '</div>' + (cav ? '<span class="vcav">' + esc(cav) + '</span>' : '') + barraMaggioranza(t);
+  box.innerHTML = '<div class="vw">Chi ha la maggioranza, a 176 seggi · ' + esc(nomeFonte(f, true)) + '</div><h2>' + esc(titolo) + '</h2><div class="vd">' + det + '</div>' + (cav ? '<span class="vcav">' + esc(cav) + '</span>' : '') + barraMaggioranza(t) + lineaProiezione();
 }
 
 /* l'elenco dei partiti da mostrare: quelli con voti o seggi in qualche fonte, nell'ordine dei voti */
@@ -2815,7 +2885,7 @@ function blocchiProiezione(R) {
   for (const c of R.campioni) { const b = totBlocchi({ seggi: c }); t.D.push(b.D); t.S.push(b.S); t.SN.push(b.S + b.N); }
   const q = (a, p) => { const s = [...a].sort((x, y) => x - y); return s[Math.min(s.length - 1, Math.floor(p * s.length))]; };
   const pr = a => a.filter(x => x >= MAGG).length / a.length;
-  return { intD: [q(t.D, 0.1), q(t.D, 0.9)], intS: [q(t.S, 0.1), q(t.S, 0.9)], pD: pr(t.D), pS: pr(t.S), pSN: pr(t.SN) };
+  return { intD: [q(t.D, 0.1), q(t.D, 0.9)], intD95: [q(t.D, 0.025), q(t.D, 0.975)], intS: [q(t.S, 0.1), q(t.S, 0.9)], intS95: [q(t.S, 0.025), q(t.S, 0.975)], pD: pr(t.D), pS: pr(t.S), pSN: pr(t.SN) };
 }
 /* il riquadro: dal 10%, con i comuni completi; nei titoli: dal 10%, se il controllo è superato */
 const proiezioneValida = () => !!(PROIEZ.R && PROIEZ.R.frac >= PROIEZ_RIQUADRO && PROIEZ.R.frac < 0.999 && coperturaComuni().ok);

@@ -111,7 +111,7 @@ async function leggiTutto() {
     naz = await json(url(MAPA, ESPANA));
     const R = riassumi([naz]);
     if (Object.keys(R.circ).length === 52) return { R, modo, errori: 0 };
-  } catch (e) { if (limitato(e.stato)) throw e; }
+  } catch (e) { if (limitato(e.stato) || e.stato >= 500) throw e; }   /* il Ministero è in difficoltà: 53 richieste in più non aiutano */
   /* altrimenti la Spagna e le 52 province una per una */
   modo = 'province';
   const ris = await aGruppi(['1', ...PROVINCE], 6, c => json(url(RUTA, c === '1' ? ESPANA : scopeId(c, 30))));
@@ -153,6 +153,40 @@ export default async function handler(req, res) {
     return res.status(200).json(out);
   }
 
+  /* Ogni risposta, anche di errore, vale per i secondi del suo s-maxage. Il CDN di Vercel tiene in
+     cache solo le risposte 200: un errore con il suo stato vero (502, 503) passerebbe ogni volta
+     dalla funzione, e con il Ministero in difficoltà ogni lettore, ogni 30 secondi, farebbe
+     ripartire fino a 53 richieste verso di lui. Per questo gli errori escono con 200, il messaggio
+     in «errore» e lo stato vero in X-Mir-Errore (la pagina guarda la forma della risposta, non lo
+     stato). In più ogni istanza ricorda l'ultima risposta e, se arrivano più richieste insieme
+     mentre una lettura è in corso, aspettano quella invece di farne altre. */
+  const chiave = JSON.stringify(Object.entries(q).sort());
+  let e = MEMO.get(chiave);
+  if (!e || e.fino < Date.now()) {
+    let p = IN_CORSO.get(chiave);
+    if (!p) {
+      p = calcola(q).finally(() => IN_CORSO.delete(chiave));
+      IN_CORSO.set(chiave, p);
+    }
+    e = await p;
+  }
+  for (const [k, v] of Object.entries(e.h)) res.setHeader(k, v);
+  if (e.s >= 500) { res.setHeader('X-Mir-Errore', String(e.s)); return res.status(200).json(e.b); }
+  return res.status(e.s).json(e.b);
+}
+
+const MEMO = new Map(), IN_CORSO = new Map();
+/* La lettura vera: scrive in un raccoglitore che ha la stessa forma di res. */
+async function calcola(q) {
+  const o = { h: {}, s: 200, b: null };
+  const res = { setHeader: (k, v) => { o.h[k] = v; }, status(s) { o.s = s; return this; }, json(b) { o.b = b; return o; } };
+  await leggiAmbito(q, res);
+  const m = /s-maxage=(\d+)/.exec(o.h['Cache-Control'] || '');
+  o.fino = Date.now() + (m ? +m[1] : 10) * 1000;
+  MEMO.set(JSON.stringify(Object.entries(q).sort()), o);
+  return o;
+}
+async function leggiAmbito(q, res) {
   if (Date.now() < frenoFino) {
     res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=30');
     return res.status(503).json({ errore: 'Il Ministero ha limitato le richieste: pausa di un minuto' });

@@ -237,6 +237,8 @@ npx vercel --prod
 
 Il proxy prova prima la Spagna con le province dentro (una richiesta); se la risposta non le contiene tutte, chiede le 52 province, 6 alla volta. La cache del CDN di Vercel tiene ogni risposta 20 secondi, quindi molti lettori aperti producono al massimo un giro di richieste al Ministero ogni 20 secondi. Dopo un 429 o un 403 il proxy si ferma un minuto.
 
+**Anche gli errori restano in cache.** Il CDN di Vercel conserva solo le risposte 200: un errore con il suo stato vero (502, 503) passerebbe ogni volta dalla funzione, e con il Ministero in difficoltà ogni lettore, ogni 30 secondi, farebbe ripartire una lettura completa. Per questo, dal 17 novembre, gli errori escono con 200, il messaggio in `errore` e lo stato vero nell'intestazione `X-Mir-Errore`; la pagina guarda la forma della risposta, non lo stato. Ogni istanza della funzione ricorda poi l'ultima risposta per i secondi del suo `s-maxage`, e le richieste che arrivano mentre una lettura è in corso aspettano quella. Se la prima richiesta riceve un errore del server (5xx), il proxy non prova le 52 province una per una: 53 richieste in più non aiutano un Ministero in difficoltà. Provato con un finto Ministero in errore: 20 lettori insieme, 1 richiesta (prima 1.080); sul proxy vero, dalla seconda richiesta in poi `X-Vercel-Cache: HIT`, anche con `Cache-Control: no-cache` del browser.
+
 ### Diagnostica, appena il sito dei risultati esiste e poi il giorno prima
 
 ```

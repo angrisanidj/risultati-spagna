@@ -274,6 +274,8 @@ La pagina va aperta da un server (GitHub Pages o `python -m http.server`): dal d
 
 ## La sera del voto
 
+La scaletta della notte, ora per ora, con cosa fare se qualcosa si rompe, è in [NOTTE.md](NOTTE.md).
+
 **Orari:** i seggi chiudono alle **20**, la stessa ora in Italia; alle Canarie alle 20 locali, cioè le 21. Gli exit poll escono alle 20. Il voto degli spagnoli residenti all'estero (CERA) si conta il mercoledì successivo e può spostare qualche ultimo seggio: nel 2023 ha tolto un seggio di Madrid al PSOE per darlo al PP.
 
 ### Exit poll

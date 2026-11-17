@@ -395,6 +395,16 @@ table.conf th .corto{display:none}
 .trsvg .praw{fill:var(--amber)}.trsvg .pproj{fill:var(--t1);stroke:var(--bg);stroke-width:1.5}
 .trsvg .traw,.trsvg .tproj{font-weight:600;stroke:var(--s1);stroke-width:4px;paint-order:stroke;font-variant-numeric:tabular-nums}
 .trsvg .traw{font-size:12.5px;fill:var(--amber)}.trsvg .tproj{font-size:13px;fill:var(--t1)}
+.trwrap{position:relative}
+.trsvg{touch-action:pan-y;cursor:crosshair}
+.trsvg .mira{stroke:var(--t2);stroke-width:1;stroke-dasharray:3 3;opacity:.7}
+.trsvg.mirando .traw,.trsvg.mirando .tproj{opacity:.15}
+.trsvg .mirab{stroke:var(--t1);stroke-width:5;opacity:.18;stroke-linecap:round}
+.trtip{position:absolute;z-index:3;pointer-events:none;min-width:172px;background:var(--s2);border:1px solid var(--line-2);border-radius:var(--r-s);padding:8px 10px;font-size:12.5px;color:var(--t2);box-shadow:0 6px 18px rgba(0,0,0,.35)}
+.trtip p{margin:0 0 5px;color:var(--t1);font-weight:600}.trtip p.n{margin:5px 0 0;font-weight:400;color:var(--t3)}
+.trtip div{display:flex;justify-content:space-between;gap:14px;line-height:1.55}
+.trtip b{color:var(--t1);font-weight:600;font-variant-numeric:tabular-nums}
+.trtip i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:1px}
 .trleg{display:flex;flex-wrap:wrap;gap:6px 18px;padding:6px 18px 0;color:var(--t2);font-size:12px}
 .trleg i{display:inline-block;width:18px;vertical-align:middle;margin-right:7px;border-radius:2px}
 #trVista{flex-wrap:wrap}
@@ -852,7 +862,7 @@ footer a{color:var(--t2)}
         <span class="cmeta" id="trMeta">—</span>
       </div>
     </div>
-    <svg id="trSvg" class="trsvg" viewBox="0 0 700 320" role="img" aria-label="Seggi con i voti contati e proiezione al crescere dello scrutinio"></svg>
+    <div class="trwrap"><svg id="trSvg" class="trsvg" viewBox="0 0 700 320" role="img" aria-label="Seggi con i voti contati e proiezione al crescere dello scrutinio"></svg><div class="trtip hidden" id="trTip" aria-hidden="true"></div></div>
     <div class="trnum" id="trNum"></div>
     <div class="trleg"><span><i style="background:rgba(246,239,230,.12);height:10px"></i>forchetta al 95%</span><span><i style="background:rgba(246,239,230,.28);height:10px"></i>all’80%</span><span><i style="background:#f6efe6;height:3px"></i>proiezione</span><span><i style="background:#f2c14e;height:3px"></i>seggi con i voti contati</span></div>
     <p class="methodnote" id="trNota"></p>
@@ -2100,6 +2110,7 @@ async function trRicostruisci(fino) {
   const gen = ++TR_RIC.gen, w = trLavoratore();
   if (!w) { setTimeout(() => { if (gen === TR_RIC.gen) trRicostruisci(fino); }, 1500); return; }   /* la base del 2019 non è ancora arrivata */
   const seggi = Object.fromEntries(COD.map(c => [c, seggiCirc(c)]));
+  TR_RIC.attivo = true;
   for (let v = 2; v < fino; v += 2) {
     if (gen !== TR_RIC.gen) return;
     const { R, live } = provaRiassunto(v / 100), D = elabora(R);
@@ -2116,6 +2127,54 @@ async function trRicostruisci(fino) {
     if (!pt.r && !pt.p) continue;
     trInserisci(pt); renderTraccia(); if (window.CARD) window.CARD.segnaSporco();
   }
+  if (gen === TR_RIC.gen) { TR_RIC.attivo = false; renderTraccia(); }
+}
+/* La lettura al passaggio del mouse (o del dito): una riga verticale sul punto più vicino della
+   notte e un riquadro con la proiezione, le due forchette e i seggi con i voti contati in quel
+   momento. Resta al suo posto quando arrivano dati nuovi. */
+TR.mira = null;
+function trMira() {
+  const g = $('trMiraG'), tip = $('trTip'), q = TR.mira, M = TR.geo;
+  if (!g || !tip) return;
+  $('trSvg').classList.toggle('mirando', !!(q && M && TR.p.includes(q)));
+  if (!q || !M || !TR.p.includes(q)) { g.innerHTML = ''; tip.classList.add('hidden'); TR.mira = null; return; }
+  const { X, Y, m } = M.G, k = TR.vista, H = M.H, x = X(q.x);
+  let s = '<line class="mira" x1="' + x + '" x2="' + x + '" y1="' + m.t + '" y2="' + (H - m.b) + '"/>';
+  if (q.p) s += '<line class="mirab" x1="' + x + '" x2="' + x + '" y1="' + Y((q.b95 || q.b)[k]) + '" y2="' + Y((q.a95 || q.a)[k]) + '"/>';
+  if (q.r) s += '<circle class="praw" cx="' + x + '" cy="' + Y(q.r[k]) + '" r="4"/>';
+  if (q.p) s += '<circle class="pproj" cx="' + x + '" cy="' + Y(q.p[k]) + '" r="4.5"/>';
+  g.innerHTML = s;
+  const riga = (c, n, v) => '<div><span>' + (c ? '<i style="background:' + c + '"></i>' : '') + n + '</span><b>' + v + '</b></div>';
+  const fc = (a, b) => a === b ? String(a) : a + '–' + b;
+  let h = '<p>Al ' + pct(q.x, 1) + ' dello scrutinio</p>';
+  if (q.p) h += riga('var(--t1)', 'proiezione', q.p[k]) + riga('', 'forchetta all’80%', fc(q.a[k], q.b[k])) + (q.a95 ? riga('', 'al 95%', fc(q.a95[k], q.b95[k])) : '');
+  if (q.r) h += riga('var(--amber)', 'voti contati', q.r[k]);
+  if (!q.p) h += '<p class="n">' + (q.x < PROIEZ_RIQUADRO ? 'La proiezione parte dal 10%' : 'Proiezione non disponibile') + '</p>';
+  tip.innerHTML = h;
+  tip.classList.remove('hidden');
+  const sv = $('trSvg'), pl = parseFloat(getComputedStyle(sv).paddingLeft) || 0, w = tip.offsetWidth;
+  const sx = sv.clientWidth - pl - (parseFloat(getComputedStyle(sv).paddingRight) || 0), kx = sx / M.W;
+  let left = pl + x * kx + 14;
+  if (left + w > sv.clientWidth - 4) left = pl + x * kx - 14 - w;
+  tip.style.left = Math.max(4, left) + 'px';
+  tip.style.top = (8 + m.t * kx + 4) + 'px';
+}
+function trPunta(e) {
+  const M = TR.geo, sv = $('trSvg'); if (!M || !sv) return;
+  const r = sv.getBoundingClientRect(), cs = getComputedStyle(sv), pl = parseFloat(cs.paddingLeft) || 0, pr = parseFloat(cs.paddingRight) || 0;
+  const px = (e.clientX - r.left - pl) * M.W / Math.max(1, r.width - pl - pr);
+  let best = null, d = Infinity;
+  for (const q of TR.p) { if (!q.p && !q.r) continue; const dd = Math.abs(M.G.X(q.x) - px); if (dd < d) { d = dd; best = q; } }
+  if (best === TR.mira) return;
+  TR.mira = best; trMira();
+}
+function trMiraEventi() {
+  const sv = $('trSvg'); if (!sv) return;
+  sv.addEventListener('pointermove', trPunta);
+  sv.addEventListener('pointerdown', trPunta);
+  sv.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') { TR.mira = null; trMira(); } });
+  sv.addEventListener('pointercancel', () => { TR.mira = null; trMira(); });   /* il dito ha cominciato a scorrere la pagina */
+  document.addEventListener('pointerdown', e => { if (TR.mira && !e.target.closest('#trSvg')) { TR.mira = null; trMira(); } });
 }
 /* scale e dati del grafico, per la pagina (SVG) e per la card (canvas) */
 function geoTraccia(W, H, k, m) {
@@ -2155,7 +2214,8 @@ function svgTraccia(W, H, k) {
   const etich = W >= 480;   /* sul telefono i numeri stanno in un rigo sotto il grafico */
   if (u.r) s += '<circle class="praw" cx="' + ux + '" cy="' + Y(u.r[k]) + '" r="4"/>' + (!etich ? '' : '<text class="traw" x="' + (ux + dx) + '" y="' + (Y(u.r[k]) + (sopra ? 18 : -9)) + '" text-anchor="' + an + '">voti contati ' + u.r[k] + '</text>');
   if (up) s += '<circle class="pproj" cx="' + ux + '" cy="' + Y(u.p[k]) + '" r="5"/>' + (!etich ? '' : '<text class="tproj" x="' + (ux + dx) + '" y="' + (Y(u.p[k]) + (sopra ? -10 : 19)) + '" text-anchor="' + an + '">' + trEtichetta(u, k) + '</text>');
-  return s;
+  TR.geo = { G, W, H };
+  return s + '<g id="trMiraG"></g>';
 }
 function renderTraccia() {
   const card = $('trCard'); if (!card) return;
@@ -2168,11 +2228,12 @@ function renderTraccia() {
   el.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
   el.innerHTML = svgTraccia(W, H, TR.vista);
   TR_LARGO = W;
+  trMira();
   const uu = TR.p[TR.p.length - 1], kk = TR.vista;
   $('trNum').innerHTML = W >= 480 ? '' : (uu.p ? '<b>' + esc(trEtichetta(uu, kk)) + '</b>' : '') + (uu.p && uu.r ? ' · ' : '') + (uu.r ? '<span class="g">voti contati ' + uu.r[kk] + '</span>' : '');
   const u = TR.p[TR.p.length - 1], V = trVista(TR.vista);
-  $('trMeta').textContent = 'scrutinio ' + pctScr(u.x);
-  $('trNota').textContent = 'Sull’asse orizzontale i seggi elettorali scrutinati, su quello verticale i seggi di ' + V.n + '. La linea gialla è il riparto D’Hondt sui voti contati fino a quel momento; quella chiara è la proiezione dello spoglio, con le fasce della forchetta che comprendono 95 e 80 simulazioni su 100. La proiezione compare dal 10% dello scrutinio, quando sono arrivati i dati dei comuni, e si ferma a spoglio quasi concluso. All’inizio si contano soprattutto i comuni piccoli, che non votano come le città: il conteggio si muove molto, la proiezione molto meno. La pagina tiene la storia della notte: chi la ricarica ritrova il grafico.';
+  $('trMeta').textContent = (TR_RIC.attivo ? 'ricostruzione della notte in corso · ' : '') + 'scrutinio ' + pctScr(u.x);
+  $('trNota').textContent = 'Sull’asse orizzontale i seggi elettorali scrutinati, su quello verticale i seggi di ' + V.n + '. La linea gialla è il riparto D’Hondt sui voti contati fino a quel momento; quella chiara è la proiezione dello spoglio, con le fasce della forchetta che comprendono 95 e 80 simulazioni su 100. La proiezione compare dal 10% dello scrutinio, quando sono arrivati i dati dei comuni, e si ferma a spoglio quasi concluso. All’inizio si contano soprattutto i comuni piccoli, che non votano come le città: il conteggio si muove molto, la proiezione molto meno. Passando sul grafico col mouse, o toccandolo, si leggono i numeri di ogni momento della notte. La pagina tiene la storia della notte: chi la ricarica ritrova il grafico.';
 }
 document.addEventListener('click', e => {
   const b = e.target.closest('#trVista button'); if (!b) return;
@@ -3365,7 +3426,7 @@ function eventi() {
 async function avvio() {
   REDAZIONE = await verificaRedazione();
   document.body.classList.toggle('redazione', REDAZIONE);
-  costruisciManuale(); eventi(); eventiSocial(); caricaTraccia(); caricaStoria(); setInterval(caricaStoria, 120000);
+  costruisciManuale(); eventi(); eventiSocial(); trMiraEventi(); caricaTraccia(); caricaStoria(); setInterval(caricaStoria, 120000);
   $('footProxy').textContent = 'Proxy: ' + (() => { try { return new URL(PROXY).host; } catch (_) { return PROXY; } })();
   render();
   caricaSenato().then(() => { renderSenato(); renderDettaglio(); });

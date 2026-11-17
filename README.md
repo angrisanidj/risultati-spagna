@@ -8,6 +8,7 @@ Dashboard per seguire in diretta lo spoglio delle elezioni generali spagnole di 
 |---|---|
 | `index.html` | La dashboard, file unico. Base 2023 e confini delle province sono incorporati. |
 | `stime.json` | La media dei sondaggi (la scrive il workflow) e gli exit poll in seggi, che si scrivono a mano la sera del voto. |
+| `stime-prova.json` | Exit poll inventati per le prove, letti solo con `?stime=prova`. |
 | `strumenti/sondaggi.py` | Legge i sondaggi da Wikipedia e calcola la media. |
 | `condivisione.jpg` | L'anteprima del link sui social (1200×630). |
 | `bandiera.svg` | La bandiera ufficiale, con lo stemma: icona in alto, icona della scheda del browser e sfondo dell'intestazione. |
@@ -271,6 +272,7 @@ La pagina va aperta da un server (GitHub Pages o `python -m http.server`): dal d
 - **`?feed=1`** accende subito il feed (senza, la pagina non chiama il proxy fino a domenica 29 novembre alle 19:30, poi si accende da sola).
 - **`?proxy=https://…`** sostituisce il proxy predefinito.
 - **`?copia=1`** legge solo la copia in `dati/live/escrutinio.json`, senza proxy.
+- **`?stime=prova`** legge gli exit poll da `stime-prova.json` invece che da `stime.json`: si prova tutto il percorso degli exit poll (screenshot, file, push, Pages) senza mostrarli ai lettori. La media dei sondaggi resta quella di `stime.json`, il file si rilegge ogni 15 secondi a qualunque ora e in alto compare l'etichetta «Exit poll di prova». Si combina con `?prova=2023`.
 
 ## La sera del voto
 

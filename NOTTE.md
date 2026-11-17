@@ -57,6 +57,15 @@ Le reti aggiornano gli exit poll durante la notte: si ripete con l'ora nuova (`o
 | Gli exit poll non compaiono dopo il push | Pages non ha ancora pubblicato | Guarda la pagina «Pubblica il sito»: se il giro è rosso, rilancialo (Run workflow). Un push nuovo annulla quello in corso: inutile spingerne tre di fila. |
 | Un exit poll è sbagliato | — | Si corregge `stime.json` e si fa un altro push. Il campo `sondaggi` non si tocca. |
 
+## La prova di domenica 22 novembre
+
+La stessa scaletta, alla stessa ora, una settimana prima. Niente di quello che si prova si vede ai lettori.
+
+- **19:17, il registratore:** Run workflow con il modo **prova**. Scrive nel ramo `notte-prova`; il risultato si guarda con `?storia=notte-prova&feed=1`.
+- **Lo spoglio:** `?prova=2023` simula la notte con i dati del 2023 («Avvia lo scorrimento»), anche in redazione per le card.
+- **20:00, gli exit poll:** screenshot dei grafici delle reti (anche vecchi) a Claude, che li scrive in **`stime-prova.json`**, non in `stime.json`, fa commit e push. La pagina con `?stime=prova` (anche insieme: `?prova=2023&stime=prova`) li mostra dopo la pubblicazione di Pages, con l'etichetta «Exit poll di prova». Conviene cronometrare: dallo screenshot alla card pubblicata.
+- **I guasti:** si può provare un registratore fermato a metà (Cancel run, poi di nuovo Run workflow) e l'inserimento manuale dei seggi.
+
 ## Dopo il voto
 
 - **Spegnere il registratore**, che altrimenti ripartirebbe il 29 novembre di ogni anno: `gh workflow disable notte.yml` (o «Disable workflow» nella sua pagina).

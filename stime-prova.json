@@ -1,0 +1,9 @@
+{
+  "aggiornato": "Prova: exit poll inventati",
+  "exit": {
+    "provaA": { "n": "Prova A · exit poll inventato", "s": "Prova A", "ora": "20:00",
+                "seggi": { "PP": [130, 136], "PSOE": [108, 114], "VOX": [60, 65], "FA": [8, 11], "ERC": [9, 11], "JUNTS": [4, 6], "BILDU": [6, 8], "PNV": [3, 5], "FV": [2, 4], "AA": [2, 4], "BNG": [1, 2], "PODEMOS": [0, 1], "CC": 1, "UPN": 1 } },
+    "provaB": { "n": "Prova B · exit poll inventato", "s": "Prova B", "ora": "20:00",
+                "seggi": { "PP": 134, "PSOE": 110, "VOX": 63, "FA": 9, "ERC": 10, "JUNTS": 5, "BILDU": 7, "PNV": 4, "FV": 3, "AA": 3, "BNG": 1 } }
+  }
+}

@@ -3167,15 +3167,21 @@ async function poll(forza) {
   }
 }
 const STIME_LETTURA = { timer: null, ultima: 0, inCorso: false };
-function intervalloStime() { const t = Date.now(); return t >= STIME_RAPIDO[0] && t < STIME_RAPIDO[1] ? STIME_RAPIDO_MS : STIME_MS; }
+/* La prova degli exit poll: ?stime=prova legge gli exit poll da stime-prova.json invece che da
+   stime.json, così si prova tutto il percorso (screenshot, file, push, Pages) senza mostrare
+   exit poll finti ai lettori. La media dei sondaggi resta quella vera di stime.json; la pagina
+   rilegge il file ogni 15 secondi, a qualunque ora, e lo dice nell'etichetta in alto. */
+const STIME_PROVA = PARAM.get('stime') === 'prova';
+function intervalloStime() { const t = Date.now(); return STIME_PROVA || (t >= STIME_RAPIDO[0] && t < STIME_RAPIDO[1]) ? STIME_RAPIDO_MS : STIME_MS; }
 async function leggiStime() {
   if (STIME_LETTURA.inCorso) return;
   clearTimeout(STIME_LETTURA.timer);
   STIME_LETTURA.inCorso = true; STIME_LETTURA.ultima = Date.now();
   try {
-    const r = await fetch('stime.json?t=' + Date.now(), { cache: 'no-store' });
+    const r = await fetch((STIME_PROVA ? 'stime-prova.json' : 'stime.json') + '?t=' + Date.now(), { cache: 'no-store' });
     if (!r.ok) throw 0;
     const j = await r.json();
+    if (STIME_PROVA && !j.sondaggi) { const v = await fetch('stime.json?t=' + Date.now(), { cache: 'no-store' }).then(x => x.ok ? x.json() : {}).catch(() => ({})); j.sondaggi = v.sondaggi; }
     S.stime = { exit: j.exit || {}, aggiornato: j.aggiornato || '', sondaggi: j.sondaggi || null };
     render();
   } catch (_) { $('statoStime').textContent = 'stime.json non leggibile (pagina aperta dal disco?)'; }
@@ -3431,6 +3437,7 @@ async function avvio() {
   render();
   caricaSenato().then(() => { renderSenato(); renderDettaglio(); });
   leggiStime();
+  if (STIME_PROVA) { const b = $('testBadge'); b.textContent = PROVA ? 'Prova con i dati del 2023 · exit poll di prova' : 'Exit poll di prova'; b.classList.remove('hidden'); }
   if (PROVA) avviaProva();
   else poll(true);
 }

@@ -1,6 +1,6 @@
 """La media dei sondaggi, da Wikipedia, nel campo «sondaggi» di stime.json.
 
-Legge la tabella «2026 (with Broad Front)» della voce «Opinion polling for the 2026 Spanish
+Legge la tabella più recente («2026 (Oct–Nov)» a novembre 2026) della voce «Opinion polling for the 2026 Spanish
 general election» di Wikipedia in inglese: per ogni sondaggio istituto, committente, date del
 campo, campione, quote di voto e, quando ci sono, i seggi stimati dall'istituto.
 
@@ -29,7 +29,7 @@ import urllib.parse
 import urllib.request
 
 PAGINA = 'Opinion polling for the 2026 Spanish general election'
-SEZIONE = '2026 (with Broad Front)'
+SEZIONE = 'la prima sottosezione «2026…» di «Voting intention estimates»'
 API = 'https://en.wikipedia.org/w/api.php'
 UA = 'risultati-spagna/1.0 (https://angrisanidj.github.io/risultati-spagna/)'
 FINESTRA = 21
@@ -105,10 +105,20 @@ def fine_campo(s):
     return dt.date(ANNO, MESI[m.lower()], int(g))
 
 
+def sezione(t):
+    """Dove inizia la tabella più recente. Wikipedia rinomina la sezione man mano che passano i mesi
+    («2026 (with Broad Front)», poi «2026 (Oct–Nov)»...): si prende la prima sottosezione «2026...»
+    sotto «Voting intention estimates». Se le colonne cambiano, leggi() si ferma comunque."""
+    v = re.search(r'^====\s*Voting intention estimates\s*====\s*$', t, re.M)
+    m = re.search(r'^=====\s*(' + re.escape(str(ANNO)) + r'\b[^=\n]*?)\s*=====\s*$', t[v.end():] if v else t, re.M)
+    if not m:
+        raise SystemExit('nessuna sezione «' + str(ANNO) + '...» sotto «Voting intention estimates»: la voce di Wikipedia è cambiata')
+    print('sezione di Wikipedia:', m.group(1))
+    return (v.end() if v else 0) + m.start()
+
+
 def leggi(t):
-    i = t.find('=====' + SEZIONE + '=====')
-    if i < 0:
-        raise SystemExit('sezione «' + SEZIONE + '» non trovata: la voce di Wikipedia è cambiata')
+    i = sezione(t)
     tab = pulisci(t[i:t.find('\n|}', i)])
     righe = tab.split('\n|-')
     # le colonne dei partiti, dalla prima riga d'intestazione
@@ -128,7 +138,9 @@ def leggi(t):
         c = celle(r)
         if len(c) < 6 or 'Polling firm' in r:
             continue
-        istituto = re.sub(r'\[\[(?:[^|\]]*\|)?([^\]]*)\]\]', r'\1', c[0][0]).strip()
+        istituto = re.sub(r'\[\[(?:[^|\]]*\|)?([^\]]*)\]\]', r'\1', c[0][0])
+        istituto = re.sub(r'\{\{smaller\|([^{}]*)\}\}', r'\1', istituto)  # «CIS {{smaller|(...)}}» -> «CIS (...)»
+        istituto = re.sub(r'\{\{.*$', '', istituto, flags=re.S).strip()   # note {{efn|...}} e simili
         if istituto.split('/')[0].strip().upper() in PARTITI_COME_ISTITUTO:
             continue
         data = fine_campo(c[1][0])

@@ -2,44 +2,113 @@
   "aggiornato": "",
   "exit": {},
   "sondaggi": {
-    "letto": "2026-11-21T15:26Z",
+    "letto": "2026-11-21T22:13Z",
     "ultimo": "2026-11-21",
     "finestra": 21,
     "emivita": 7.0,
     "fonte": "https://en.wikipedia.org/wiki/Opinion_polling_for_the_2026_Spanish_general_election",
     "media": {
-      "FV": 1.4,
-      "PNV": 0.83,
-      "PODEMOS": 1.3,
-      "AA": 1.67,
-      "BNG": 0.99,
+      "CC": 0.38,
+      "BILDU": 1.48,
+      "PSOE": 28.48,
+      "FA": 5.33,
+      "VOX": 18.54,
       "ERC": 2.56,
-      "JUNTS": 1.24,
-      "VOX": 18.64,
-      "BILDU": 1.47,
-      "CC": 0.37,
+      "AA": 1.67,
+      "PODEMOS": 1.25,
       "SALF": 1.95,
-      "PSOE": 28.3,
-      "FA": 5.38,
-      "PP": 30.89
+      "PP": 31.0,
+      "FV": 1.36,
+      "JUNTS": 1.24,
+      "BNG": 0.99,
+      "PNV": 0.83
     },
     "seggiIstituti": {
-      "FV": 3.2,
-      "PNV": 3.5,
-      "PODEMOS": 0.6,
-      "AA": 3.5,
-      "BNG": 2.2,
-      "ERC": 9.8,
-      "JUNTS": 4.4,
-      "VOX": 61.2,
+      "CC": 0.7,
       "BILDU": 7.3,
-      "CC": 0.6,
+      "PSOE": 116.2,
+      "FA": 8.1,
+      "VOX": 60.8,
+      "ERC": 10.1,
+      "AA": 3.3,
+      "PODEMOS": 0.6,
       "SALF": 0.0,
-      "PSOE": 116.0,
-      "FA": 8.3,
-      "PP": 129.1
+      "PP": 129.9,
+      "FV": 2.8,
+      "JUNTS": 4.3,
+      "BNG": 2.1,
+      "PNV": 3.3
     },
     "istituti": [
+      {
+        "n": "SocioMétrica/El Español",
+        "fine": "2026-11-21",
+        "campione": 6842,
+        "peso": 2.0,
+        "voti": {
+          "PP": 32.3,
+          "PSOE": 28.5,
+          "VOX": 18.8,
+          "FA": 4.9,
+          "FV": 1.0,
+          "ERC": 2.5,
+          "JUNTS": 1.3,
+          "BILDU": 1.5,
+          "PNV": 0.8,
+          "BNG": 1.0,
+          "CC": 0.4,
+          "AA": 1.6,
+          "PODEMOS": 1.0,
+          "SALF": 2.2
+        },
+        "seggi": {
+          "PP": 134,
+          "PSOE": 113,
+          "VOX": 65,
+          "FA": 5,
+          "FV": 2,
+          "ERC": 9,
+          "JUNTS": 5,
+          "BILDU": 8,
+          "PNV": 3,
+          "BNG": 2,
+          "CC": 1,
+          "AA": 3,
+          "PODEMOS": 0,
+          "SALF": 0
+        }
+      },
+      {
+        "n": "40dB/Prisa",
+        "fine": "2026-11-21",
+        "campione": 2000,
+        "peso": 1.414,
+        "voti": {
+          "PP": 31.9,
+          "PSOE": 31.6,
+          "VOX": 16.9,
+          "FA": 4.1,
+          "FV": 1.2,
+          "PODEMOS": 1.0,
+          "SALF": 1.4
+        },
+        "seggi": {
+          "PP": 132.5,
+          "PSOE": 124.5,
+          "VOX": 54.0,
+          "FA": 6.5,
+          "FV": 3,
+          "ERC": 11,
+          "JUNTS": 3,
+          "BILDU": 7,
+          "PNV": 3,
+          "BNG": 2,
+          "CC": 1,
+          "AA": 3,
+          "PODEMOS": 0.5,
+          "SALF": 0
+        }
+      },
       {
         "n": "EM-Analytics/Electomanía",
         "fine": "2026-11-21",
@@ -97,34 +166,28 @@
         }
       },
       {
-        "n": "40dB/Prisa",
+        "n": "SW Demoscopia/La Séptima",
         "fine": "2026-11-20",
-        "campione": 2000,
-        "peso": 1.281,
+        "campione": 11500,
+        "peso": 1.811,
         "voti": {
-          "PP": 31.9,
-          "PSOE": 31.2,
-          "VOX": 17.1,
-          "FA": 4.3,
-          "FV": 1.2,
-          "PODEMOS": 1.1,
-          "SALF": 1.5
+          "PP": 29.9,
+          "PSOE": 32.5,
+          "VOX": 15.9,
+          "FA+FV": 6.8
         },
         "seggi": {
-          "PP": 132.0,
-          "PSOE": 125.0,
-          "VOX": 55.0,
-          "FA": 6.5,
-          "FV": 3,
-          "ERC": 10,
-          "JUNTS": 3,
+          "PP": 124.0,
+          "PSOE": 133.5,
+          "VOX": 51.0,
+          "FA+FV": 10.0,
+          "ERC": 11.0,
+          "JUNTS": 3.5,
           "BILDU": 7,
           "PNV": 3,
           "BNG": 2,
           "CC": 1,
-          "AA": 3,
-          "PODEMOS": 0.5,
-          "SALF": 0
+          "AA": 3
         }
       },
       {
@@ -161,24 +224,6 @@
           "AA": 3,
           "PODEMOS": 0,
           "SALF": 0
-        }
-      },
-      {
-        "n": "SW Demoscopia/La Séptima",
-        "fine": "2026-11-19",
-        "campione": 11000,
-        "peso": 1.641,
-        "voti": {
-          "PP": 29.6,
-          "PSOE": 32.1,
-          "VOX": 16.3,
-          "FA+FV": 6.9
-        },
-        "seggi": {
-          "PP": 122,
-          "PSOE": 134,
-          "VOX": 53,
-          "FA+FV": 10
         }
       },
       {
@@ -262,44 +307,6 @@
           "SALF": 2.0
         },
         "seggi": {}
-      },
-      {
-        "n": "SocioMétrica/El Español",
-        "fine": "2026-11-15",
-        "campione": 5923,
-        "peso": 1.104,
-        "voti": {
-          "PP": 32.1,
-          "PSOE": 27.8,
-          "VOX": 19.1,
-          "FA": 5.1,
-          "FV": 0.9,
-          "ERC": 2.5,
-          "JUNTS": 1.3,
-          "BILDU": 1.5,
-          "PNV": 0.8,
-          "BNG": 1.0,
-          "CC": 0.4,
-          "AA": 1.6,
-          "PODEMOS": 1.2,
-          "SALF": 2.2
-        },
-        "seggi": {
-          "PP": 132,
-          "PSOE": 110,
-          "VOX": 67,
-          "FA": 6,
-          "FV": 3,
-          "ERC": 9,
-          "JUNTS": 5,
-          "BILDU": 8,
-          "PNV": 4,
-          "BNG": 2,
-          "CC": 1,
-          "AA": 3,
-          "PODEMOS": 0,
-          "SALF": 0
-        }
       },
       {
         "n": "IMOP/El Confidencial",

@@ -1,5 +1,5 @@
 {
-  "aggiornato": "20:46 · exit poll da Wikipedia",
+  "aggiornato": "21:02 · exit poll da Wikipedia",
   "exit": {
     "provaA": {
       "n": "Prova A · exit poll inventato",
@@ -182,6 +182,102 @@
         "CUP": 1,
         "CC": 1,
         "BNG": 2
+      }
+    },
+    "wiki-gesop": {
+      "n": "GESOP/Prensa Ibérica",
+      "s": "GESOP",
+      "ora": "21:02",
+      "fonte": "wikipedia",
+      "seggi": {
+        "PSOE": [
+          109,
+          113
+        ],
+        "PP": [
+          133,
+          137
+        ],
+        "FA": [
+          36,
+          40
+        ],
+        "VOX": [
+          34,
+          38
+        ],
+        "ERC": [
+          9,
+          10
+        ],
+        "JUNTS": [
+          7,
+          8
+        ]
+      }
+    },
+    "wiki-sondaxe": {
+      "n": "Sondaxe/La Voz de Galicia",
+      "s": "Sondaxe",
+      "ora": "21:02",
+      "fonte": "wikipedia",
+      "seggi": {
+        "PSOE": [
+          111,
+          117
+        ],
+        "PP": [
+          138,
+          146
+        ],
+        "FA": [
+          32,
+          36
+        ],
+        "VOX": [
+          27,
+          31
+        ],
+        "ERC": 8,
+        "JUNTS": [
+          8,
+          9
+        ],
+        "PNV": 6,
+        "BILDU": [
+          4,
+          6
+        ],
+        "CUP": 1,
+        "CC": [
+          0,
+          1
+        ],
+        "BNG": 2
+      }
+    },
+    "wiki-metroscopia": {
+      "n": "Metroscopia",
+      "s": "Metroscopia",
+      "ora": "21:02",
+      "fonte": "wikipedia",
+      "seggi": {
+        "PSOE": [
+          99,
+          112
+        ],
+        "PP": [
+          141,
+          153
+        ],
+        "FA": [
+          23,
+          32
+        ],
+        "VOX": [
+          31,
+          39
+        ]
       }
     }
   }

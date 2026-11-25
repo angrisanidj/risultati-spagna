@@ -1,5 +1,5 @@
 {
-  "aggiornato": "20:21 · exit poll da Wikipedia",
+  "aggiornato": "20:39 · exit poll da Wikipedia",
   "exit": {
     "provaA": {
       "n": "Prova A · exit poll inventato",
@@ -107,6 +107,49 @@
         "BNG": [
           1,
           2
+        ]
+      }
+    },
+    "wiki-sociomtrica": {
+      "n": "SocioMétrica/El Español",
+      "s": "SocioMétrica",
+      "ora": "20:39",
+      "fonte": "wikipedia",
+      "seggi": {
+        "PSOE": [
+          109,
+          115
+        ],
+        "PP": [
+          134,
+          140
+        ],
+        "FA": [
+          32,
+          35
+        ],
+        "VOX": [
+          35,
+          39
+        ],
+        "ERC": [
+          7,
+          8
+        ],
+        "JUNTS": [
+          7,
+          8
+        ],
+        "PNV": 6,
+        "BILDU": [
+          5,
+          6
+        ],
+        "CC": 1,
+        "BNG": 2,
+        "UPN": [
+          0,
+          1
         ]
       }
     }

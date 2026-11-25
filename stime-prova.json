@@ -256,16 +256,40 @@
         "BNG": 2
       }
     },
-    "wiki-metroscopia": {
-      "n": "Metroscopia",
-      "s": "Metroscopia",
-      "ora": "21:02",
+    "wiki-ipsos": {
+      "n": "Ipsos",
+      "s": "Ipsos",
+      "ora": "21:04",
       "fonte": "wikipedia",
       "seggi": {
         "PSOE": 106,
         "PP": 144,
         "FA": 36,
         "VOX": 31
+      }
+    },
+    "wiki-metroscopia": {
+      "n": "Metroscopia",
+      "s": "Metroscopia",
+      "ora": "21:02",
+      "fonte": "wikipedia",
+      "seggi": {
+        "PSOE": [
+          99,
+          112
+        ],
+        "PP": [
+          141,
+          153
+        ],
+        "FA": [
+          23,
+          32
+        ],
+        "VOX": [
+          31,
+          39
+        ]
       }
     }
   }

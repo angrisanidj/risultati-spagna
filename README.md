@@ -10,6 +10,7 @@ Dashboard per seguire in diretta lo spoglio delle elezioni generali spagnole di 
 | `stime.json` | La media dei sondaggi (la scrive il workflow) e gli exit poll in seggi, che si scrivono a mano la sera del voto. |
 | `stime-prova.json` | Exit poll inventati per le prove, letti solo con `?stime=prova`. |
 | `strumenti/sondaggi.py` | Legge i sondaggi da Wikipedia e calcola la media. |
+| `strumenti/exit-wikipedia.py` | La riserva degli exit poll: la sera del voto li legge dalla stessa tabella di Wikipedia. |
 | `condivisione.jpg` | L'anteprima del link sui social (1200×630). |
 | `bandiera.svg` | La bandiera ufficiale, con lo stemma: icona in alto, icona della scheda del browser e sfondo dell'intestazione. |
 | `proxy/` | Il progetto Vercel: `api/mir.js` più `lib/normalizza.js`, che traduce il formato del Ministero. |
@@ -300,6 +301,13 @@ Si scrivono in `stime.json`, in seggi, per partito. Un numero o una forchetta `[
 - L'ordine degli exit poll nel file è l'ordine delle colonne; in automatico l'emiciclo usa la proiezione dei sondaggi fino al primo exit poll, gli exit poll fino al 10% dello scrutinio, poi la proiezione dello spoglio (se ha superato il controllo sull'ordine di arrivo; altrimenti i voti contati dal 40%) e, dal 97%, i voti contati.
 - Il campo `sondaggi` lo scrive il workflow: quando si modifica `stime.json` a mano va lasciato com'è.
 - La pagina rilegge `stime.json` ogni 15 secondi fra le 19:55 e le 22 italiane, ogni due minuti il resto del tempo.
+
+**La riserva da Wikipedia.** Se nessuno inserisce gli exit poll a mano, li scrive `strumenti/exit-wikipedia.py`, nel lavoro «exit» del workflow **Storia della notte**: dalle 19:58 alle 22:30 legge ogni minuto la tabella dei sondaggi di Wikipedia, la stessa della media, e prende le righe con la data del voto (nel 2023 la prima è comparsa alle 20:21). Le scrive in `stime.json` con la chiave `wiki-…`, `"fonte": "wikipedia"` e l'ora in cui sono comparse, fa commit su `main` e lancia la pubblicazione del sito (il push del token di Actions non la fa partire da solo).
+
+- Non tocca gli exit poll scritti a mano e salta gli istituti che ci sono già (`SigmaDos` si riconosce in `RTVE · Sigma Dos`). Le sue voci seguono la tabella: se una riga cambia o sparisce, cambia o sparisce.
+- I controlli, perché Wikipedia la modifica chiunque: seggi di PP, PSOE e Vox presenti, valori fra 0 e 200, minimi che non superano 350 e, con almeno otto partiti, centri fra 320 e 360. Prima delle 20 non pubblica niente.
+- Dove Frente Amplio e Front Valencià sono una cella sola, i seggi vanno a Frente Amplio.
+- In locale: `python -I strumenti/exit-wikipedia.py` stampa cosa scriverebbe (`--scrivi` scrive `stime.json`). `--prova --scrivi --ogni=2` rifà la notte del 2023 in `stime-prova.json`. `--giro` e `--pubblica` girano solo su GitHub Actions, perché rifanno la cartella da `origin/main`.
 
 La via più rapida è la stessa di Israele: gli screenshot dei grafici delle reti a Claude, che scrive `stime.json`, fa commit e push e aspetta Pages. Le reti aggiornano le stime nella notte: si ripete con la nuova ora.
 

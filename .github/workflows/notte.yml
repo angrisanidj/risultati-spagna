@@ -11,6 +11,12 @@
 #
 # Il modo «prova» rifà la prova generale del 2023 al 100% e scrive nel ramo «notte-prova»: la
 # pagina lo legge con ?storia=notte-prova&feed=1.
+#
+# Il secondo lavoro, «exit», è la riserva degli exit poll: dalle 19:58 alle 22:30 legge ogni
+# minuto la tabella dei sondaggi di Wikipedia e scrive in stime.json gli exit poll che trova
+# (strumenti/exit-wikipedia.py), con commit su main e nuova pubblicazione del sito. Non tocca
+# quelli inseriti a mano. In modo «prova» rifà la notte del 2023 in stime-prova.json, una
+# revisione della pagina al minuto: si guarda con ?stime=prova.
 name: Storia della notte
 on:
   schedule:
@@ -49,4 +55,26 @@ jobs:
             node strumenti/registra-notte.mjs --prova --ramo=notte-prova --minuti=20
           else
             node strumenti/registra-notte.mjs --minuti=340
+          fi
+  exit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Exit poll da Wikipedia
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.modo }}" = "prova" ]; then
+            python -I strumenti/exit-wikipedia.py --prova --pubblica --ogni=60
+          else
+            python -I strumenti/exit-wikipedia.py --giro
           fi

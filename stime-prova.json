@@ -1,5 +1,5 @@
 {
-  "aggiornato": "21:02 · exit poll da Wikipedia",
+  "aggiornato": "21:04 · exit poll da Wikipedia",
   "exit": {
     "provaA": {
       "n": "Prova A · exit poll inventato",
@@ -262,22 +262,10 @@
       "ora": "21:02",
       "fonte": "wikipedia",
       "seggi": {
-        "PSOE": [
-          99,
-          112
-        ],
-        "PP": [
-          141,
-          153
-        ],
-        "FA": [
-          23,
-          32
-        ],
-        "VOX": [
-          31,
-          39
-        ]
+        "PSOE": 106,
+        "PP": 144,
+        "FA": 36,
+        "VOX": 31
       }
     }
   }

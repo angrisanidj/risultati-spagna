@@ -5,6 +5,10 @@
 # del feed in dati/live/) si pubblicano più spesso. Con un workflow il limite non c'è.
 # Se arrivano più push di fila, vince l'ultimo: quelli in corso si annullano.
 #
+# A volte la pubblicazione fallisce subito dopo il caricamento («No artifacts named
+# "github-pages" were found»: è successo tre volte su sei nella prova del 25 novembre, con un
+# push al minuto). Il caricamento non si vede ancora: dopo 20 secondi si riprova una volta.
+#
 # Il push del workflow «Media dei sondaggi» usa il token di Actions, che non fa partire
 # altri workflow: per questo c'è anche workflow_run.
 name: Pubblica il sito
@@ -28,7 +32,7 @@ jobs:
     timeout-minutes: 10
     environment:
       name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
+      url: ${{ steps.deploy.outputs.page_url || steps.riprova.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -37,4 +41,11 @@ jobs:
         with:
           path: .
       - id: deploy
+        uses: actions/deploy-pages@v4
+        continue-on-error: true
+      - name: Pausa prima del secondo tentativo
+        if: steps.deploy.outcome == 'failure'
+        run: sleep 20
+      - id: riprova
+        if: steps.deploy.outcome == 'failure'
         uses: actions/deploy-pages@v4

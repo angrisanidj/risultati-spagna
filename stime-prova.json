@@ -1,5 +1,5 @@
 {
-  "aggiornato": "20:39 · exit poll da Wikipedia",
+  "aggiornato": "20:46 · exit poll da Wikipedia",
   "exit": {
     "provaA": {
       "n": "Prova A · exit poll inventato",
@@ -151,6 +151,37 @@
           0,
           1
         ]
+      }
+    },
+    "wiki-gad3": {
+      "n": "GAD3/Mediaset",
+      "s": "GAD3",
+      "ora": "20:46",
+      "fonte": "wikipedia",
+      "seggi": {
+        "PSOE": [
+          109,
+          115
+        ],
+        "PP": [
+          147,
+          153
+        ],
+        "FA": [
+          25,
+          29
+        ],
+        "VOX": [
+          29,
+          33
+        ],
+        "ERC": 8,
+        "JUNTS": 7,
+        "PNV": 5,
+        "BILDU": 6,
+        "CUP": 1,
+        "CC": 1,
+        "BNG": 2
       }
     }
   }

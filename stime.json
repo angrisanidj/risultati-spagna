@@ -2,49 +2,75 @@
   "aggiornato": "",
   "exit": {},
   "sondaggi": {
-    "letto": "2026-11-24T18:57Z",
-    "ultimo": "2026-11-23",
+    "letto": "2026-11-25T18:01Z",
+    "ultimo": "2026-11-24",
     "finestra": 21,
     "emivita": 7.0,
     "fonte": "https://en.wikipedia.org/wiki/Opinion_polling_for_the_2026_Spanish_general_election",
     "media": {
-      "FA": 5.37,
+      "PNV": 0.82,
+      "JUNTS": 1.27,
+      "PSOE": 29.18,
+      "CC": 0.39,
       "BILDU": 1.49,
-      "VOX": 17.92,
-      "PSOE": 29.16,
       "AA": 1.78,
       "FV": 1.44,
-      "ERC": 2.67,
-      "SALF": 1.88,
-      "PODEMOS": 1.07,
-      "CC": 0.39,
+      "VOX": 17.87,
+      "PODEMOS": 1.08,
       "BNG": 0.93,
-      "JUNTS": 1.26,
-      "PP": 31.23,
-      "PNV": 0.82
+      "PP": 31.24,
+      "SALF": 1.9,
+      "FA": 5.35,
+      "ERC": 2.66
     },
     "seggiIstituti": {
-      "FA": 7.6,
+      "PNV": 3.3,
+      "JUNTS": 4.6,
+      "PSOE": 118.1,
+      "CC": 0.9,
       "BILDU": 7.1,
-      "VOX": 59.9,
-      "PSOE": 117.9,
       "AA": 3.3,
       "FV": 3.4,
-      "ERC": 10.1,
-      "SALF": 0.1,
+      "VOX": 59.7,
       "PODEMOS": 0.3,
-      "CC": 0.9,
       "BNG": 2.1,
-      "JUNTS": 4.6,
-      "PP": 129.3,
-      "PNV": 3.3
+      "PP": 129.5,
+      "SALF": 0.1,
+      "FA": 7.6,
+      "ERC": 10.1
     },
     "istituti": [
+      {
+        "n": "GESOP/The Adelaide Review",
+        "fine": "2026-11-24",
+        "campione": 902,
+        "peso": 0.95,
+        "voti": {
+          "PP": 31.9,
+          "PSOE": 28.4,
+          "VOX": 17.2,
+          "FA+FV": 7.2,
+          "ERC": 2.6,
+          "JUNTS": 1.4,
+          "PODEMOS": 0.7,
+          "SALF": 1.8
+        },
+        "seggi": {
+          "PP": 131.5,
+          "PSOE": 113.0,
+          "VOX": 57.5,
+          "FA+FV": 12.0,
+          "ERC": 10.5,
+          "JUNTS": 4.0,
+          "PODEMOS": 0,
+          "SALF": 0
+        }
+      },
       {
         "n": "Data10/Okdiario",
         "fine": "2026-11-23",
         "campione": 1500,
-        "peso": 1.225,
+        "peso": 1.109,
         "voti": {
           "PP": 31.8,
           "PSOE": 28.3,
@@ -80,7 +106,7 @@
         "n": "EM-Analytics/Electomanía",
         "fine": "2026-11-23",
         "campione": 9456,
-        "peso": 2.0,
+        "peso": 1.811,
         "voti": {
           "PP": 31.5,
           "PSOE": 28.9,
@@ -118,7 +144,7 @@
         "n": "SW Demoscopia/La Séptima",
         "fine": "2026-11-23",
         "campione": 13000,
-        "peso": 2.0,
+        "peso": 1.811,
         "voti": {
           "PP": 30.3,
           "PSOE": 32.9,
@@ -154,7 +180,7 @@
         "n": "Sigma Dos/El Mundo",
         "fine": "2026-11-23",
         "campione": 5252,
-        "peso": 2.0,
+        "peso": 1.811,
         "voti": {
           "PP": 31.9,
           "PSOE": 28.6,
@@ -190,7 +216,7 @@
         "n": "SocioMétrica/El Español",
         "fine": "2026-11-23",
         "campione": 7781,
-        "peso": 2.0,
+        "peso": 1.811,
         "voti": {
           "PP": 32.4,
           "PSOE": 29.0,
@@ -225,36 +251,10 @@
         }
       },
       {
-        "n": "GESOP/The Adelaide Review",
-        "fine": "2026-11-23",
-        "campione": 902,
-        "peso": 0.95,
-        "voti": {
-          "PP": 31.9,
-          "PSOE": 28.2,
-          "VOX": 18.3,
-          "FA+FV": 7.6,
-          "ERC": 2.6,
-          "JUNTS": 1.4,
-          "PODEMOS": 0.5,
-          "SALF": 1.4
-        },
-        "seggi": {
-          "PP": 130.0,
-          "PSOE": 111.0,
-          "VOX": 61.0,
-          "FA+FV": 11.0,
-          "ERC": 10.5,
-          "JUNTS": 4.0,
-          "PODEMOS": 0,
-          "SALF": 0
-        }
-      },
-      {
         "n": "AtlasIntel/PollsterGraph",
         "fine": "2026-11-23",
         "campione": 1045,
-        "peso": 1.022,
+        "peso": 0.926,
         "voti": {
           "PP": 29.1,
           "PSOE": 29.8,
@@ -288,7 +288,7 @@
         "n": "Sondaxe/La Voz de Galicia",
         "fine": "2026-11-22",
         "campione": 1000,
-        "peso": 0.906,
+        "peso": 0.82,
         "voti": {
           "PP": 31.8,
           "PSOE": 27.8,
@@ -317,7 +317,7 @@
         "n": "40dB/Prisa",
         "fine": "2026-11-21",
         "campione": 7500,
-        "peso": 1.641,
+        "peso": 1.486,
         "voti": {
           "PP": 31.8,
           "PSOE": 30.9,
@@ -348,7 +348,7 @@
         "n": "Target Point/El Debate",
         "fine": "2026-11-21",
         "campione": 1206,
-        "peso": 0.901,
+        "peso": 0.816,
         "voti": {
           "PP": 31.5,
           "PSOE": 28.8,
@@ -372,7 +372,7 @@
         "n": "Cluster17/Agenda Pública",
         "fine": "2026-11-21",
         "campione": 1358,
-        "peso": 0.956,
+        "peso": 0.866,
         "voti": {
           "PP": 30.2,
           "PSOE": 32.6,
@@ -401,7 +401,7 @@
         "n": "Convergent Opinion",
         "fine": "2026-11-21",
         "campione": 6848,
-        "peso": 1.641,
+        "peso": 1.486,
         "voti": {
           "PP": 31.5,
           "PSOE": 29.3,
@@ -432,7 +432,7 @@
         "n": "Celeste-Tel/Onda Cero",
         "fine": "2026-11-20",
         "campione": 1100,
-        "peso": 0.779,
+        "peso": 0.706,
         "voti": {
           "PP": 32.2,
           "PSOE": 28.1,
@@ -470,7 +470,7 @@
         "n": "Ateneo del Dato/elDiario.es",
         "fine": "2026-11-20",
         "campione": 2000,
-        "peso": 1.051,
+        "peso": 0.952,
         "voti": {
           "PP": 32.1,
           "PSOE": 30.8,
@@ -490,7 +490,7 @@
         "n": "NC Report/La Razón",
         "fine": "2026-11-20",
         "campione": 1000,
-        "peso": 0.743,
+        "peso": 0.673,
         "voti": {
           "PP": 32.3,
           "PSOE": 27.2,
@@ -526,7 +526,7 @@
         "n": "InvyMark/laSexta",
         "fine": "2026-11-20",
         "campione": null,
-        "peso": 0.743,
+        "peso": 0.673,
         "voti": {
           "PP": 31.5,
           "PSOE": 28.7,
@@ -539,7 +539,7 @@
         "n": "Ipsos/La Vanguardia",
         "fine": "2026-11-20",
         "campione": 1999,
-        "peso": 1.05,
+        "peso": 0.951,
         "voti": {
           "PP": 30.3,
           "PSOE": 29.8,
@@ -577,7 +577,7 @@
         "n": "Hamalgama Métrica/Vozpópuli",
         "fine": "2026-11-20",
         "campione": 1000,
-        "peso": 0.743,
+        "peso": 0.673,
         "voti": {
           "PP": 32.2,
           "PSOE": 25.4,
@@ -609,7 +609,7 @@
         "n": "GAD3/Vocento",
         "fine": "2026-11-19",
         "campione": 1501,
-        "peso": 0.824,
+        "peso": 0.747,
         "voti": {
           "PP": 31.1,
           "PSOE": 28.4,
@@ -647,7 +647,7 @@
         "n": "DYM/Henneo",
         "fine": "2026-11-19",
         "campione": 1010,
-        "peso": 0.676,
+        "peso": 0.613,
         "voti": {
           "PP": 33.0,
           "PSOE": 28.0,
@@ -669,7 +669,7 @@
         "n": "IMOP/El Confidencial",
         "fine": "2026-11-19",
         "campione": 1200,
-        "peso": 0.737,
+        "peso": 0.668,
         "voti": {
           "PP": 31.7,
           "PSOE": 27.4,
@@ -705,7 +705,7 @@
         "n": "Winston/Artículo14",
         "fine": "2026-11-19",
         "campione": 1482,
-        "peso": 0.819,
+        "peso": 0.742,
         "voti": {
           "PP": 31.1,
           "PSOE": 28.2,
@@ -741,7 +741,7 @@
         "n": "Metroscopia",
         "fine": "2026-11-19",
         "campione": null,
-        "peso": 0.673,
+        "peso": 0.61,
         "voti": {
           "PP": 30.0,
           "PSOE": 30.0,
@@ -753,7 +753,7 @@
         "n": "More in Common",
         "fine": "2026-11-19",
         "campione": 2315,
-        "peso": 1.024,
+        "peso": 0.927,
         "voti": {
           "PP": 28.9,
           "PSOE": 28.0,
@@ -768,7 +768,7 @@
         "n": "Public First/Politico",
         "fine": "2026-11-17",
         "campione": 2454,
-        "peso": 0.865,
+        "peso": 0.783,
         "voti": {
           "PP": 29.5,
           "PSOE": 27.2,
@@ -789,7 +789,7 @@
         "n": "CIS (Ateneo del Dato)",
         "fine": "2026-11-17",
         "campione": 8034,
-        "peso": 1.104,
+        "peso": 1.0,
         "voti": {
           "PP": 30.0,
           "PSOE": 29.4,
@@ -819,38 +819,6 @@
           "AA": 4.0,
           "PODEMOS": 0,
           "SALF": 1.0
-        }
-      },
-      {
-        "n": "YouGov/Ara",
-        "fine": "2026-11-02",
-        "campione": 1221,
-        "peso": 0.138,
-        "voti": {
-          "PP": 29.6,
-          "PSOE": 25.9,
-          "VOX": 20.3,
-          "FA+FV": 9.2,
-          "ERC": 2.9,
-          "JUNTS": 1.3,
-          "BILDU": 1.1,
-          "PNV": 0.7,
-          "AA": 1.8,
-          "PODEMOS": 1.8
-        },
-        "seggi": {
-          "PP": 121.0,
-          "PSOE": 104.5,
-          "VOX": 72.0,
-          "FA+FV": 18.5,
-          "ERC": 12.5,
-          "JUNTS": 4.5,
-          "BILDU": 7.0,
-          "PNV": 3.5,
-          "BNG": 2,
-          "CC": 1,
-          "AA": 3.0,
-          "PODEMOS": 0.5
         }
       }
     ]

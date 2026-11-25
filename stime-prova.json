@@ -1,9 +1,114 @@
 {
-  "aggiornato": "Prova: exit poll inventati",
+  "aggiornato": "20:21 · exit poll da Wikipedia",
   "exit": {
-    "provaA": { "n": "Prova A · exit poll inventato", "s": "Prova A", "ora": "20:00",
-                "seggi": { "PP": [130, 136], "PSOE": [108, 114], "VOX": [60, 65], "FA": [8, 11], "ERC": [9, 11], "JUNTS": [4, 6], "BILDU": [6, 8], "PNV": [3, 5], "FV": [2, 4], "AA": [2, 4], "BNG": [1, 2], "PODEMOS": [0, 1], "CC": 1, "UPN": 1 } },
-    "provaB": { "n": "Prova B · exit poll inventato", "s": "Prova B", "ora": "20:00",
-                "seggi": { "PP": 134, "PSOE": 110, "VOX": 63, "FA": 9, "ERC": 10, "JUNTS": 5, "BILDU": 7, "PNV": 4, "FV": 3, "AA": 3, "BNG": 1 } }
+    "provaA": {
+      "n": "Prova A · exit poll inventato",
+      "s": "Prova A",
+      "ora": "20:00",
+      "seggi": {
+        "PP": [
+          130,
+          136
+        ],
+        "PSOE": [
+          108,
+          114
+        ],
+        "VOX": [
+          60,
+          65
+        ],
+        "FA": [
+          8,
+          11
+        ],
+        "ERC": [
+          9,
+          11
+        ],
+        "JUNTS": [
+          4,
+          6
+        ],
+        "BILDU": [
+          6,
+          8
+        ],
+        "PNV": [
+          3,
+          5
+        ],
+        "FV": [
+          2,
+          4
+        ],
+        "AA": [
+          2,
+          4
+        ],
+        "BNG": [
+          1,
+          2
+        ],
+        "PODEMOS": [
+          0,
+          1
+        ],
+        "CC": 1,
+        "UPN": 1
+      }
+    },
+    "provaB": {
+      "n": "Prova B · exit poll inventato",
+      "s": "Prova B",
+      "ora": "20:00",
+      "seggi": {
+        "PP": 134,
+        "PSOE": 110,
+        "VOX": 63,
+        "FA": 9,
+        "ERC": 10,
+        "JUNTS": 5,
+        "BILDU": 7,
+        "PNV": 4,
+        "FV": 3,
+        "AA": 3,
+        "BNG": 1
+      }
+    },
+    "wiki-sigmados": {
+      "n": "SigmaDos/RTVE–FORTA",
+      "s": "SigmaDos",
+      "ora": "20:21",
+      "fonte": "wikipedia",
+      "seggi": {
+        "PSOE": [
+          113,
+          118
+        ],
+        "PP": [
+          145,
+          150
+        ],
+        "FA": [
+          28,
+          31
+        ],
+        "VOX": [
+          24,
+          27
+        ],
+        "ERC": 9,
+        "JUNTS": 9,
+        "PNV": 5,
+        "BILDU": 6,
+        "CUP": 1,
+        "CC": 1,
+        "BNG": [
+          1,
+          2
+        ]
+      }
+    }
   }
 }

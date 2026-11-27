@@ -9,7 +9,7 @@ La scaletta per la sera del voto: cosa succede, a che ora, cosa guardare e cosa 
 | La pagina, come la vedono i lettori | https://angrisanidj.github.io/risultati-spagna/ |
 | La pagina in redazione | la stessa con `?redazione=CHIAVE` (il browser la ricorda: va aperta una volta su computer e telefono **prima** della sera) |
 | La diagnostica del proxy | https://spagna-2026-feed-proxy.vercel.app/api/mir?diag=1 |
-| Il sito del Ministero | https://resultados.29neleccionesgenerales.es/ |
+| Il sito del Ministero | https://resultados.29neleccionesgenerales.com/ (apre sabato 28 alle 13) |
 | Il registratore della notte | https://github.com/angrisanidj/risultati-spagna/actions/workflows/notte.yml |
 | La pubblicazione del sito | https://github.com/angrisanidj/risultati-spagna/actions/workflows/pages.yml |
 

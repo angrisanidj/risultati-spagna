@@ -7,11 +7,13 @@
    GET /api/mir?grezzo=28    un ambito così come lo pubblica il Ministero (28 = Madrid, 1 = Spagna)
    GET /api/mir?diag=1       diagnostica: raggiungibilità, stato HTTP, latenza, anti-bot, regione
 
-   Il sito dei risultati del 2026 non è ancora pubblicato (30 ottobre). Il proxy segue il
+   Il sito dei risultati del 2026 apre sabato 28 novembre alle 13 (comunicato del Ministero
+   dell'Interno del 26 novembre). Il proxy segue il
    formato del 2023, «backend-difu», descritto in lib/normalizza.js. Se il Ministero cambia
    indirizzo o percorso basta una variabile d'ambiente su Vercel, senza toccare il codice:
      MIR_BASE   indirizzo del sito dei risultati, con la barra finale
-                (predefinito https://resultados.29neleccionesgenerales.es/, da verificare)
+                (predefinito https://resultados.29neleccionesgenerales.com/, l'indirizzo del
+                comunicato; il .es dei giorni prima era un ambiente di preparazione)
      MIR_RUTA   percorso di un ambito, con {id} al posto dello scopeId
                 (predefinito backend-difu/scope/data/getScopeData/{id}/1/2/1/0)
      MIR_MAPA   percorso della Spagna con le province dentro, una richiesta sola
@@ -34,7 +36,7 @@
 
 import { scopeId, PROVINCE, riassumi, valido, comuni, senato } from '../lib/normalizza.js';
 
-const BASE = process.env.MIR_BASE || 'https://resultados.29neleccionesgenerales.es/';
+const BASE = process.env.MIR_BASE || 'https://resultados.29neleccionesgenerales.com/';
 const RUTA = process.env.MIR_RUTA || 'backend-difu/scope/data/getScopeData/{id}/1/2/1/0';
 const MAPA = process.env.MIR_MAPA || 'backend-difu/scope/data/getScopeData/{id}/1/2/1/1/30';
 const COMUNI = process.env.MIR_COMUNI || 'backend-difu/scope/data/getScopeData/{id}/1/2/1/1/90';

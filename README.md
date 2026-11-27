@@ -198,7 +198,7 @@ La card 7 disegna il diagramma nazionale; il titolo automatico riporta il passag
 
 ## Da dove arrivano i dati
 
-**Il sito dei risultati del 2026 esiste ma non è ancora aperto.** Nel 2023 il Ministero li pubblicava su `resultados.generales23j.es`, aperto quattro giorni prima del voto, accanto al sito informativo `generales23j.es`. Quest'anno il sito informativo è `29neleccionesgenerales.es`, e dal 10 novembre `resultados.29neleccionesgenerales.es` risponde: è su CloudFront e per ora chiede una password (autenticazione HTTP «Basic», risposta 401), anche sui percorsi `backend-difu`. È la fase di preparazione. Appena si apre, la diagnostica del proxy lo dice.
+**Il sito dei risultati del 2026 è `resultados.29neleccionesgenerales.com` e apre sabato 28 novembre alle 13:00**, lo dice il [comunicato del Ministero dell'Interno del 26 novembre](https://www.interior.gob.es/opencms/es/detalle/articulo/Una-web-y-una-app-facilitaran-el-seguimiento-en-tiempo-real-de-los-resultados-electorales-del-29N/), con l'app «Elecciones Generales 29N». Il 27 risponde 403. Nel 2023 il Ministero li pubblicava su `resultados.generales23j.es`. Dal 10 novembre rispondeva anche `resultados.29neleccionesgenerales.es`, su CloudFront e con una password (HTTP «Basic», 401): era la fase di preparazione, e il proxy lo ha interrogato fino al 27, quando è passato al `.com`. Appena il sito apre, la diagnostica del proxy lo dice.
 
 Il formato è quello del 2023, ricostruito dall'archivio di Wayback Machine: un'API JSON chiamata `backend-difu`, con un file per ambito.
 
@@ -214,7 +214,7 @@ Se nel 2026 il Ministero cambia fornitore o formato, va riscritto solo `normaliz
 
 | Variabile | Predefinito |
 |---|---|
-| `MIR_BASE` | `https://resultados.29neleccionesgenerales.es/` |
+| `MIR_BASE` | `https://resultados.29neleccionesgenerales.com/` |
 | `MIR_RUTA` | `backend-difu/scope/data/getScopeData/{id}/1/2/1/0` |
 | `MIR_MAPA` | `backend-difu/scope/data/getScopeData/{id}/1/2/1/1/30` |
 | `MIR_COMUNI` | `backend-difu/scope/data/getScopeData/{id}/1/2/1/1/90` |

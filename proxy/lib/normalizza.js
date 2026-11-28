@@ -150,5 +150,42 @@ export function senato(risposte) {
   return { quando, d };
 }
 
+/* L'affluenza della giornata, dal «momento» diurno del sito (getScopeData/<id>/1/2/0/…):
+   ogni ambito ha avances.avances = [{ hora: '14:00', participacion, votos, porcentajeMesas,
+   avancesAnt: [{ convocatoria: '07-23', participacion }] }, …], con il dato del 2023 alla stessa
+   ora. Verificato il 28/11/2026 sulla Spagna, sulle province e sui comuni (livello 90).
+   { quando, ore: ['14:00', '18:00'],
+     naz: AFF, prov: { '28': AFF }, m: { '28079': [censo, pct1, pct1 2023, pct2, pct2 2023, …] } }
+   AFF = { n, censo, a: [[ora, pct, votanti, pct 2023, % seggi che hanno comunicato]] }.
+   Una percentuale a 0 vuol dire che quell'ambito non ha ancora comunicato quella rilevazione. */
+function avanzi(s) {
+  const a = s && s.avances && Array.isArray(s.avances.avances) ? s.avances.avances : [];
+  return a.slice().sort((x, y) => n(x.orden) - n(y.orden)).map(x => {
+    const ant = (x.avancesAnt || []).find(y => y && y.participacion != null);
+    return [String(x.hora || ''), n(x.participacion), n(x.votos), ant ? n(ant.participacion) : null, n(x.porcentajeMesas)];
+  });
+}
+export function affluenza(risposte) {
+  const out = { quando: null, ore: [], naz: null, prov: {}, m: {} };
+  const visita = s => {
+    if (!s || typeof s !== 'object') return;
+    const liv = Number(s.nivel), a = avanzi(s);
+    if (!a.length) return;
+    if (a.length > out.ore.length) out.ore = a.map(x => x[0]);
+    const censo = n(s.censoINE) || n(s.censoNoche);
+    if (liv === 1) out.naz = { n: s.nombre || '', censo, a };
+    else if (liv === 30) out.prov[String(s.codigo).padStart(2, '0')] = { n: s.nombre || '', censo, a };
+    else if (liv === 90) out.m[String(s.codigo).padStart(5, '0')] = [censo, ...a.flatMap(x => [x[1], x[3] == null ? 0 : x[3]])];
+    const f = data(s.avances.fecha);
+    if (f && (!out.quando || f > out.quando)) out.quando = f;
+  };
+  for (const r of [].concat(risposte || [])) {
+    if (!r) continue;
+    visita(r.scope || r);
+    for (const x of Array.isArray(r.mapa) ? r.mapa : []) visita(x);
+  }
+  return out;
+}
+
 /* Il riassunto ha senso? Almeno la Spagna o una circoscrizione, e i nomi dei partiti. */
 export const valido = R => !!R && (!!R.naz || Object.keys(R.circ).length > 0);

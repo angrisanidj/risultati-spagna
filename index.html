@@ -396,6 +396,30 @@ table.conf th .corto{display:none}
 .trsvg .traw,.trsvg .tproj{font-weight:600;stroke:var(--s1);stroke-width:4px;paint-order:stroke;font-variant-numeric:tabular-nums}
 .trsvg .traw{font-size:12.5px;fill:var(--amber)}.trsvg .tproj{font-size:13px;fill:var(--t1)}
 .trwrap{position:relative}
+/* l'affluenza della giornata */
+.affore{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;padding:4px 18px 6px}
+.afft{background:var(--s2);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px}
+.afft span{display:block;color:var(--t3);font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.afft strong{display:block;font:600 30px/1.15 var(--serif);color:var(--t1);margin:4px 0 2px;font-variant-numeric:tabular-nums}
+.afft small{display:block;color:var(--t2);font-size:12.5px}
+.afft small b{font-weight:600}.afft .su{color:var(--green)}.afft .giu{color:var(--red)}
+.affsez{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:18px 18px 0;border-top:1px solid var(--line);margin-top:14px}
+.affsez h3{margin:0;font:600 15px/1.3 var(--sans);color:var(--t1)}
+table.afftab td .dbar{display:inline-block;width:70px;height:8px;background:rgba(255,255,255,.06);border-radius:2px;position:relative;vertical-align:1px;margin-left:8px}
+table.afftab td .dbar i{position:absolute;top:0;bottom:0;border-radius:2px}
+table.afftab td .dbar:after{content:"";position:absolute;left:50%;top:-2px;bottom:-2px;border-left:1px solid var(--t3)}
+table.afftab tr.tot td{border-bottom:0}
+.affcorr{padding:4px 18px 0}
+.affcorr svg{display:block;width:100%;height:auto}
+.affcorr svg text{font-family:var(--sans)}
+.affcorr .ax{font-size:12px;fill:var(--t3);font-variant-numeric:tabular-nums}.affcorr .ax2{font-size:11.5px;fill:var(--t3)}
+.affcorr .gr{stroke:var(--line)}.affcorr .zero{stroke:var(--t2);stroke-dasharray:4 4;opacity:.6}
+.affcorr .reg{stroke:var(--t1);stroke-width:2.5}.affcorr .regt{font-size:12.5px;font-weight:600;fill:var(--t1);stroke:var(--s1);stroke-width:4px;paint-order:stroke}
+.affcorr .attesa{color:var(--t3);font-size:13px;padding:22px 0 10px;border:1px dashed var(--line-2);border-radius:var(--r);text-align:center;margin-top:6px}
+.affcorr .attesa b{color:var(--t2)}
+.affleg{display:flex;flex-wrap:wrap;gap:6px 16px;padding:8px 18px 0;font-size:12px;color:var(--t2)}
+.affleg span{display:inline-flex;align-items:center;gap:6px}.affleg i{width:9px;height:9px;border-radius:50%}
+@media(max-width:560px){.affore{padding:4px 14px 6px}.affsez{padding:16px 14px 0}.affcorr{padding:4px 8px 0}.affleg{padding:8px 14px 0}table.afftab td .dbar{display:none}}
 .trsvg{touch-action:pan-y;cursor:crosshair}
 .trsvg .mira{stroke:var(--t2);stroke-width:1;stroke-dasharray:3 3;opacity:.7}
 .trsvg.mirando .traw,.trsvg.mirando .tproj{opacity:.15}
@@ -845,6 +869,24 @@ footer a{color:var(--t2)}
   </section>
 
   <section id="verdetto" class="verdetto"></section>
+
+  <section class="card hidden" id="affCard" style="margin-bottom:14px">
+    <div class="cardhead"><div><h2>L’affluenza</h2></div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end">
+        <div class="mapfonte" id="affOra" aria-label="Rilevazione"></div>
+        <span class="cmeta" id="affMeta">—</span>
+      </div>
+    </div>
+    <div class="affore" id="affOre"></div>
+    <div class="affsez"><h3>Dove si vota di più</h3><div class="mapfonte" id="affLiv"><button data-l="com" aria-pressed="true">Comuni</button><button data-l="prov" aria-pressed="false">Province</button></div></div>
+    <p class="subcopy" id="affSub"></p>
+    <div class="tablewrap"><table id="affTab" class="conf afftab"></table></div>
+    <div class="affsez"><h3>Il voto del 2023 e l’affluenza di oggi</h3><div class="mapfonte" id="affX"><button data-x="D" aria-pressed="true">PP e Vox</button><button data-x="PSOE" aria-pressed="false">PSOE</button><button data-x="FA" aria-pressed="false">Sumar</button></div></div>
+    <p class="subcopy" id="affCorrTesto"></p>
+    <div id="affCorr" class="affcorr"></div>
+    <div id="affLeg" class="affleg"></div>
+    <p class="methodnote" id="affNota"></p>
+  </section>
 
   <section class="card hidden" id="proiezCard" style="margin-bottom:14px">
     <div class="cardhead"><div><h2>Come finirà lo spoglio</h2></div><span class="cmeta" id="proiezMeta">—</span></div>
@@ -1464,7 +1506,7 @@ function totBlocchi(f) {
 function render() {
   S.D = elabora(S.dati);
   renderKpi(); renderVerdetto(); renderTabella(); renderEmiciclo(); renderExit(); renderBilico();
-  renderProiezione(); registraTraccia(); renderTraccia(); renderFlussi(); renderSondaggi(); renderSimulatore(); renderBarre(); renderSenato(); renderMappa(); renderScrutinio();
+  renderAffluenza(); renderProiezione(); registraTraccia(); renderTraccia(); renderFlussi(); renderSondaggi(); renderSimulatore(); renderBarre(); renderSenato(); renderMappa(); renderScrutinio();
   if (window.CARD) window.CARD.segnaSporco();
 }
 
@@ -1480,8 +1522,10 @@ function renderKpi() {
     $('kPrimo').textContent = nomeBreve(infoG(g1)) + ' ' + pct(v1 / D.naz.validi);
     $('kPrimoMeta').textContent = g2 ? 'davanti a ' + nomeBreve(infoG(g2[0])) + ' di ' + nf((v1 - g2[1]) / D.naz.validi * 100, 1) + ' punti' : '';
   } else {
-    $('kScr').textContent = '—'; $('kScrMeta').textContent = 'i primi dati arrivano dopo le 20, alla chiusura dei seggi';
-    $('kAff').textContent = '—'; $('kAffMeta').textContent = 'nel 2023: 70,4% senza il voto dall’estero';
+    $('kScr').textContent = '—'; $('kScrMeta').textContent = 'il Ministero pubblica i primi voti contati dalle 21';
+    const ua = typeof affUltima === 'function' ? affUltima() : -1, ax = ua >= 0 ? AFF.naz.a[ua] : null;
+    $('kAff').textContent = ax ? affPct(ax[1]) : '—';
+    $('kAffMeta').textContent = ax ? affOraIT(ax[0]) + (ax[3] ? ' · nel 2023 ' + affPct(ax[3]) + ' alla stessa ora' : '') : 'nel 2023: 70,4% senza il voto dall’estero';
     $('kPrimo').textContent = '—'; $('kPrimoMeta').textContent = 'nel 2023 il PP, con il 33,1%';
   }
   $('kFonte').textContent = f.tipo === 'scrutinio' ? 'Scrutinio' : f.tipo === 'exit' ? 'Exit poll' : f.tipo === 'stima' ? 'Sondaggi' : f.tipo === 'proiez' ? 'Proiezione' : f.n;
@@ -1553,7 +1597,7 @@ function lineaProiezione() {
 function renderVerdetto() {
   const f = fonteAttiva(), t = totBlocchi(f), box = $('verdetto');
   if (f.tipo === 'base') {
-    box.innerHTML = '<div class="vw">Chi ha la maggioranza, a 176 seggi</div><h2>In attesa dei primi dati</h2><div class="vd">Le urne chiudono alle 20, ora italiana; alle Canarie un’ora dopo. Gli exit poll arrivano alle 20, i primi voti contati poco dopo. Qui sotto il Congresso uscente, eletto il 23 luglio 2023: <b>PP e Vox ' + t.D + '</b>, PSOE e alleati ' + t.S + ', nazionalisti di centro ' + t.N + '.</div>' + barraMaggioranza(t);
+    box.innerHTML = '<div class="vw">Chi ha la maggioranza, a 176 seggi</div><h2>In attesa dei primi dati</h2><div class="vd">Le urne chiudono alle 20, ora italiana; alle Canarie un’ora dopo. Gli exit poll arrivano alle 20; i primi voti contati dalle 21, quando chiudono anche le Canarie. Qui sotto il Congresso uscente, eletto il 23 luglio 2023: <b>PP e Vox ' + t.D + '</b>, PSOE e alleati ' + t.S + ', nazionalisti di centro ' + t.N + '.</div>' + barraMaggioranza(t);
     return;
   }
   const dD = MAGG - t.D;
@@ -2872,7 +2916,7 @@ function dettaglioComune(ine) {
     h += '<div class="' + (S.mapLiv === 'com23' ? 'dm' : 'cmp') + '">Nel 2023: ' + nf(r23[5]) + ' voti validi, ' + nf(r23[2]) + ' elettori, affluenza ' + pct((r23[5] + r23[4]) / r23[2]) + '.</div>';
     h += intest('Partito nel 2023', '') + righePartiti(COM.g23[ine], r23[5], null) + '</div>';
   }
-  return h;
+  return h + affRigaComune(ine);
 }
 function renderDettaglio() {
   const box = $('provDetail'), com = S.mapLiv !== 'prov' && COM.stato === 'ok';
@@ -2890,7 +2934,7 @@ function renderDettaglio() {
   let h = '<div class="dh"><h3>' + esc(nome) + '</h3><span class="muted" style="font-size:12px">' + esc(CIRC[c][3]) + ' · ' + seggiCirc(c) + (seggiCirc(c) === 1 ? ' seggio' : ' seggi') + (CIRC[c][1] !== CIRC[c][2] && !PROVA ? ' (' + CIRC[c][2] + ' nel 2023)' : '') + '</span></div>';
   if (!x || x.vuota || !x.validi) {
     h += '<div class="dm">Nessun voto contato. Nel 2023: ' + Object.entries(b.seg).sort((a, z) => z[1] - a[1]).map(([g, n]) => nomeBreve(infoG(g)) + ' ' + n).join(', ') + '.</div>';
-    box.innerHTML = h + senatoProv(c); return;
+    box.innerHTML = h + affRigaProv(c) + senatoProv(c); return;
   }
   h += '<div class="dm">Scrutinio ' + pctScr(x.frac) + ' · ' + nf(x.validi) + ' voti validi' + (x.censoEsc ? ' · affluenza ' + pct(x.votanti / x.censoEsc) : '') + ' · soglia ' + nf(Math.ceil(x.D.min)) + ' voti</div>';
   const pall = [];
@@ -2908,7 +2952,7 @@ function renderDettaglio() {
     h += '<div class="cmp">L’ultimo seggio va a <b>' + esc(A.sigla) + '</b>; il primo escluso è <b>' + esc(B.sigla) + '</b>, a <b>' + nf(x.D.manca) + '</b> voti dal sorpasso.</div>';
   }
   h += '<div class="cmp">Nel 2023: ' + Object.entries(b.seg).sort((a, z) => z[1] - a[1]).map(([g, n]) => esc(nomeBreve(infoG(g))) + ' <b>' + n + '</b>').join(', ') + '.</div>';
-  box.innerHTML = h + senatoProv(c);
+  box.innerHTML = h + affRigaProv(c) + senatoProv(c);
 }
 function seleziona(c, scorri) {
   if (S.mapLiv !== 'prov') S.mapLiv = 'prov';
@@ -3102,6 +3146,372 @@ function renderScrutinio() {
 /* =====================================================================
    5 · FEED, STIME E PROVA
    ===================================================================== */
+/* =====================================================================
+   L'AFFLUENZA DELLA GIORNATA — le rilevazioni del Ministero (alle 14 e alle 18) per la Spagna,
+   le province e gli 8.131 comuni, ciascuna con il dato del 2023 alla stessa ora (?affluenza=1 e
+   ?affluenza=comuni del proxy), più l'affluenza alla chiusura, che viene dallo scrutinio: per la
+   Spagna e le province sui seggi scrutinati, per i comuni quando hanno contato tutti i seggi.
+   Il confronto per vincitore del 2023 dice dove si vota di più rispetto ad allora; il grafico di
+   correlazione compare per un momento quando il dato è arrivato da almeno l'80% dei comuni.
+   Le medie sono pesate sugli elettori. Senza il voto dall'estero, come i confronti con il 2023.
+   ===================================================================== */
+const AFF = { naz: null, prov: {}, ore: [], quando: null, m: null, mQuando: null, mLetto: 0, ora: null, oraScelta: false, liv: 'com', x: 'D', errore: '', w: null, f23: null, carica: null, timer: null, chiusa: {}, completaDa: {}, richieste: 0, orologio: null };
+const AFF_SOGLIA = 0.8;
+const AFF_ORE_2023 = [['14:00', 40.48], ['18:00', 53.13]];   /* se il proxy non risponde */
+const AFF_GRUPPI = ['PP', 'PSOE', 'VOX', 'FA', 'ALT'];
+const AFF_NOMI = { PP: 'PP', PSOE: 'PSOE', VOX: 'Vox', FA: 'Sumar', ALT: 'Partiti regionali e altri' };
+const AFF_COL = k => k === 'ALT' ? '#8f8578' : infoG(k).c;
+const AFF_X = {
+  D: { n: 'PP e Vox', f: q => (q.PP || 0) + (q.VOX || 0) + (q.UPN || 0) },
+  PSOE: { n: 'PSOE', f: q => q.PSOE || 0 },
+  FA: { n: 'Sumar', f: q => q.FA || 0 }
+};
+const affGr = k => AFF_GRUPPI.includes(k) ? k : 'ALT';
+const affOraIT = o => 'alle ' + String(o || '').replace(/:00$/, '').replace(/^0/, '');
+const affPct = v => v == null || !isFinite(v) ? '—' : nf(v, 1) + '%';
+function affPrimo(g) { let k = null, v = -1; for (const x in g) if (g[x] > v) { v = g[x]; k = x; } return k; }
+function affQuoteProv(c) { const b = B23.circ[c], q = {}; for (const k in b.g) q[k] = b.validi ? b.g[k] / b.validi : 0; return q; }
+
+/* i momenti: le rilevazioni (0, 1…) e la chiusura (l'ultimo indice) */
+const affOre = () => AFF.ore.length ? AFF.ore : AFF_ORE_2023.map(x => x[0]);
+const affFIN = () => affOre().length;
+const affNome = h => h >= affFIN() ? 'alla chiusura' : affOraIT(affOre()[h]);
+const affBreve = h => h >= affFIN() ? 'Chiusura' : affOre()[h];
+const affScrutinio = () => !!(S.D && S.D.naz.validi > 0);
+
+/* il vincitore del 2023, le quote dei partiti e l'affluenza finale di allora, comune per comune */
+function affBase() {
+  if (AFF.w) return Promise.resolve(AFF.w);
+  if (AFF.carica) return AFF.carica;
+  const da = COM.d23 ? Promise.resolve(COM.d23) : fetch('dati/comuni2023.json').then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
+  AFF.carica = da.then(d23 => {
+    const w = {}, prov = {}; let a = 0, b = 0;
+    for (const [ine, x] of Object.entries(d23.m)) {
+      const g = COM.g23[ine] || gruppiFlat(x[6], d23.partiti), q = {};
+      for (const k in g) q[k] = x[5] ? g[k] / x[5] : 0;
+      const vot = x[5] + x[4], c = ine.slice(0, 2);
+      w[ine] = { n: x[0], g: affGr(affPrimo(g)), q, censo: x[2], f23: x[2] ? vot / x[2] * 100 : 0 };
+      prov[c] = prov[c] || [0, 0]; prov[c][0] += vot; prov[c][1] += x[2]; a += vot; b += x[2];
+    }
+    AFF.f23 = { naz: b ? a / b * 100 : 70.4, prov: Object.fromEntries(Object.entries(prov).map(([c, v]) => [c, { p: v[1] ? v[0] / v[1] * 100 : 0, censo: v[1] }])) };
+    return (AFF.w = w);
+  }).catch(e => { AFF.carica = null; throw e; });
+  return AFF.carica;
+}
+
+async function affScarica(par) {
+  const u = new URL(PROXY); u.search = ''; u.searchParams.set('affluenza', par);
+  const r = await conTimeout(u.toString(), { cache: 'no-cache' }, par === 'comuni' ? 60000 : 30000);
+  const j = await r.json();
+  if (!j || j.errore) throw new Error(j && j.errore || 'risposta vuota');
+  return j;
+}
+
+/* un comune, una provincia, la Spagna in un momento: { censo, p, p23 } con p a 0 se il dato manca */
+function affComune(ine, h) {
+  const b = AFF.w && AFF.w[ine];
+  if (h < affFIN()) { const x = AFF.m && AFF.m[ine]; return x ? { censo: x[0], p: x[1 + 2 * h], p23: x[2 + 2 * h], g: b ? b.g : null } : null; }
+  if (!b) return null;
+  const lp = COM.live && COM.live[ine.slice(0, 2)], x = lp && lp.m && lp.m[ine];
+  const finito = x && x[1] > 0 && x[7] >= x[1] && x[2] > 0;
+  return { censo: b.censo, p: finito ? (x[5] + x[4]) / x[2] * 100 : 0, p23: b.f23, g: b.g };
+}
+function affProv(c, h) {
+  if (h < affFIN()) { const P = AFF.prov[c], x = P && P.a[h]; return x ? { censo: P.censo, p: x[1], p23: x[3] } : null; }
+  const x = S.D && S.D.circ[c], f = AFF.f23 && AFF.f23.prov[c];
+  return { censo: f ? f.censo : 0, p: x && x.censoEsc ? x.votanti / x.censoEsc * 100 : 0, p23: f ? f.p : 0 };
+}
+function affNaz(h) {
+  if (h < affFIN()) { const x = AFF.naz && AFF.naz.a[h], d = AFF_ORE_2023[h]; return { p: x ? x[1] : 0, p23: x ? x[3] : d ? d[1] : null, mes: x ? x[4] : 0 }; }
+  return { p: affScrutinio() && S.D.naz.aff ? S.D.naz.aff * 100 : 0, p23: AFF.f23 ? AFF.f23.naz : 70.4, frac: affScrutinio() ? S.D.naz.frac : 0 };
+}
+const affPronto = h => affNaz(h).p > 0;
+/* il momento da mostrare: la chiusura da metà scrutinio, se no l'ultima rilevazione arrivata */
+function affPredefinito() {
+  if (affPronto(affFIN()) && S.D.naz.frac >= 0.5) return affFIN();
+  for (let h = affFIN() - 1; h >= 0; h--) if (affPronto(h)) return h;
+  return affPronto(affFIN()) ? affFIN() : -1;
+}
+function affElenco() { return AFF.w ? Object.keys(AFF.w) : AFF.m ? Object.keys(AFF.m) : []; }
+function affCopertura(h) {
+  let rep = 0, tot = 0;
+  if (h < affFIN() && !AFF.m) return { rep: 0, tot: 0, f: 0 };
+  for (const ine of h < affFIN() ? Object.keys(AFF.m) : affElenco()) { tot++; const u = affComune(ine, h); if (u && u.p > 0) rep++; }
+  return { rep, tot, f: tot ? rep / tot : 0 };
+}
+
+/* media pesata sugli elettori, solo sulle unità che hanno il dato di oggi e del 2023 */
+function affMedia(unita) {
+  let w = 0, a = 0, b = 0, n = 0;
+  for (const u of unita) {
+    if (!u || !(u.p > 0) || !(u.p23 > 0) || !(u.censo > 0)) continue;
+    w += u.censo; a += u.censo * u.p; b += u.censo * u.p23; n++;
+  }
+  return w ? { n, p: a / w, p23: b / w, d: (a - b) / w } : { n: 0 };
+}
+function affUnita(liv, h) {
+  if (liv === 'prov') return COD.filter(c => B23.circ[c]).map(c => ({ g: affGr(affPrimo(B23.circ[c].g)), ...(affProv(c, h) || {}) }));
+  if (!AFF.w) return [];
+  return (h < affFIN() ? (AFF.m ? Object.keys(AFF.m) : []) : affElenco()).map(ine => affComune(ine, h)).filter(Boolean);
+}
+function affRighe(liv, h) {
+  const U = affUnita(liv, h);
+  const righe = AFF_GRUPPI.map(g => ({ g, tot: U.filter(u => u.g === g).length, M: affMedia(U.filter(u => u.g === g)) })).filter(r => r.tot);
+  return { righe, tutti: affMedia(U), n: U.length };
+}
+const affLiv = () => AFF.liv === 'com' && AFF.w && (AFF.m || affScrutinio()) ? 'com' : 'prov';
+
+/* regressione lineare e correlazione, pesate sugli elettori */
+function affRegressione(pts) {
+  let W = 0, mx = 0, my = 0;
+  for (const p of pts) { W += p.c; mx += p.c * p.x; my += p.c * p.y; }
+  if (!W) return null;
+  mx /= W; my /= W;
+  let sxx = 0, syy = 0, sxy = 0;
+  for (const p of pts) { const dx = p.x - mx, dy = p.y - my; sxx += p.c * dx * dx; syy += p.c * dy * dy; sxy += p.c * dx * dy; }
+  if (!sxx || !syy) return null;
+  const b = sxy / sxx;
+  return { b, a: my - b * mx, r: sxy / Math.sqrt(sxx * syy), mx, my };
+}
+function affPunti(h, xk) {
+  const out = [], f = AFF_X[xk || AFF.x].f;
+  if (!AFF.w) return out;
+  for (const ine of h < affFIN() ? (AFF.m ? Object.keys(AFF.m) : []) : affElenco()) {
+    const u = affComune(ine, h), b = AFF.w[ine];
+    if (!u || !b || !(u.p > 0) || !(u.p23 > 0) || !(u.censo > 0)) continue;
+    out.push({ ine, n: b.n, g: b.g, c: u.censo, x: f(b.q) * 100, y: u.p - u.p23 });
+  }
+  return out;
+}
+/* le scale del grafico: in verticale simmetrica, tagliata sui comuni estremi */
+function affScala(pts) {
+  const ys = pts.map(p => p.y).sort((a, b) => a - b);
+  const q = f => ys.length ? ys[Math.min(ys.length - 1, Math.max(0, Math.floor(f * (ys.length - 1))))] : 0;
+  const est = Math.max(Math.abs(q(0.02)), Math.abs(q(0.98)), 2);
+  const passoY = est > 8 ? 5 : 2;
+  const lim = Math.min(20, Math.max(passoY * 2, Math.ceil(est / passoY) * passoY));
+  const xmax = Math.min(100, Math.max(20, Math.ceil(Math.max(0, ...pts.map(p => p.x)) / 10) * 10));
+  return { lim, passoY, xmax };
+}
+/* la frase che legge il grafico */
+function affLettura(R, h, xk, html) {
+  if (!R) return '';
+  const nx = AFF_X[xk].n, plur = xk === 'D', b = s => html ? '<b>' + s + '</b>' : s;
+  if (Math.abs(R.r) < 0.1) return 'Fra il voto a ' + nx + ' nel 2023 e la variazione dell’affluenza ' + affNome(h) + ' non c’è un legame chiaro (r = ' + nf(R.r, 2) + ').';
+  return 'Dove nel 2023 ' + nx + (plur ? ' erano più forti' : ' era più forte') + ', l’affluenza ' + affNome(h) + ' cresce ' + (R.b > 0 ? 'di più' : 'di meno') + ' rispetto al 2023: ogni 10 punti di voto in più valgono ' + b(segno(R.b * 10) + ' punti') + ' di affluenza (r = ' + nf(R.r, 2) + ', ' + (Math.abs(R.r) >= 0.5 ? 'un legame forte' : Math.abs(R.r) >= 0.3 ? 'un legame moderato' : 'un legame debole') + ').';
+}
+/* per le card: l'ultimo momento con il grafico pronto */
+function affGraficoPronto() {
+  for (let h = affFIN(); h >= 0; h--) {
+    if (!affPronto(h)) continue;
+    const cop = affCopertura(h);
+    if (cop.f >= AFF_SOGLIA) { const pts = affPunti(h, AFF.x); return { h, pts, R: affRegressione(pts), cop }; }
+  }
+  return null;
+}
+
+function svgCorr(pts, R, W, H, h) {
+  const m = { l: 44, r: 12, t: 30, b: 42 }, { lim, passoY, xmax } = affScala(pts);
+  const X = v => m.l + clamp(v, 0, xmax) / xmax * (W - m.l - m.r);
+  const Y = v => m.t + (lim - clamp(v, -lim, lim)) / (2 * lim) * (H - m.t - m.b);
+  let s = '';
+  for (let v = -lim; v <= lim + 1e-9; v += passoY)
+    s += '<line class="' + (v === 0 ? 'zero' : 'gr') + '" x1="' + m.l + '" x2="' + (W - m.r) + '" y1="' + Y(v) + '" y2="' + Y(v) + '"/><text class="ax" x="' + (m.l - 8) + '" y="' + (Y(v) + 4) + '" text-anchor="end">' + (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v) + '</text>';
+  const passoX = W < 480 ? 20 : 10;
+  for (let v = 0; v <= xmax; v += passoX) s += '<text class="ax" x="' + X(v) + '" y="' + (H - m.b + 18) + '" text-anchor="' + (v === 0 ? 'start' : v === xmax ? 'end' : 'middle') + '">' + v + '%</text>';
+  s += '<text class="ax2" x="' + (W - m.r) + '" y="' + (H - 4) + '" text-anchor="end">voto a ' + esc(AFF_X[AFF.x].n) + ' nel 2023</text>';
+  s += '<text class="ax2" x="' + (m.l - 8) + '" y="12">' + (W < 480 ? 'affluenza, punti sul 2023' : 'affluenza ' + esc(affNome(h)) + ', punti in più o in meno del 2023') + '</text>';
+  /* i comuni grandi sotto, i piccoli sopra: si vedono tutti */
+  for (const p of pts.slice().sort((a, b) => b.c - a.c)) {
+    const r = clamp(Math.sqrt(p.c) / 110, 1.3, 9);
+    s += '<circle cx="' + X(p.x).toFixed(1) + '" cy="' + Y(p.y).toFixed(1) + '" r="' + r.toFixed(1) + '" fill="' + AFF_COL(p.g) + '" fill-opacity="' + (p.c >= 20000 ? .8 : .5) + '">' +
+      (p.c >= 5000 ? '<title>' + esc(p.n) + ': ' + segno(p.y) + ' punti, ' + esc(AFF_X[AFF.x].n) + ' al ' + nf(p.x, 0) + '% nel 2023</title>' : '') + '</circle>';
+  }
+  if (R) {
+    s += '<line class="reg" x1="' + X(0) + '" y1="' + Y(R.a) + '" x2="' + X(xmax) + '" y2="' + Y(R.a + R.b * xmax) + '"/>';
+    const yt = Y(R.a + R.b * xmax);
+    s += '<text class="regt" x="' + (X(xmax) - 4) + '" y="' + (yt + (R.b > 0 ? -10 : 19)) + '" text-anchor="end">r = ' + nf(R.r, 2) + '</text>';
+  }
+  return '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Affluenza rispetto al 2023 e voto del 2023, comune per comune">' + s + '</svg>';
+}
+
+function renderAffluenza() {
+  const card = $('affCard'); if (!card) return;
+  const giornata = PROVA || affAdesso() >= affInizio('14:00');
+  const def = affPredefinito();
+  card.classList.toggle('hidden', !((AFF.naz && giornata) || def >= 0));
+  if (card.classList.contains('hidden')) return;
+  const FIN = affFIN(), momenti = Array.from({ length: FIN + 1 }, (_, i) => i).filter(h => h < FIN || affPronto(FIN));
+  if (!AFF.oraScelta || AFF.ora == null || !momenti.includes(AFF.ora)) AFF.ora = Math.max(0, def);
+  const h = AFF.ora;
+  $('affOra').innerHTML = momenti.map(i => '<button data-h="' + i + '" aria-pressed="' + (i === h) + '">' + esc(affBreve(i)) + '</button>').join('');
+  $('affMeta').textContent = (PROVA ? 'simulazione sui dati del 2023 · ' : '') + (def >= 0 ? 'Ministero dell’Interno' + (AFF.quando && !PROVA && def < FIN ? ', dato delle ' + oraIT(new Date(AFF.quando)) : '') : 'in attesa della prima rilevazione, alle 14');
+
+  /* i momenti della Spagna: le rilevazioni e la chiusura */
+  $('affOre').innerHTML = Array.from({ length: FIN + 1 }, (_, i) => i).map(i => {
+    const x = affNaz(i), ok = x.p > 0, d = ok && x.p23 ? x.p - x.p23 : null;
+    const coda = i === FIN ? (ok && x.frac < 0.995 ? ' · scrutinio ' + alPct(x.frac).replace(/^(al|allo|all’) /, 'al ') : '') : (x.mes && x.mes < 99.95 ? ' · ' + nf(x.mes, 1) + '% dei seggi' : '');
+    return '<div class="afft"><span>' + esc(affNome(i)) + '</span><strong>' + (ok ? affPct(x.p) : '—') + '</strong><small>' +
+      (ok ? (d != null ? '<b class="' + (d >= 0 ? 'su' : 'giu') + '">' + segno(d) + ' punti</b> sul 2023 (' + affPct(x.p23) + ')' : '') + coda
+        : (i === FIN ? 'dallo scrutinio, dopo le 20' : 'in attesa') + ' · nel 2023 ' + affPct(x.p23)) + '</small></div>';
+  }).join('');
+
+  /* dove si vota di più, per vincitore del 2023 */
+  const liv = affLiv();
+  $('affLiv').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.l === liv)));
+  const { righe, tutti, n } = affRighe(liv, h), unita = liv === 'com' ? 'comuni' : 'province';
+  const maxd = Math.max(1, ...righe.map(r => Math.abs(r.M.d || 0)));
+  $('affSub').textContent = tutti.n
+    ? 'L’affluenza ' + affNome(h) + ' confrontata con quella del 2023 ' + (h < FIN ? 'alla stessa ora' : 'alla chiusura') + ', ' + (liv === 'com' ? 'comune per comune' : 'provincia per provincia') + ', secondo il partito arrivato primo nel 2023. Le medie sono pesate sugli elettori e contano solo le ' + unita + ' che hanno già ' + (h < FIN ? 'comunicato il dato.' : (liv === 'com' ? 'contato tutti i seggi.' : 'scrutinato qualche seggio.'))
+    : 'Quando arriva il dato ' + affNome(h) + ', qui l’affluenza si confronta con il 2023, secondo il partito arrivato primo nel 2023 in ' + (liv === 'com' ? 'ogni comune' : 'ogni provincia') + '.';
+  const barra = d => d == null ? '' : '<span class="dbar"><i style="' + (d >= 0 ? 'left:50%;width:' : 'right:50%;width:') + (Math.abs(d) / maxd * 50).toFixed(1) + '%;background:' + (d >= 0 ? 'var(--green)' : 'var(--red)') + '"></i></span>';
+  let tb = '<thead><tr><th>Primo partito nel 2023</th><th>' + (liv === 'com' ? 'Comuni' : 'Province') + '<small>' + (h < FIN || liv === 'prov' ? 'arrivati' : 'contati del tutto') + '</small></th><th>Oggi<small>' + esc(affNome(h)) + '</small></th><th class="m-off">2023<small>' + (h < FIN ? 'stessa ora' : 'alla chiusura') + '</small></th><th>Differenza<small>punti</small></th></tr></thead><tbody>';
+  for (const r of righe) tb += '<tr><td><div class="partylabel"><i class="partydot" style="background:' + AFF_COL(r.g) + '"></i><span>' + esc(AFF_NOMI[r.g]) + '</span></div></td><td class="mute">' + nf(r.M.n || 0) + ' su ' + nf(r.tot) + '</td><td><b>' + (r.M.n ? affPct(r.M.p) : '—') + '</b></td><td class="m-off mute">' + (r.M.n ? affPct(r.M.p23) : '—') + '</td><td>' + (r.M.n ? segno(r.M.d) + barra(r.M.d) : '—') + '</td></tr>';
+  tb += '<tr class="tot"><td>Tutti</td><td class="mute">' + nf(tutti.n || 0) + ' su ' + nf(n) + '</td><td>' + (tutti.n ? affPct(tutti.p) : '—') + '</td><td class="m-off mute">' + (tutti.n ? affPct(tutti.p23) : '—') + '</td><td>' + (tutti.n ? segno(tutti.d) + barra(tutti.d) : '—') + '</td></tr>';
+  $('affTab').innerHTML = tb + '</tbody>';
+
+  /* il grafico di correlazione, quando il dato di quel momento è arrivato dall'80% dei comuni */
+  $('affX').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.x === AFF.x)));
+  const box = $('affCorr'), cop = affCopertura(h), dati = AFF.w && (h < FIN ? AFF.m : affScrutinio());
+  if (!dati) {
+    box.innerHTML = '<div class="attesa">' + (AFF.errore ? 'I dati dei comuni non sono arrivati: ' + esc(AFF.errore) : 'In attesa dei dati dei comuni.') + '</div>';
+    $('affCorrTesto').textContent = ''; $('affLeg').innerHTML = '';
+  } else if (cop.f < AFF_SOGLIA) {
+    box.innerHTML = '<div class="attesa">Il grafico compare quando almeno l’80% dei comuni ha ' + (h < FIN ? 'comunicato l’affluenza ' + esc(affNome(h)) : 'contato tutti i seggi') + ': per ora sono <b>' + nf(cop.rep) + ' su ' + nf(cop.tot) + '</b> (' + pct(cop.f, 0) + ').</div>';
+    $('affCorrTesto').textContent = ''; $('affLeg').innerHTML = '';
+  } else {
+    const pts = affPunti(h), R = affRegressione(pts), W = Math.max(320, Math.min(980, (box.clientWidth || 760) - 4)), H = W < 480 ? 300 : 380;
+    box.innerHTML = svgCorr(pts, R, W, H, h);
+    $('affCorrTesto').innerHTML = affLettura(R, h, AFF.x, true);
+    $('affLeg').innerHTML = AFF_GRUPPI.filter(g => pts.some(p => p.g === g)).map(g => '<span><i style="background:' + AFF_COL(g) + '"></i>primo nel 2023: ' + esc(AFF_NOMI[g]) + '</span>').join('') + '<span>un punto per comune, grande quanto i suoi elettori · ' + nf(pts.length) + ' comuni</span>';
+  }
+  $('affNota').textContent = 'Fonte: le rilevazioni dell’affluenza del Ministero dell’Interno, con il dato del 2023 alla stessa ora pubblicato dal Ministero stesso; alla chiusura, l’affluenza dello scrutinio (per i comuni, quando hanno contato tutti i seggi), confrontata con il voto del 2023. Il primo partito del 2023 viene dai risultati di allora (Sumar è il predecessore del Frente Amplio). Senza il voto dall’estero. ' +
+    'La retta del grafico è una regressione pesata sugli elettori, e r è la correlazione pesata: i comuni grandi contano più di quelli piccoli, dove l’affluenza oscilla molto. Una correlazione fra comuni non dice chi sta andando a votare: dice dove l’affluenza sale di più, e chi ci era stato votato nel 2023.' +
+    (PROVA ? ' In questa prova le rilevazioni di oggi sono simulate a partire da quelle del 2023.' : '');
+}
+
+/* la riga dell'affluenza nelle schede di provincia e di comune */
+function affRiga(vals) {
+  if (!vals.some(v => v && v.p > 0)) return '';
+  return '<div class="cmp">Affluenza ' + vals.map((v, h) => affNome(h) + ' <b>' + (v && v.p > 0 ? affPct(v.p) : '—') + '</b>' + (v && v.p > 0 && v.p23 ? ' (' + segno(v.p - v.p23) + ' sul 2023)' : '')).join(' · ') + '.</div>';
+}
+const affMomenti = () => Array.from({ length: affFIN() + 1 }, (_, i) => i);
+function affRigaProv(c) { return affRiga(affMomenti().map(h => affProv(c, h))); }
+function affRigaComune(ine) { return affRiga(affMomenti().map(h => affComune(ine, h))); }
+
+/* per le card: i momenti della Spagna e la tabella per vincitore dell'ultimo momento */
+function affRiepilogo() {
+  const h = affPredefinito(), liv = affLiv();
+  return { h, liv, momenti: affMomenti().map(i => ({ h: i, nome: affNome(i), ...affNaz(i) })), ...(h >= 0 ? affRighe(liv, h) : { righe: [], tutti: { n: 0 }, n: 0 }) };
+}
+
+/* la prova: le rilevazioni del 2023, spostate secondo il primo partito di allora e con un po' di
+   rumore; alle 18 ha comunicato solo il 62% dei comuni, per vedere il grafico che aspetta */
+function affEffetto(g, qD, seme) {
+  const ef = { PP: 1.6, VOX: 1.2, PSOE: -0.4, FA: -1.1, ALT: -0.7 };
+  return (ef[g] || 0) + 0.04 * (qD * 100 - 45) + (rand(seme) - 0.5) * 1.6;
+}
+function affProvaNaz() {
+  const s = PROVA_ST.seme, acc = (AFF.naz ? AFF.naz.a : []).map(() => [0, 0]);
+  for (const [c, P] of Object.entries(AFF.prov)) {
+    const b = B23.circ[c]; if (!b) continue;
+    const g = affGr(affPrimo(b.g)), qD = AFF_X.D.f(affQuoteProv(c));
+    P.a = P.a.map((x, h) => {
+      const p = x[3] ? +(x[3] + affEffetto(g, qD, s + Number(c) * 31 + h * 7)).toFixed(2) : 0;
+      if (acc[h]) { acc[h][0] += P.censo * p; acc[h][1] += P.censo; }
+      return [x[0], p, Math.round(P.censo * p / 100), x[3], 100];
+    });
+  }
+  if (AFF.naz) AFF.naz.a = AFF.naz.a.map((x, h) => [x[0], acc[h] && acc[h][1] ? +(acc[h][0] / acc[h][1]).toFixed(2) : 0, 0, x[3], 100]);
+}
+function affProvaCom() {
+  const s = PROVA_ST.seme;
+  for (const [ine, x] of Object.entries(AFF.m)) {
+    const b = AFF.w[ine]; if (!b) continue;
+    const qD = AFF_X.D.f(b.q), k = Number(ine);
+    for (let h = 0; h < AFF.ore.length; h++) {
+      const p23 = x[2 + 2 * h];
+      if (!p23 || (h > 0 && rand(s + k * 3 + h) > 0.62)) { x[1 + 2 * h] = 0; continue; }
+      const rumore = (rand(s + k * 13 + h) - 0.5) * 2 * Math.min(8, 40 / Math.sqrt(x[0] + 1));
+      x[1 + 2 * h] = Math.max(0.5, +(p23 + affEffetto(b.g, qD, s + k) + rumore).toFixed(2));
+    }
+  }
+}
+
+/* Quando chiedere l'affluenza. Ogni rilevazione ha la sua finestra: dalle 14 (e dalle 18) la
+   Spagna con le province ogni minuto, i comuni ogni due minuti. Quando il Ministero dichiara il
+   100% dei seggi la Spagna non si chiede più; i comuni ancora finché sono arrivati quasi tutti,
+   al massimo per 10 minuti (la loro cache è più lunga). In ogni caso la finestra si chiude due
+   ore e mezza dopo l'inizio. Fuori dalle finestre nessuna richiesta: chi apre la pagina più
+   tardi fa una sola lettura, e l'affluenza alla chiusura viene dallo scrutinio. */
+const AFF_GIORNO = '2026-11-29', AFF_MAX_MS = 150 * 60000, AFF_CODA_MS = 10 * 60000;
+const affAdesso = () => AFF.orologio ? AFF.orologio() : Date.now();   /* AFF.orologio: solo per le prove */
+const affInizio = o => Date.parse(AFF_GIORNO + 'T' + o + ':00+01:00');
+function affCompleta(h) { const x = AFF.naz && AFF.naz.a[h]; return !!x && x[1] > 0 && x[4] >= 99.95; }
+/* la rilevazione da seguire adesso, o -1 */
+function affAttiva(t) {
+  const ore = affOre();
+  for (let h = ore.length - 1; h >= 0; h--) {
+    const t0 = affInizio(ore[h]);
+    if (t < t0) continue;
+    if (t > t0 + AFF_MAX_MS) return -1;
+    if (AFF.chiusa[h]) return -1;
+    return h;
+  }
+  return -1;
+}
+async function affLeggiNaz() {
+  try {
+    const j = await affScarica('1');
+    AFF.naz = j.naz; AFF.prov = j.prov || {}; AFF.ore = j.ore || []; AFF.quando = j.quando; AFF.errore = '';
+    if (PROVA) affProvaNaz();
+    AFF.richieste++;
+  } catch (e) { AFF.errore = e.message; }
+}
+async function affLeggiComuni(t) {
+  try {
+    await affBase();
+    const j = await affScarica('comuni');
+    AFF.m = j.m; AFF.mQuando = j.quando; AFF.mLetto = t; if (!AFF.ore.length) AFF.ore = j.ore || [];
+    if (PROVA) affProvaCom();
+    AFF.errore = ''; AFF.richieste++;
+  } catch (e) { AFF.errore = e.message; }
+}
+async function giroAffluenza(primo) {
+  const t = affAdesso();
+  affBase().catch(() => { });   /* serve anche per l'affluenza alla chiusura */
+  if (primo || PROVA) {
+    /* la prima lettura, a qualunque ora: recupera le rilevazioni già concluse */
+    if (!AFF.naz || primo) await affLeggiNaz();
+    if (AFF.naz && (affUltimaRil() >= 0 || PROVA) && !AFF.m) await affLeggiComuni(t);
+    if (!PROVA) affOre().forEach((o, h) => { if (affCompleta(h) && affCopertura(h).f >= 0.995) AFF.chiusa[h] = true; });
+  } else {
+    const h = affAttiva(t);
+    if (h < 0) return;   /* fuori dalle finestre: nessuna richiesta */
+    if (!affCompleta(h)) await affLeggiNaz();
+    if (affCompleta(h) && !AFF.completaDa[h]) AFF.completaDa[h] = t;
+    if (AFF.naz && affUltimaRil() >= h && (!AFF.m || t - AFF.mLetto > 110000)) await affLeggiComuni(t);
+    /* la finestra si chiude quando la Spagna è al 100% e i comuni sono arrivati (o dopo 10 minuti) */
+    if (AFF.completaDa[h] && (affCopertura(h).f >= 0.995 || t - AFF.completaDa[h] > AFF_CODA_MS)) AFF.chiusa[h] = true;
+  }
+  renderAffluenza(); renderKpi(); renderDettaglio();
+  if (window.CARD) window.CARD.segnaSporco();
+}
+/* l'ultima rilevazione arrivata per la Spagna (indice in AFF.ore), o -1 */
+function affUltimaRil() {
+  const a = AFF.naz && AFF.naz.a || [];
+  for (let h = a.length - 1; h >= 0; h--) if (a[h][1] > 0) return h;
+  return -1;
+}
+const affUltima = affUltimaRil;
+function avviaAffluenza() {
+  $('affOra').addEventListener('click', e => { const b = e.target.closest('button[data-h]'); if (!b) return; AFF.ora = Number(b.dataset.h); AFF.oraScelta = true; renderAffluenza(); });
+  $('affLiv').addEventListener('click', e => { const b = e.target.closest('button[data-l]'); if (!b) return; AFF.liv = b.dataset.l; renderAffluenza(); });
+  $('affX').addEventListener('click', e => { const b = e.target.closest('button[data-x]'); if (!b) return; AFF.x = b.dataset.x; renderAffluenza(); if (window.CARD) window.CARD.segnaSporco(); });
+  giroAffluenza(true);
+  if (!PROVA) AFF.timer = setInterval(() => giroAffluenza(false), 60000);
+}
+
 const FEED = { timer: null, pausa: false, firma: null, busy: false };
 function setFeed(msg, stato) { $('feedStatus').textContent = msg; $('feedDot').className = 'dot ' + (stato || ''); }
 function avviso(msg) { const a = $('alert'); a.textContent = msg || ''; a.classList.toggle('hidden', !msg); }
@@ -3440,6 +3850,7 @@ async function avvio() {
   if (STIME_PROVA) { const b = $('testBadge'); b.textContent = PROVA ? 'Prova con i dati del 2023 · exit poll di prova' : 'Exit poll di prova'; b.classList.remove('hidden'); }
   if (PROVA) avviaProva();
   else poll(true);
+  avviaAffluenza();
 }
 avvio();
 </script>
@@ -3670,6 +4081,81 @@ window.CARD = (function () {
     }));
   }
 
+  /* ---------- 8 · l'affluenza: l'ultimo dato, dalle 14 alla chiusura ---------- */
+  function card8(x, s) {
+    const A = affRiepilogo(), ig = formato === 'ig', ok = A.h >= 0, FIN = affFIN();
+    const hN = ok ? affNome(A.h) : '';
+    const z = cornice(x, { badge: 'L’AFFLUENZA', kicker: s.ambito, title: titolo('c8', s),
+      sub: ok ? (A.h >= FIN ? 'Alla chiusura, dallo scrutinio' + (A.momenti[A.h].frac < 0.995 ? ' · ' + s.scr.toLowerCase() : '') + ' · confronto con il 2023' : 'La rilevazione ' + hN.replace(/^alle /, 'delle ') + ' · confronto con il 2023 alla stessa ora') : '',
+      fonte: ig ? 'Fonte: Ministero dell’Interno · senza l’estero' : 'Fonte: Ministero dell’Interno (' + s.data + ') · senza il voto dall’estero',
+      nota: ok && A.tutti.n ? (A.liv === 'com' ? 'Comuni raggruppati' : 'Province raggruppate') + ' secondo il primo partito del 2023 (Sumar è il predecessore del Frente Amplio); medie pesate sugli elettori, solo dove il dato è già arrivato.' : '' });
+    if (!ok) return attesa(x, z, 'La prima rilevazione è alle 14');
+    const M = z.M, n = A.momenti.length, gap = ig ? 16 : 22, tw = (z.Wd - 2 * M - gap * (n - 1)) / n, th = ig ? 172 : 150, ty = z.y0 - 10;
+    A.momenti.forEach((m, i) => {
+      const tx = M + i * (tw + gap), on = m.h === A.h, okm = m.p > 0, d = okm && m.p23 ? m.p - m.p23 : null;
+      fillRR(x, tx, ty, tw, th, 10, on ? 'rgba(255,255,255,.075)' : C.panel);
+      if (on) { rr(x, tx, ty, tw, th, 10); x.strokeStyle = 'rgba(255,255,255,.24)'; x.lineWidth = 1.5; x.stroke(); }
+      T(x, m.nome.toUpperCase(), tx + 20, ty + 34, { font: F(800, ig ? 17 : 16), color: C.t3 });
+      T(x, okm ? nf(m.p, 1) + '%' : '—', tx + 20, ty + (ig ? 102 : 92), { font: F(700, ig ? 54 : 52, 'serif'), color: okm ? C.t1 : C.t3 });
+      const sub = okm ? (d != null ? segno(d) + ' sul 2023' : '') : 'nel 2023 ' + nf(m.p23, 1) + '%';
+      T(x, cut(x, sub, tw - 40, F(700, ig ? 21 : 20)), tx + 20, ty + (ig ? 142 : 128), { font: F(700, ig ? 21 : 20), color: d == null ? C.t3 : d >= 0 ? C.green : C.red });
+    });
+    const R = A.righe.filter(r => r.M.n);
+    if (!R.length) return;
+    const y = ty + th + (ig ? 66 : 56);
+    T(x, 'DOVE SI VOTA DI PIÙ · ' + hN.toUpperCase(), M, y, { font: F(800, ig ? 17 : 16), color: C.t3 });
+    T(x, 'OGGI · 2023', z.Wd - M, y, { font: F(800, ig ? 17 : 16), color: C.t3, align: 'right' });
+    const hr = Math.min(ig ? 110 : 54, (z.y1 - y - 14) / R.length), nameW = ig ? 300 : 360, valW = ig ? 250 : 300;
+    const xb0 = M + nameW, xb1 = z.Wd - M - valW, cx = (xb0 + xb1) / 2, half = (xb1 - xb0) / 2 - 80, maxd = Math.max(1, ...R.map(r => Math.abs(r.M.d)));
+    x.fillStyle = C.line; x.fillRect(cx, y + 14, 1.5, hr * R.length);
+    R.forEach((r, i) => {
+      const yy = y + 14 + (i + .62) * hr, fz = Math.min(ig ? 30 : 25, hr * .46), d = r.M.d, bw = Math.abs(d) / maxd * half;
+      fillRR(x, M, yy - fz * .62, fz * .55, fz * .55, fz * .27, AFF_COL(r.g));
+      T(x, cut(x, ig && r.g === 'ALT' ? 'Regionali e altri' : AFF_NOMI[r.g], nameW - fz - 20, F(700, fz)), M + fz, yy, { font: F(700, fz) });
+      fillRR(x, d >= 0 ? cx : cx - bw, yy - fz * .72, Math.max(3, bw), fz * .82, 4, d >= 0 ? C.green : C.red);
+      T(x, segno(d), d >= 0 ? cx + bw + 12 : cx - bw - 12, yy, { font: F(700, fz * .95), align: d >= 0 ? 'left' : 'right' });
+      T(x, nf(r.M.p, 1) + '%', z.Wd - M - (ig ? 118 : 140), yy, { font: F(700, fz, 'serif'), align: 'right' });
+      T(x, nf(r.M.p23, 1) + '%', z.Wd - M, yy, { font: F(500, fz * .82), align: 'right', color: C.t2 });
+    });
+  }
+  /* ---------- 9 · affluenza e voto del 2023, comune per comune ---------- */
+  function card9(x, s) {
+    const G = affGraficoPronto(), ig = formato === 'ig', nx = AFF_X[AFF.x].n;
+    const z = cornice(x, { badge: 'AFFLUENZA E VOTO', kicker: s.ambito, title: titolo('c9', s),
+      sub: G ? (ig ? 'Un punto per comune · il voto a ' + nx + ' nel 2023' : 'Un punto per comune: l’affluenza ' + affNome(G.h) + ' rispetto al 2023 e il voto a ' + nx + ' nel 2023') : '',
+      fonte: ig ? 'Fonte: Ministero dell’Interno · elaborazione' : 'Fonte: Ministero dell’Interno (' + s.data + ') · elaborazione della redazione',
+      nota: 'Ogni punto è grande quanto i suoi elettori; retta e correlazione r sono pesate sugli elettori. Una correlazione fra comuni dice dove l’affluenza sale di più, non chi va a votare.' });
+    if (!G) return attesa(x, z, 'Il grafico arriva quando l’80% dei comuni ha il dato');
+    const { lim, passoY, xmax } = affScala(G.pts), fz = ig ? 19 : 18;
+    let lx = z.M; const ly = z.y0 - 4;
+    AFF_GRUPPI.filter(g => G.pts.some(p => p.g === g)).forEach(g => {
+      fillRR(x, lx, ly - 14, 15, 15, 7.5, AFF_COL(g));
+      T(x, AFF_NOMI[g], lx + 23, ly, { font: F(600, fz), color: C.t2 });
+      lx += 23 + W(x, AFF_NOMI[g], F(600, fz)) + 30;
+    });
+    const m = { l: z.M + 52, r: z.M, t: z.y0 + 48, b: z.y1 - 30 };
+    T(x, 'punti di affluenza in più o in meno del 2023, ' + affNome(G.h), z.M, z.y0 + 28, { font: F(600, fz), color: C.t3 });
+    const X = v => m.l + clamp(v, 0, xmax) / xmax * (z.Wd - m.r - m.l), Y = v => m.t + (lim - clamp(v, -lim, lim)) / (2 * lim) * (m.b - m.t);
+    const lineaH = (y, col, dash, w) => { x.beginPath(); x.moveTo(m.l, y); x.lineTo(z.Wd - m.r, y); x.strokeStyle = col; x.lineWidth = w || 1; x.setLineDash(dash || []); x.stroke(); x.setLineDash([]); };
+    for (let v = -lim; v <= lim + 1e-9; v += passoY) {
+      if (v === 0) lineaH(Y(v), 'rgba(255,255,255,.5)', [8, 8], 1.5); else lineaH(Y(v), C.track);
+      T(x, (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v), m.l - 12, Y(v) + 6, { font: F(500, fz), color: C.t3, align: 'right' });
+    }
+    for (let v = 0; v <= xmax; v += ig && xmax > 60 ? 20 : 10) T(x, v + '%', X(v), m.b + 30, { font: F(500, fz), color: C.t3, align: v === 0 ? 'left' : v === xmax ? 'right' : 'center' });
+    for (const p of G.pts.slice().sort((a, b) => b.c - a.c)) {
+      x.beginPath(); x.arc(X(p.x), Y(p.y), clamp(Math.sqrt(p.c) / 85, 1.7, 13), 0, 7);
+      x.globalAlpha = p.c >= 20000 ? .85 : .5; x.fillStyle = AFF_COL(p.g); x.fill();
+    }
+    x.globalAlpha = 1;
+    if (G.R) {
+      x.beginPath(); x.moveTo(X(0), Y(G.R.a)); x.lineTo(X(xmax), Y(G.R.a + G.R.b * xmax));
+      x.strokeStyle = C.bg; x.lineWidth = 8; x.stroke(); x.strokeStyle = C.t1; x.lineWidth = 4; x.stroke();
+      const yt = Y(G.R.a + G.R.b * xmax), lab = 'r = ' + nf(G.R.r, 2), ty = G.R.b > 0 ? yt - 18 : yt + 36;
+      x.lineWidth = 6; x.strokeStyle = C.bg; x.font = F(700, fz + 6); x.textAlign = 'right'; x.strokeText(lab, X(xmax) - 6, ty);
+      T(x, lab, X(xmax) - 6, ty, { font: F(700, fz + 6), align: 'right' });
+    }
+  }
+
   const CARDS = [
     { id: 'c1', nome: 'Card 1 — I 350 seggi', file: 'spagna_1_seggi.png', fn: card1, ok: () => true },
     { id: 'c2', nome: 'Card 2 — Il voto', file: 'spagna_2_voto.png', fn: card2, ok: s => s.conVoti },
@@ -3677,8 +4163,23 @@ window.CARD = (function () {
     { id: 'c4', nome: 'Card 4 — I seggi in bilico', file: 'spagna_4_bilico.png', fn: card4, ok: s => s.bil.length > 0 },
     { id: 'c5', nome: 'Card 5 — Gli exit poll', file: 'spagna_5_exit_poll.png', fn: card5, ok: s => s.ex.length > 0 },
     { id: 'c6', nome: 'Card 6 — La forchetta che si stringe', file: 'spagna_6_forchetta.png', fn: card6, ok: () => trPieno() },
-    { id: 'c7', nome: 'Card 7 — I flussi elettorali', file: 'spagna_7_flussi.png', fn: card7, ok: s => flussiPronti(flStima(), s.D) }
+    { id: 'c7', nome: 'Card 7 — I flussi elettorali', file: 'spagna_7_flussi.png', fn: card7, ok: s => flussiPronti(flStima(), s.D) },
+    { id: 'c8', nome: 'Card 8 — L’affluenza', file: 'spagna_8_affluenza.png', fn: card8, ok: () => affPredefinito() >= 0 },
+    { id: 'c9', nome: 'Card 9 — Affluenza e voto del 2023', file: 'spagna_9_affluenza_voto.png', fn: card9, ok: () => !!affGraficoPronto() }
   ];
+  const AFF_DOVE = { PP: 'il PP', PSOE: 'il PSOE', VOX: 'Vox', FA: 'Sumar', ALT: 'i partiti regionali o altri' };
+  function affTitolo8() {
+    const A = affRiepilogo(); if (A.h < 0) return 'L’affluenza in Spagna, rilevazione dopo rilevazione';
+    const m = A.momenti[A.h], d = m.p23 ? ': ' + segno(m.p - m.p23) + ' punti sul 2023' : '';
+    if (A.h >= affFIN()) return (m.frac < 0.995 ? 'Affluenza al ' + nf(m.p, 1) + '% con lo scrutinio ' + alPct(m.frac).replace(/^(al|allo|all’) /, 'al ') : 'Ha votato il ' + nf(m.p, 1) + '% degli elettori') + d;
+    return affNome(A.h).replace(/^a/, 'A') + ' ha votato il ' + nf(m.p, 1) + '%' + d;
+  }
+  function affTitolo9() {
+    const G = affGraficoPronto(), xk = AFF.x, nx = AFF_X[xk].n;
+    if (!G || !G.R) return 'Affluenza e voto del 2023, comune per comune';
+    if (Math.abs(G.R.r) < 0.1) return 'L’affluenza ' + affNome(G.h) + ' non segue il voto del 2023';
+    return 'Dove ' + nx + (xk === 'D' ? ' erano più forti' : ' era più forte') + ' l’affluenza sale ' + (G.R.b > 0 ? 'di più' : 'di meno');
+  }
 
   /* ---------- titoli e testi ---------- */
   function autoTitolo(id, s) {
@@ -3689,6 +4190,8 @@ window.CARD = (function () {
     if (id === 'c5') { if (!s.ex.length) return 'Gli exit poll'; const v = s.ex.map(e => totBlocchi(e).D), a = Math.min(...v), b = Math.max(...v); return 'Gli exit poll: PP e Vox ' + (a === b ? 'a ' + a : 'fra ' + a + ' e ' + b) + ' seggi'; }
     if (id === 'c6') { const u = TR.p[TR.p.length - 1], k = TR.vista, V = trVista(k); if (!u) return 'Lo spoglio, aggiornamento dopo aggiornamento'; return u.p ? V.n + ': la proiezione dà ' + u.p[k] + ' seggi' + (u.a[k] !== u.b[k] ? ', fra ' + u.a[k] + ' e ' + u.b[k] : '') : (u.r ? V.n + ' a ' + u.r[k] + ' seggi con i voti contati' : 'Lo spoglio, aggiornamento dopo aggiornamento'); }
     if (id === 'c7') { const t = flPassaggio(flStima()); return t ? 'Il passaggio più grande: ' + t.n + ' elettori ' + FL_DI[t.j] + ' su 100 vanno ' + FL_AL[t.k] : 'Da dove vengono i voti'; }
+    if (id === 'c8') return affTitolo8();
+    if (id === 'c9') return affTitolo9();
     return '';
   }
   function autoPost(id, s) {
@@ -3700,6 +4203,12 @@ window.CARD = (function () {
     if (id === 'c5') return '📊 Spagna, gli exit poll: ' + s.ex.map(e => e.s + ' PP+Vox ' + totBlocchi(e).D).join(', ') + '. Maggioranza a 176.' + tag + u;
     if (id === 'c6') { const u = TR.p[TR.p.length - 1], k = TR.vista, V = trVista(k); if (!u) return ''; return '📈 Spagna, ' + s.scr.toLowerCase() + ': ' + (u.p ? 'la proiezione dà ' + V.a + ' ' + u.p[k] + ' seggi (forchetta ' + u.a[k] + '–' + u.b[k] + ')' : u.r ? V.n + ' a ' + u.r[k] + ' seggi con i voti contati' : 'lo spoglio è appena cominciato') + (V.magg ? '. La maggioranza è a 176.' : '.') + tag + u_; }
     if (id === 'c7') { const E = flStima(), t = flPassaggio(E); return '🔀 Spagna, i flussi elettorali dal ' + (E ? E.a0 : '2023') + ': ' + (t ? t.n + ' elettori ' + FL_DI[t.j] + ' su 100 vanno ' + FL_AL[t.k] + '. ' : '') + 'Stima della redazione sui comuni già contati.' + tag + u_; }
+    if (id === 'c8') {
+      const A = affRiepilogo(); if (A.h < 0) return '';
+      const m = A.momenti[A.h], top = A.righe.filter(r => r.M.n && r.M.d >= 0.1).sort((a, b) => b.M.d - a.M.d)[0];
+      return '🗳️ Spagna, affluenza ' + affNome(A.h) + ': ' + nf(m.p, 1) + '%' + (m.p23 ? ' (' + segno(m.p - m.p23) + ' punti sul 2023)' : '') + '.' + (top ? ' Sale di più dove nel 2023 ' + (top.g === 'ALT' ? 'avevano vinto ' : 'aveva vinto ') + AFF_DOVE[top.g] + ' (' + segno(top.M.d) + ').' : '') + tag + u_;
+    }
+    if (id === 'c9') { const G = affGraficoPronto(); if (!G || !G.R) return ''; const forte = Math.abs(G.R.r) >= 0.1; return '📊 Spagna, comune per comune: ' + (forte ? affTitolo9().replace(/^D/, 'd') + ' ' + affNome(G.h) + ' (ogni 10 punti di voto in più, ' + segno(G.R.b * 10) + ' di affluenza sul 2023; r = ' + nf(G.R.r, 2) + ')' : affTitolo9().replace(/^L/, 'l')) + '.' + tag + u_; }
     return '';
   }
   const titolo = (id, s) => toccati.has('t' + id) ? g('t' + id).value : autoTitolo(id, s);

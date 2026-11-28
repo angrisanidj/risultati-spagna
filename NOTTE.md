@@ -26,12 +26,15 @@ La scaletta per la sera del voto: cosa succede, a che ora, cosa guardare e cosa 
 
 | Ora | Cosa succede | Cosa guardare |
 |---|---|---|
+| 14:00 | Compare la scheda «L'affluenza» e si apre la finestra della rilevazione delle 14 | Fino al 100% dei seggi la pagina chiede l'affluenza ogni minuto, poi si ferma fino alle 18. |
+| 14:30 circa | Arriva l'affluenza delle 14: la Spagna e le province subito, i comuni entro due minuti | La scheda mostra il dato e il confronto con il 2023 alla stessa ora; la tabella «Dove si vota di più» si riempie man mano. Il grafico di correlazione compare quando ha comunicato l'80% dei comuni. Se resta «in attesa» dopo le 15, apri `…/api/mir?affluenza=1`. |
+| 18:30 circa | Arriva l'affluenza delle 18, allo stesso modo | Il riquadro «Affluenza» in alto mostra l'ultima rilevazione fino all'inizio dello scrutinio. |
 | 19:00 | Niente di automatico | Apri le pagine dell'elenco. La diagnostica deve dare 200. |
 | 19:17 | Parte il registratore della notte (GitHub Actions), con la riserva degli exit poll | Verso le 19:20, nella pagina del workflow c'è un giro in corso, giallo, con due lavori: «registra» ed «exit». **Se alle 19:50 non c'è**, vedi sotto. |
 | 19:30 | La pagina accende il feed da sola | La riga di stato passa da «Aggiornamento automatico spento…» a «Collegato · il Ministero non ha ancora voti contati». |
 | 19:55 | La pagina rilegge `stime.json` ogni 15 secondi (fino alle 22) | — |
 | 20:00 | Chiudono i seggi nella penisola. **Escono gli exit poll** | Screenshot dei grafici delle reti a Claude, che scrive `stime.json`, fa commit e push. Dopo un paio di minuti (pubblicazione di Pages) compaiono le colonne nella tabella del voto e l'emiciclo passa agli exit poll. In redazione, la card «Exit poll». **La riserva:** se gli screenshot non arrivano, dalle 20:20 circa gli exit poll compaiono da soli, letti da Wikipedia (nel 2023 il primo è arrivato alle 20:21, gli altri entro le 21:15). |
-| 21:00 | Chiudono i seggi alle Canarie | — |
+| 21:00 | Chiudono i seggi alle Canarie. **Il Ministero pubblica i primi risultati provvisori** (lo scrutinio è cominciato alle 20, ma prima delle 21 non si pubblicano voti) | La riga di stato passa a «Collegato» con i primi voti contati; le card dello spoglio si attivano. |
 | primi dati | Il Ministero pubblica lo scrutinio | Riga di stato: «In diretta · Ministero HH:MM · scrutinio X%». Arrivano la mappa dei comuni e il grafico «La forchetta che si stringe» (prima solo la linea gialla dei voti contati). |
 | 10% | **Compare la proiezione dello spoglio** | Il riquadro «Come finirà lo spoglio», le linee della proiezione sotto la barra della maggioranza, la linea chiara nel grafico della forchetta. Se non compare, in redazione il riquadro dello scrutinio dice perché. L'emiciclo passa dagli exit poll alla proiezione, se ha superato il controllo sull'ordine di arrivo. |
 | 80% | **Compaiono i flussi elettorali** | «Da dove vengono i voti». Servono i comuni completi per almeno il 60% degli elettori: a volte arrivano qualche minuto dopo. |

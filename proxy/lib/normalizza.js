@@ -19,7 +19,14 @@
 
    Il riassunto:
    { quando, naz: AMBITO, circ: { '28': AMBITO, ... }, partiti: { codice: [sigla, nome, sigla nazionale] } }
-   AMBITO = { n, mesas, esc, censo, votanti, nulle, bianche, validi, pctEsc, v: { codice: [voti, seggi] } } */
+   AMBITO = { n, mesas, esc, censo, votanti, nulle, bianche, validi, pctEsc, v: { codice: [voti, seggi] } }
+
+   Il sito del 2026 (resultados.29neleccionesgenerales.com, aperto il 28/11) ha lo stesso schema,
+   con tre differenze verificate quel giorno: le candidature hanno solo il codice, e sigla e nome
+   si prendono dal catalogo in candidature.js; anche la data («fecha») è una coppia { pro, def };
+   i candidati del Senato stanno in escrutinio.candidaturas, con partido.codigo e cargo. */
+
+import { CANDIDATURE } from './candidature.js';
 
 export const scopeId = (codigo, livello) => Number(String(codigo) + livello).toString(16).padStart(24, '0');
 export const PROVINCE = Array.from({ length: 52 }, (_, i) => String(i + 1).padStart(2, '0'));
@@ -32,8 +39,18 @@ const n = x => {
   return isFinite(v) ? v : 0;
 };
 
+/* La data di un ambito: una stringa ISO, o la coppia { pro, def } del 2026. */
+const data = f => (f && typeof f === 'object' ? f.pro || f.def : f) || null;
+
+/* Sigla, nome e sigla nazionale di una candidatura: dal dato, se li porta (2023), o dal catalogo. */
+function voce(p, cat) {
+  const cod = String(p.codigo), ag = (p.agrupaciones || []).find(a => a && a.nivel === 1), c = cat[cod];
+  if (p.siglas || !c) return [p.siglas || cod, p.nombre || '', ag && ag.siglas ? ag.siglas : ''];
+  return [c[0], c[1], c[2]];
+}
+
 /* Un ambito del Ministero, nel formato compatto. partiti raccoglie i nomi una volta sola. */
-export function ambito(s, partiti) {
+export function ambito(s, partiti, cat = CANDIDATURE.c) {
   const e = s && s.escrutinio;
   const out = {
     n: s.nombre || '', mesas: n(s.numMesas), censo: n(s.censoNoche) || n(s.censoINE),
@@ -47,11 +64,10 @@ export function ambito(s, partiti) {
   out.bianche = n(e.votosBlancos);
   out.validi = n(e.votosValidos);
   out.censoEsc = n(e.censoNocheEscrutado) || n(e.censoEscrutado);
-  out.quando = e.fecha || null;
+  out.quando = data(e.fecha);
   for (const p of e.partidos || []) {
     const cod = String(p.codigo);
-    const ag = (p.agrupaciones || []).find(a => a && a.nivel === 1);
-    if (!partiti[cod]) partiti[cod] = [p.siglas || cod, p.nombre || '', ag && ag.siglas ? ag.siglas : ''];
+    if (!partiti[cod]) partiti[cod] = voce(p, cat);
     const v = n(p.votos), seggi = n(p.cargos);
     if (v || seggi) out.v[cod] = [v, seggi];
   }
@@ -102,26 +118,29 @@ export function comuni(risposta) {
 
 /* Il Senato: ogni circoscrizione (una provincia, livello 30, o un'isola, livello 70) con i
    senatori per candidatura («cargos») e, se il Ministero li pubblica, i candidati con i loro voti.
-   Il formato dei candidati del Senato non si è potuto verificare sul 2023: si leggono i campi
-   più probabili (nombre, votos, electo/elegido) e, se mancano, restano i seggi per candidatura.
+   Nel 2026 i candidati stanno in escrutinio.candidaturas: { nombre, apellido1, apellido2, votos,
+   partido: { codigo }, cargo }, con cargo vero per gli eletti. Restano letti anche i campi che
+   si erano ipotizzati per il 2023 (partidos[].candidatos, electo/elegido).
    { quando, d: [ { codigo, nivel, n, mesas, esc, validi, partiti: { cod: [sigla, nome, seggi] },
                     cand: [[nome, cod, voti, eletto]] } ] } */
+const candidato = (c, cod) => [
+  [c.nombre, c.apellido1 || c.primerApellido, c.apellido2 || c.segundoApellido].filter(Boolean).join(' ') || c.nombreCompleto || '',
+  cod, n(c.votos), c.cargo === true || c.electo || c.elegido || c.electoProvisional ? 1 : 0];
+
 export function senato(risposte) {
   const d = []; let quando = null;
   const visita = s => {
     const liv = Number(s && s.nivel); if (liv !== 30 && liv !== 70) return;
     const e = s.escrutinio || {}, partiti = {}, cand = [];
     for (const p of e.partidos || []) {
-      const cod = String(p.codigo);
-      const ag = (p.agrupaciones || []).find(a => a && a.nivel === 1);
-      partiti[cod] = [p.siglas || cod, p.nombre || '', n(p.cargos), ag && ag.siglas ? ag.siglas : ''];
-      for (const c of p.candidatos || []) {
-        const nome = [c.nombre, c.apellido1 || c.primerApellido, c.apellido2 || c.segundoApellido].filter(Boolean).join(' ') || c.nombreCompleto || '';
-        cand.push([nome, cod, n(c.votos), c.electo || c.elegido || c.electoProvisional ? 1 : 0]);
-      }
+      const cod = String(p.codigo), [sigla, nome, naz] = voce(p, CANDIDATURE.s);
+      partiti[cod] = [sigla, nome, n(p.cargos), naz];
+      for (const c of p.candidatos || []) cand.push(candidato(c, cod));
     }
+    for (const c of e.candidaturas || []) if (c && c.partido && c.partido.codigo != null) cand.push(candidato(c, String(c.partido.codigo)));
     d.push({ codigo: String(s.codigo), nivel: liv, n: s.nombre || '', mesas: n(s.numMesas), esc: n(e.mesasEscrutadas), validi: n(e.votosValidos), partiti, cand: cand.sort((a, b) => b[2] - a[2]) });
-    if (e.fecha && (!quando || e.fecha > quando)) quando = e.fecha;
+    const f = data(e.fecha);
+    if (f && (!quando || f > quando)) quando = f;
   };
   for (const r of [].concat(risposte || [])) {
     if (!r) continue;

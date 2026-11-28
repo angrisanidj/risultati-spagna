@@ -91,7 +91,7 @@ Si vota anche per il Senato, con una scheda a parte. I senatori eletti sono **20
 
 **Il 2023** è in `dati/senato2023.json`: per ogni collegio nome, senatori, voti validi e i candidati con candidatura, voti ed esito (il nome solo per gli eletti). Viene dal pacchetto ufficiale del Ministero `03202307_MUNI.zip` (file 03, 04, 07 e 08), scaricato il 11 novembre dal browser integrato e letto lì: il file JSON è uscito dal browser, lo zip no. Controlli: 59 collegi, 208 eletti, PP 120; la prova generale a spoglio completo rielegge gli stessi senatori in tutti i 59 collegi.
 
-**La sera del voto** il proxy risponde a `?senato=1` con quattro richieste al Ministero: la Spagna con le province dentro (`MIR_SENATO`) e le tre province con le isole (`MIR_SENATO_ISOLE`, livello 70), con 30 secondi di cache. La pagina la chiede al massimo una volta al minuto, dopo ogni aggiornamento del Congresso. **Il percorso del Senato non si è potuto verificare**: nel 2023 il sito dei risultati lo chiedeva con `2/3` al posto di `1/2`, e non è certo che il Ministero pubblichi i voti dei singoli candidati nello stesso file. `normalizza.js` legge i campi più probabili (`candidatos`, con `nombre`, `votos`, `electo`); se mancano usa i senatori per candidatura (`cargos`). Appena il sito apre va controllato con `?grezzo` e, se serve, si cambiano le variabili su Vercel. Se il Senato non arriva, la scheda lo scrive in fondo e il Congresso funziona come prima.
+**La sera del voto** il proxy risponde a `?senato=1` con quattro richieste al Ministero: la Spagna con le province dentro (`MIR_SENATO`) e le tre province con le isole (`MIR_SENATO_ISOLE`, livello 70), con 30 secondi di cache. La pagina la chiede al massimo una volta al minuto, dopo ogni aggiornamento del Congresso. Il percorso del Senato (`2/3` al posto di `1/2`) è verificato il 28 novembre: 66 ambiti tra province e isole, con i 1.604 candidati in `escrutinio.candidaturas`. Se il Senato non arriva, la scheda lo scrive in fondo e il Congresso funziona come prima.
 
 **La prova generale** rifà anche il Senato: i voti dei candidati del 2023, nella parte contata della loro provincia, con un po' di rumore finché lo spoglio non finisce.
 
@@ -198,7 +198,7 @@ La card 7 disegna il diagramma nazionale; il titolo automatico riporta il passag
 
 ## Da dove arrivano i dati
 
-**Il sito dei risultati del 2026 è `resultados.29neleccionesgenerales.com` e apre sabato 28 novembre alle 13:00**, lo dice il [comunicato del Ministero dell'Interno del 26 novembre](https://www.interior.gob.es/opencms/es/detalle/articulo/Una-web-y-una-app-facilitaran-el-seguimiento-en-tiempo-real-de-los-resultados-electorales-del-29N/), con l'app «Elecciones Generales 29N». Il 27 risponde 403. Nel 2023 il Ministero li pubblicava su `resultados.generales23j.es`. Dal 10 novembre rispondeva anche `resultados.29neleccionesgenerales.es`, su CloudFront e con una password (HTTP «Basic», 401): era la fase di preparazione, e il proxy lo ha interrogato fino al 27, quando è passato al `.com`. Appena il sito apre, la diagnostica del proxy lo dice.
+**Il sito dei risultati del 2026 è `resultados.29neleccionesgenerales.com` e apre sabato 28 novembre alle 13:00**, lo dice il [comunicato del Ministero dell'Interno del 26 novembre](https://www.interior.gob.es/opencms/es/detalle/articulo/Una-web-y-una-app-facilitaran-el-seguimiento-en-tiempo-real-de-los-resultados-electorales-del-29N/), con l'app «Elecciones Generales 29N». Il 27 risponde 403; **il 28 alle 13 è aperto e il proxy legge Congresso, comuni (52 province, 8.132 comuni) e Senato** (la pagina pubblica del sito dice «disponibile dal 29», ma il backend risponde già). Nel 2023 il Ministero li pubblicava su `resultados.generales23j.es`. Dal 10 novembre rispondeva anche `resultados.29neleccionesgenerales.es`, su CloudFront e con una password (HTTP «Basic», 401): era la fase di preparazione, e il proxy lo ha interrogato fino al 27, quando è passato al `.com`. Appena il sito apre, la diagnostica del proxy lo dice.
 
 Il formato è quello del 2023, ricostruito dall'archivio di Wayback Machine: un'API JSON chiamata `backend-difu`, con un file per ambito.
 
@@ -210,6 +210,8 @@ backend-difu/nomenclator/getNomenclator?v=…                   l'elenco di tutt
 
 Lo scopeId è il codice seguito dal livello, scritto in esadecimale su 24 cifre: la Spagna è `…0b` (codice 1, livello 1), Madrid `…b0e` (codice 28, livello 30). Ogni ambito ha `escrutinio.partidos[]` con sigla, voti e seggi, e la sigla nazionale (`agrupaciones` di livello 1). I dettagli sono in testa a `proxy/lib/normalizza.js`.
 
+**Nel 2026 tre differenze, verificate il 28 novembre.** Le candidature negli ambiti hanno solo il codice, senza sigla né nome, e i codici non sono quelli del 2023: sigla, nome e partito nazionale stanno nel catalogo `backend-difu/nomenclator/getPartidosColorAgrup`, copiato in `proxy/lib/candidature.js` (versione 12; Congresso = elezione 2, Senato = 3, convocatoria `11-26`). Anche la data (`fecha`) è una coppia `{ pro, def }`. I candidati del Senato stanno in `escrutinio.candidaturas`, con `partido.codigo` e `cargo` vero per gli eletti. Se `getConfig` porta una versione nuova del catalogo, va ricopiato.
+
 Se nel 2026 il Ministero cambia fornitore o formato, va riscritto solo `normalizza.js` (la pagina legge il riassunto del proxy, non il formato del Ministero). Se cambia solo l'indirizzo, bastano le variabili d'ambiente su Vercel, senza toccare il codice:
 
 | Variabile | Predefinito |
@@ -218,8 +220,8 @@ Se nel 2026 il Ministero cambia fornitore o formato, va riscritto solo `normaliz
 | `MIR_RUTA` | `backend-difu/scope/data/getScopeData/{id}/1/2/1/0` |
 | `MIR_MAPA` | `backend-difu/scope/data/getScopeData/{id}/1/2/1/1/30` |
 | `MIR_COMUNI` | `backend-difu/scope/data/getScopeData/{id}/1/2/1/1/90` |
-| `MIR_SENATO` | `backend-difu/scope/data/getScopeData/{id}/2/3/1/1/30` (da verificare) |
-| `MIR_SENATO_ISOLE` | `backend-difu/scope/data/getScopeData/{id}/2/3/1/1/70` (da verificare) |
+| `MIR_SENATO` | `backend-difu/scope/data/getScopeData/{id}/2/3/1/1/30` |
+| `MIR_SENATO_ISOLE` | `backend-difu/scope/data/getScopeData/{id}/2/3/1/1/70` |
 
 **Il canale per i media.** Il Ministero apre un repository di dati riservato ai media accreditati, con i file di avanzamento e scrutinio e un documento che ne descrive il formato. La richiesta andava fatta alla Secretaría de Estado de Comunicación entro il **28 ottobre alle 15**; credenziali il 17 novembre, una connessione per testata. Se una testata con cui lavori è accreditata, quella è la fonte più solida: il proxy si adatta con una funzione nuova in `normalizza.js`.
 

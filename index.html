@@ -3305,7 +3305,8 @@ function affGraficoPronto() {
   for (let h = affFIN(); h >= 0; h--) {
     if (!affPronto(h)) continue;
     const cop = affCopertura(h);
-    if (cop.f >= AFF_SOGLIA) { const pts = affPunti(h, AFF.x); return { h, pts, R: affRegressione(pts), cop }; }
+    /* un momento senza variazioni (nessuna retta) non fa un grafico: si passa al precedente */
+    if (cop.f >= AFF_SOGLIA) { const pts = affPunti(h, AFF.x), R = affRegressione(pts); if (R && pts.length >= 50) return { h, pts, R, cop }; }
   }
   return null;
 }
